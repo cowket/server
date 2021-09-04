@@ -4,6 +4,9 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { SocketGateway } from './socket/socket.gateway'
+import { AuthModule } from './auth/auth.module'
+import { UsersModule } from './users/users.module'
+import { User } from './entities/user'
 
 const isProd = process.env.NODE_ENV === 'production'
 
@@ -21,8 +24,10 @@ const isProd = process.env.NODE_ENV === 'production'
       password: process.env.DB_PW,
       database: process.env.DB_NAME,
       synchronize: !isProd,
-      entities: []
-    })
+      entities: [User]
+    }),
+    AuthModule,
+    UsersModule
   ],
   controllers: [AppController],
   providers: [AppService, SocketGateway]
