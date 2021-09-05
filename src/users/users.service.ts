@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import * as bcrypt from 'bcrypt'
 import { User } from 'src/entities/user'
 import { Repository } from 'typeorm'
 

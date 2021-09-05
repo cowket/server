@@ -1,9 +1,11 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { UsersService } from 'src/users/users.service'
 // import * as bcrypt from 'bcrypt'
 
 @Injectable()
 export class AuthService {
+  private logger: Logger = new Logger('AuthService')
+
   constructor(private usersService: UsersService) {}
 
   async validateUser(email: string, pw: string): Promise<any> {
