@@ -1,8 +1,6 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import { AppController } from './app.controller'
-import { AppService } from './app.service'
 import { SocketGateway } from './socket/socket.gateway'
 import { AuthModule } from './auth/auth.module'
 import { UsersModule } from './users/users.module'
@@ -29,7 +27,6 @@ const isProd = process.env.NODE_ENV === 'production'
     AuthModule,
     UsersModule
   ],
-  controllers: [AppController],
-  providers: [AppService, SocketGateway]
+  providers: [SocketGateway]
 })
 export class AppModule {}
