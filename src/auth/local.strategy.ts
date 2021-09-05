@@ -8,7 +8,10 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
   private logger: Logger = new Logger('LocalStrategy')
 
   constructor(private authService: AuthService) {
-    super()
+    super({
+      usernameField: 'email',
+      passwordField: 'pw'
+    })
   }
 
   async validate(email: string, pw: string): Promise<any> {
