@@ -5,6 +5,7 @@ import { SocketGateway } from './socket/socket.gateway'
 import { AuthModule } from './auth/auth.module'
 import { UsersModule } from './users/users.module'
 import { User } from './entities/user'
+import { UserGrant } from './entities/user_grant'
 
 const isProd = process.env.NODE_ENV === 'production'
 
@@ -22,7 +23,8 @@ const isProd = process.env.NODE_ENV === 'production'
       password: process.env.DB_PW,
       database: process.env.DB_NAME,
       synchronize: !isProd,
-      entities: [User]
+      entities: [User, UserGrant],
+      dropSchema: !isProd
     }),
     AuthModule,
     UsersModule

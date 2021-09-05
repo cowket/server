@@ -1,16 +1,66 @@
-import { Controller, Logger, Post, Request, UseGuards } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Header,
+  HttpCode,
+  HttpStatus,
+  Logger,
+  Post,
+  Req,
+  Res,
+  UseGuards
+} from '@nestjs/common'
 import { AuthGuard } from '@nestjs/passport'
 import { ApiOperation, ApiTags } from '@nestjs/swagger'
+import { Request, Response } from 'express'
+import { UsersService } from 'src/users/users.service'
+
+export type SimpleUserInfo = {
+  email: string
+  pw: string
+}
 
 @ApiTags('Auth Controller')
 @Controller('auth')
 export class AuthController {
   private logger: Logger = new Logger('AuthController')
 
-  @UseGuards(AuthGuard('local'))
+  constructor(private usersService: UsersService) {}
+
+  // @UseGuards(AuthGuard('local'))
   @Post('login')
-  @ApiOperation({ summary: 'login (test)', description: '로그인 API - 테스트중' })
-  async login(@Request() req) {
+  @ApiOperation({
+    summary: 'login (test)',
+    description: '로그인 API - 테스트중'
+  })
+  async login(@Req() req) {
     return req.user
+  }
+
+  @Post('new')
+  @Header('Cache-Control', 'none')
+  @ApiOperation({
+    summary: '회원가입',
+    description: '이메일 / 비밀번호로 회원가입 후 랜덤 아바타 생성'
+  })
+  async create(@Body() simpleUserInfo: SimpleUserInfo, @Res() res: Response) {
+    const { email, pw } = simpleUserInfo
+
+    if (!email || !pw) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        message: 'Email or Password required'
+      })
+    }
+
+    const user = await this.usersService.findOne(email)
+
+    if (!user) {
+      const createdUser = await this.usersService.createUser(email, pw)
+      return res.status(HttpStatus.CREATED).json(createdUser)
+    } else {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        message: 'Exist email'
+      })
+    }
   }
 }

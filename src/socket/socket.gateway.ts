@@ -19,13 +19,18 @@ import { Server, Socket } from 'socket.io'
     origin: '*'
   }
 })
-export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
+export class SocketGateway
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
+{
   private logger = new Logger('SocketGateway')
   @WebSocketServer()
   server: Server
 
   @SubscribeMessage('message')
-  handleEvent(@MessageBody() data: string, @ConnectedSocket() client: Socket): string {
+  handleEvent(
+    @MessageBody() data: string,
+    @ConnectedSocket() client: Socket
+  ): string {
     return data
   }
 

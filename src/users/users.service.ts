@@ -17,4 +17,13 @@ export class UsersService {
   findOne(email: string): Promise<User> | null {
     return this.usersRepository.findOne({ where: { email } })
   }
+
+  createUser(email: string, pw: string) {
+    return this.usersRepository.insert({
+      email,
+      password: pw,
+      create_date: new Date(),
+      update_date: new Date()
+    })
+  }
 }
