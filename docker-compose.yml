@@ -1,0 +1,10 @@
+version: '3.9'
+services:
+  web:
+    build: .
+    ports:
+      - '4000:4000'
+      - '4001:4001'
+    name: cowket-server
+    environment:
+      NODE_ENV: production
