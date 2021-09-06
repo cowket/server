@@ -29,6 +29,7 @@ export class AuthController {
 
   // @UseGuards(AuthGuard('local'))
   @Post('login')
+  @HttpCode(200)
   @ApiOperation({
     summary: 'login (test)',
     description: '로그인 API - 테스트중'
@@ -39,6 +40,7 @@ export class AuthController {
 
   @Post('new')
   @Header('Cache-Control', 'none')
+  @HttpCode(201)
   @ApiOperation({
     summary: '회원가입',
     description: '이메일 / 비밀번호로 회원가입 후 랜덤 아바타 생성'
@@ -55,7 +57,8 @@ export class AuthController {
     const user = await this.usersService.findOne(email)
 
     if (!user) {
-      const createdUser = await this.usersService.createUser(email, pw)
+      const cryptPw = await this.usersService.cryptPassword(pw)
+      const createdUser = await this.usersService.createUser(email, cryptPw)
       return res.status(HttpStatus.CREATED).json(createdUser)
     } else {
       return res.status(HttpStatus.BAD_REQUEST).json({
