@@ -24,7 +24,7 @@ export class User {
   @Column()
   refresh_token: string
 
-  @Column('varchar', { length: 500 })
+  @Column('varchar', { length: 500, default: null })
   avatar: string
 
   @CreateDateColumn()

@@ -6,7 +6,7 @@ import { AuthModule } from './auth/auth.module'
 import { UsersModule } from './users/users.module'
 import { User } from './entities/user'
 import { UserGrant } from './entities/user_grant'
-import { UtilModule } from './util/util.module';
+import { UtilModule } from './util/util.module'
 
 const isProd = process.env.NODE_ENV === 'production'
 

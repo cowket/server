@@ -7,13 +7,12 @@ import {
   Logger,
   Post,
   Req,
-  Res,
-  UseGuards
+  Res
 } from '@nestjs/common'
-import { AuthGuard } from '@nestjs/passport'
 import { ApiOperation, ApiTags } from '@nestjs/swagger'
-import { Request, Response } from 'express'
+import { Response } from 'express'
 import { UsersService } from 'src/users/users.service'
+import { AuthService } from './auth.service'
 
 export type SimpleUserInfo = {
   email: string
@@ -25,7 +24,7 @@ export type SimpleUserInfo = {
 export class AuthController {
   private logger: Logger = new Logger('AuthController')
 
-  constructor(private usersService: UsersService) {}
+  constructor(private usersService: UsersService, private authService: AuthService) {}
 
   // @UseGuards(AuthGuard('local'))
   @Post('login')
@@ -54,12 +53,29 @@ export class AuthController {
       })
     }
 
+    if (!this.usersService.validateEmail(email)) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        message: 'Unsupported email format'
+      })
+    } else if (!this.usersService.validatePw(pw)) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        message: 'Unsupported password format'
+      })
+    }
+
     const user = await this.usersService.findOne(email)
 
     if (!user) {
       const cryptPw = await this.usersService.cryptPassword(pw)
-      const createdUser = await this.usersService.createUser(email, cryptPw)
-      return res.status(HttpStatus.CREATED).json(createdUser)
+      const refreshToken = await this.authService.genInitRefreshToken({ email, pw })
+      const createdUser = await this.usersService.createUser(email, cryptPw, refreshToken)
+      return res.status(HttpStatus.CREATED).json({
+        success: true,
+        user: {
+          id: createdUser.identifiers[0].id,
+          uuid: createdUser.identifiers[0].uuid
+        }
+      })
     } else {
       return res.status(HttpStatus.BAD_REQUEST).json({
         message: 'Exist email'

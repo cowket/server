@@ -25,18 +25,19 @@ export class UsersService {
     return this.usersRepository.findOne({ where: { email } })
   }
 
-  createUser(email: string, pw: string) {
+  createUser(email: string, pw: string, refreshToken: string) {
     return this.usersRepository.insert({
       email,
       password: pw,
       create_date: new Date(),
       update_date: new Date(),
-      uuid: this.utilService.genUuid()
+      uuid: this.utilService.genUuid(),
+      refresh_token: refreshToken
     })
   }
 
   async cryptPassword(pw: string) {
-    const salt = await bcrypt.genSalt(this.configService.get('SE_SALT'))
+    const salt = await bcrypt.genSalt(parseInt(this.configService.get('SE_SALT')))
     const crypt = await bcrypt.hash(pw, salt)
     this.logger.log(crypt)
 
