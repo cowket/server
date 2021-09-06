@@ -43,4 +43,12 @@ export class UsersService {
 
     return crypt
   }
+
+  validateEmail(email: string): boolean {
+    return /[^@ \t\r\n]+@[^@ \t\r\n]+\.[^@ \t\r\n]+/.test(email)
+  }
+
+  validatePw(pw: string): boolean {
+    return /^(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$ %^&*-]).{8,}$/.test(pw)
+  }
 }
