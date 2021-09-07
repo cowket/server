@@ -1,14 +1,4 @@
-import {
-  Body,
-  Controller,
-  Header,
-  HttpCode,
-  HttpStatus,
-  Logger,
-  Post,
-  Req,
-  Res
-} from '@nestjs/common'
+import { Body, Controller, Header, HttpCode, HttpStatus, Logger, Post, Res } from '@nestjs/common'
 import { ApiOperation, ApiTags } from '@nestjs/swagger'
 import { Response } from 'express'
 import { UsersService } from 'src/users/users.service'
@@ -33,8 +23,31 @@ export class AuthController {
     summary: 'login (test)',
     description: '로그인 API - 테스트중'
   })
-  async login(@Req() req) {
-    return req.user
+  async login(@Body() simpleUserInfo: SimpleUserInfo, @Res() res: Response) {
+    const { email, pw } = simpleUserInfo
+
+    if (!email || !pw) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        message: 'Email or Password required'
+      })
+    }
+
+    const user = await this.authService.validateUser(email, pw)
+
+    if (user === null) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        message: '존재하지 않는 유저입니다.'
+      })
+    } else if (user === false) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        message: '이메일 혹은 비밀번호를 확인해주세요.'
+      })
+    }
+
+    const accessToken = await this.authService.genAccessToken(user)
+
+    res.setHeader('Authorization', accessToken)
+    return res.status(200).end()
   }
 
   @Post('new')
