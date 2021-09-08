@@ -6,7 +6,7 @@ import { UsersService } from 'src/users/users.service'
 import { SimpleUserInfo } from './auth.controller'
 import * as bcrypt from 'bcryptjs'
 
-type TokenUserInfo = Pick<User, 'avatar' | 'email' | 'id' | 'uuid'>
+export type TokenUserInfo = Pick<User, 'avatar' | 'email' | 'id' | 'uuid'>
 
 @Injectable()
 export class AuthService {
