@@ -18,7 +18,8 @@ async function bootstrap() {
 
   const defaultCorsOptions: CorsOptions = {
     credentials: true,
-    methods: 'GET, POST, OPTIONS, HEAD, PUT, DELETE'
+    methods: 'GET, POST, OPTIONS, HEAD, PUT, DELETE',
+    exposedHeaders: ['Authorization']
   }
 
   app.enableCors((req, callback) => {

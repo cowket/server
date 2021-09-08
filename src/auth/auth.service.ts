@@ -40,13 +40,17 @@ export class AuthService {
   }
 
   async genInitRefreshToken(user: SimpleUserInfo): Promise<string> {
-    return this.jwtService.sign(user, { privateKey: this.configService.get('TO_SIGN') })
+    return this.jwtService.sign(user, { secret: this.configService.get('TO_SIGN') })
   }
 
   async genAccessToken(user: TokenUserInfo): Promise<string> {
     return this.jwtService.sign(user, {
-      privateKey: this.configService.get('TO_SIGN'),
+      secret: this.configService.get('TO_SIGN'),
       expiresIn: '1h'
     })
+  }
+
+  async verifyToken(accessToken: string) {
+    return this.jwtService.verify(accessToken, { secret: this.configService.get('TO_SIGN') })
   }
 }

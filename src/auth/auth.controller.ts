@@ -9,6 +9,10 @@ export type SimpleUserInfo = {
   pw: string
 }
 
+type TokenBody = {
+  token: string
+}
+
 @ApiTags('Auth Controller')
 @Controller('auth')
 export class AuthController {
@@ -20,8 +24,8 @@ export class AuthController {
   @Post('login')
   @HttpCode(200)
   @ApiOperation({
-    summary: 'login (test)',
-    description: '로그인 API - 테스트중'
+    summary: 'login',
+    description: '로그인 API'
   })
   async login(@Body() simpleUserInfo: SimpleUserInfo, @Res() res: Response) {
     const { email, pw } = simpleUserInfo
@@ -47,7 +51,7 @@ export class AuthController {
     const accessToken = await this.authService.genAccessToken(user)
 
     res.setHeader('Authorization', accessToken)
-    return res.status(200).end()
+    return res.status(HttpStatus.OK).end()
   }
 
   @Post('new')
@@ -93,6 +97,27 @@ export class AuthController {
       return res.status(HttpStatus.BAD_REQUEST).json({
         message: 'Exist email'
       })
+    }
+  }
+
+  @Post('verify')
+  @HttpCode(200)
+  @ApiOperation({
+    summary: '액세스 토큰 검증',
+    description: '현재 사용하고 있는 액세스 토큰 검증'
+  })
+  async verify(@Body() tokenBody: TokenBody, @Res() res: Response) {
+    if (!tokenBody || !tokenBody.token) return res.status(400).end()
+
+    try {
+      const verified = await this.authService.verifyToken(tokenBody.token)
+      if (verified) {
+        return res.status(HttpStatus.OK).send(true)
+      } else {
+        return res.status(HttpStatus.FORBIDDEN).send(false)
+      }
+    } catch (error) {
+      return res.status(HttpStatus.FORBIDDEN).send(false)
     }
   }
 }
