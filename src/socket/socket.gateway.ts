@@ -12,21 +12,23 @@ import {
 import { Server, Socket } from 'socket.io'
 
 @WebSocketGateway(4001, {
-  transports: ['websockets'],
+  transports: ['websocket'],
   cors: {
     methods: ['GET', 'POST', 'OPTIONS', 'PUT'],
     credentials: true,
     origin: '*'
-  }
+  },
+  path: '/'
 })
 export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   private logger = new Logger('SocketGateway')
   @WebSocketServer()
   server: Server
 
-  @SubscribeMessage('message')
-  handleEvent(@MessageBody() data: string, @ConnectedSocket() client: Socket): string {
-    return data
+  @SubscribeMessage('events')
+  handleEvent(@MessageBody('message') message: string, @ConnectedSocket() client: Socket): string {
+    this.logger.log('handleEvent, events', message, client.rooms)
+    return message
   }
 
   afterInit(server: Server) {
