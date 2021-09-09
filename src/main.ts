@@ -20,7 +20,7 @@ async function bootstrap() {
     credentials: true,
     methods: 'GET, POST, OPTIONS, HEAD, PUT, DELETE',
     exposedHeaders: ['Authorization'],
-    allowedHeaders: ['Authorization']
+    allowedHeaders: ['Authorization', 'Content-Type']
   }
 
   app.enableCors((req, callback) => {
