@@ -13,6 +13,7 @@ import { Server, Socket } from 'socket.io'
 
 @WebSocketGateway(4001, {
   transports: ['websocket'],
+  namespace: 'socket',
   cors: {
     methods: ['GET', 'POST', 'OPTIONS', 'PUT'],
     credentials: true,

@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import { SocketGateway } from './socket/socket.gateway'
 import { AuthModule } from './auth/auth.module'
 import { UsersModule } from './users/users.module'
 import { User } from './entities/user'
 import { UserGrant } from './entities/user_grant'
 import { UtilModule } from './util/util.module'
+import { SocketModule } from './socket/socket.module'
 
 const isProd = process.env.NODE_ENV === 'production'
 
@@ -29,8 +29,9 @@ const isProd = process.env.NODE_ENV === 'production'
     }),
     AuthModule,
     UsersModule,
-    UtilModule
+    UtilModule,
+    SocketModule
   ],
-  providers: [SocketGateway]
+  providers: []
 })
 export class AppModule {}
