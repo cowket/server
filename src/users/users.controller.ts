@@ -2,6 +2,7 @@ import { Controller, Get, HttpCode, HttpStatus, Logger, Req, Res, UseGuards } fr
 import { ApiOperation, ApiTags } from '@nestjs/swagger'
 import { Request, Response } from 'express'
 import { JwtGuard } from 'src/auth/jwt.guard'
+import { Users } from './users.decorator'
 import { UsersService } from './users.service'
 
 @ApiTags('User Controller')
@@ -19,5 +20,17 @@ export class UsersController {
   })
   async allUsers(@Req() req: Request, @Res() res: Response) {
     return res.status(HttpStatus.OK).json(req.user)
+  }
+
+  @UseGuards(JwtGuard)
+  @Get('teams')
+  @HttpCode(200)
+  @ApiOperation({
+    summary: '유저가 접근할 수 있는 팀 목록 조회'
+  })
+  async accessibleTeams(@Users() uuid: string, @Res() res: Response) {
+    const grants = await this.usersService.findAccessibleTeams(uuid)
+
+    return res.status(200).json(grants)
   }
 }

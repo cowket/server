@@ -5,12 +5,15 @@ import { Repository } from 'typeorm'
 import * as bcrypt from 'bcryptjs'
 import { ConfigService } from '@nestjs/config'
 import { UtilService } from 'src/util/util.service'
+import { UserGrant } from 'src/entities/user_grant'
 
 @Injectable()
 export class UsersService {
   private logger = new Logger()
 
   constructor(
+    @InjectRepository(UserGrant)
+    private usersGrantRepository: Repository<UserGrant>,
     @InjectRepository(User)
     private usersRepository: Repository<User>,
     private configService: ConfigService,
@@ -50,5 +53,9 @@ export class UsersService {
 
   validatePw(pw: string): boolean {
     return /^(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$ %^&*-]).{8,}$/.test(pw)
+  }
+
+  async findAccessibleTeams(uuid: string) {
+    return this.usersGrantRepository.find({ where: { user_uuid: uuid } })
   }
 }
