@@ -25,7 +25,12 @@ const isProd = process.env.NODE_ENV === 'production'
       database: process.env.DB_NAME,
       synchronize: !isProd,
       entities: [User, UserGrant],
-      dropSchema: !isProd
+      dropSchema: !isProd,
+      migrations: ['dist/migration/**/*.js'],
+      cli: {
+        entitiesDir: 'src/entities',
+        migrationsDir: 'src/migration'
+      }
     }),
     AuthModule,
     UsersModule,
