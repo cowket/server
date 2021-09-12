@@ -7,6 +7,8 @@ import { User } from './entities/user'
 import { UserGrant } from './entities/user_grant'
 import { UtilModule } from './util/util.module'
 import { SocketModule } from './socket/socket.module'
+import { Team } from './entities/team'
+import { TeamsModule } from './teams/teams.module'
 
 const isProd = process.env.NODE_ENV === 'production'
 
@@ -24,7 +26,7 @@ const isProd = process.env.NODE_ENV === 'production'
       password: process.env.DB_PW,
       database: process.env.DB_NAME,
       synchronize: !isProd,
-      entities: [User, UserGrant],
+      entities: [User, UserGrant, Team],
       dropSchema: !isProd,
       migrations: ['dist/migration/**/*.js'],
       cli: {
@@ -32,10 +34,11 @@ const isProd = process.env.NODE_ENV === 'production'
         migrationsDir: 'src/migration'
       }
     }),
+    UtilModule,
     AuthModule,
     UsersModule,
-    UtilModule,
-    SocketModule
+    SocketModule,
+    TeamsModule
   ],
   providers: []
 })
