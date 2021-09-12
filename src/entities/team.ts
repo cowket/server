@@ -1,21 +1,21 @@
 import {
   Entity,
   PrimaryColumn,
-  OneToOne,
   JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
-  Column
+  Column,
+  ManyToOne
 } from 'typeorm'
 import { User } from './user'
 
-@Entity({ name: 'teams' })
+@Entity({ name: 'team' })
 export class Team {
   @PrimaryColumn({ type: 'varchar' })
   uuid: string
 
-  @OneToOne(() => User)
-  @JoinColumn()
+  @ManyToOne(() => User)
+  @JoinColumn({ referencedColumnName: 'uuid' })
   owner: User
 
   @Column('varchar', { length: 200 })

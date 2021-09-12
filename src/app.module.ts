@@ -8,7 +8,7 @@ import { UserGrant } from './entities/user_grant'
 import { UtilModule } from './util/util.module'
 import { SocketModule } from './socket/socket.module'
 import { Team } from './entities/team'
-import { TeamsModule } from './teams/teams.module'
+import { TeamsModule } from './team/team.module'
 
 const isProd = process.env.NODE_ENV === 'production'
 

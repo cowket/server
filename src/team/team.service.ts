@@ -6,7 +6,7 @@ import { UtilService } from 'src/util/util.service'
 import { Repository } from 'typeorm'
 
 @Injectable()
-export class TeamsService {
+export class TeamService {
   constructor(
     @InjectRepository(Team) private teamRepository: Repository<Team>,
     private usersService: UsersService,
@@ -15,8 +15,9 @@ export class TeamsService {
 
   async getAllTeamsByUser(uuid: string): Promise<Team[]> {
     const teams = await this.teamRepository
-      .createQueryBuilder('teams')
-      .leftJoinAndSelect('teams.owner', 'users')
+      .createQueryBuilder('team')
+      .leftJoinAndSelect('team.owner', 'users')
+      .where({ owner: { uuid } })
       .getMany()
     return teams
   }
