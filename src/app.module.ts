@@ -25,9 +25,11 @@ const isProd = process.env.NODE_ENV === 'production'
       username: process.env.DB_USER,
       password: process.env.DB_PW,
       database: process.env.DB_NAME,
-      synchronize: !isProd,
+      // synchronize: !isProd,
+      synchronize: false,
       entities: [User, UserGrant, Team],
-      dropSchema: !isProd,
+      // dropSchema: !isProd,
+      dropSchema: false,
       migrations: ['dist/migration/**/*.js'],
       cli: {
         entitiesDir: 'src/entities',

@@ -24,8 +24,12 @@ export class UsersService {
     return this.usersRepository.find()
   }
 
-  findOne(email: string): Promise<User> | null {
+  findOne(email: string): Promise<User | null> {
     return this.usersRepository.findOne({ where: { email } })
+  }
+
+  findByUuid(uuid: string): Promise<User | null> {
+    return this.usersRepository.findOne({ where: { uuid } })
   }
 
   createUser(email: string, pw: string, refreshToken: string) {
