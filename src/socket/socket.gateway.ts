@@ -13,7 +13,6 @@ import { Server, Socket } from 'socket.io'
 
 @WebSocketGateway(4001, {
   transports: ['websocket'],
-  namespace: 'socket',
   cors: {
     methods: ['GET', 'POST', 'OPTIONS', 'PUT'],
     credentials: true,
@@ -21,27 +20,19 @@ import { Server, Socket } from 'socket.io'
   },
   path: '/'
 })
-export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
+export class SocketGateway implements OnGatewayInit {
   private logger = new Logger('SocketGateway')
+
   @WebSocketServer()
   server: Server
-
-  @SubscribeMessage('events')
-  handleEvent(@MessageBody('message') message: string, @ConnectedSocket() client: Socket): string {
-    this.logger.log('handleEvent, events', message, client.rooms)
-    return message
-  }
 
   afterInit(server: Server) {
     this.logger.log('Init Gateway')
     this.server = server
-  }
+    const workspaces = this.server.of(/^\/\w+$/)
 
-  handleConnection(socket: Socket) {
-    this.logger.log(socket.id)
-  }
-
-  handleDisconnect(socket: Socket) {
-    this.logger.log('disconnect', socket.id)
+    workspaces.on('connection', (socket) => {
+      this.logger.log(`workspace connection id: ${socket.id}`)
+    })
   }
 }
