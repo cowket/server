@@ -1,10 +1,12 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpException,
   HttpStatus,
+  Param,
   Post,
   Req,
   Res,
@@ -29,7 +31,7 @@ export class TeamController {
     const user = this.utilService.getUserInfoFromReq(req)
     const teams = await this.teamService.getAllTeamsByUser(user.uuid)
 
-    return res.status(200).json(teams)
+    return res.status(HttpStatus.OK).json(teams)
   }
 
   @UseGuards(JwtGuard)
@@ -44,5 +46,23 @@ export class TeamController {
     const team = await this.teamService.createTeam(createTeam.name, user.uuid)
 
     return res.status(HttpStatus.OK).json(team)
+  }
+
+  @UseGuards(JwtGuard)
+  @Delete(':uuid')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: '팀 삭제' })
+  async deleteTeam(@Req() req: Request, @Param('uuid') uuid: string, @Res() res: Response) {
+    const user = this.utilService.getUserInfoFromReq(req)
+
+    if (!uuid || !user) throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST)
+
+    const isSuccess = await this.teamService.deleteTeam(uuid, user.uuid)
+
+    if (isSuccess) {
+      return res.status(HttpStatus.OK).end()
+    } else {
+      throw new HttpException('권한 없음', HttpStatus.FORBIDDEN)
+    }
   }
 }

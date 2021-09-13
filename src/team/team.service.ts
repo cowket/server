@@ -13,6 +13,20 @@ export class TeamService {
     private utilService: UtilService
   ) {}
 
+  async deleteTeam(teamUuid: string, userUuid: string) {
+    const team = await this.teamRepository
+      .createQueryBuilder('team')
+      .where({ owner: { uuid: userUuid }, uuid: teamUuid })
+      .getOne()
+
+    if (team) {
+      await this.teamRepository.delete({ uuid: teamUuid })
+      return true
+    } else {
+      return false
+    }
+  }
+
   async getAllTeamsByUser(uuid: string): Promise<Team[]> {
     const teams = await this.teamRepository
       .createQueryBuilder('team')
