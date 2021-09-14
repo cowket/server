@@ -1,16 +1,17 @@
 import {
-  Entity,
-  PrimaryColumn,
-  JoinColumn,
-  CreateDateColumn,
-  UpdateDateColumn,
   Column,
-  ManyToOne
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryColumn,
+  UpdateDateColumn
 } from 'typeorm'
+import { Team } from './team'
 import { User } from './user'
 
-@Entity({ name: 'team' })
-export class Team {
+@Entity({ name: 'channel' })
+export class Channel {
   @PrimaryColumn({ type: 'varchar' })
   uuid: string
 
@@ -18,11 +19,12 @@ export class Team {
   @JoinColumn()
   owner: User
 
-  @Column('varchar', { length: 200 })
-  name: string
+  @ManyToOne(() => Team)
+  @JoinColumn()
+  team: Team
 
-  @Column('varchar', { length: 500 })
-  avatar: string
+  @Column('varchar', { length: 100 })
+  name: string
 
   @CreateDateColumn()
   create_date: Date

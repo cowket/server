@@ -9,6 +9,7 @@ import { UtilModule } from './util/util.module'
 import { SocketModule } from './socket/socket.module'
 import { Team } from './entities/team'
 import { TeamsModule } from './team/team.module'
+import { Channel } from './entities/channel'
 
 const isProd = process.env.NODE_ENV === 'production'
 
@@ -27,7 +28,7 @@ const isProd = process.env.NODE_ENV === 'production'
       database: process.env.DB_NAME,
       // synchronize: !isProd,
       synchronize: false,
-      entities: [User, UserGrant, Team],
+      entities: [User, UserGrant, Team, Channel],
       // dropSchema: !isProd,
       dropSchema: false,
       migrations: ['dist/migration/**/*.js'],
