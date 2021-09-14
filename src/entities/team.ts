@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger'
 import {
   Entity,
   PrimaryColumn,
@@ -11,6 +12,7 @@ import { User } from './user'
 
 @Entity({ name: 'team' })
 export class Team {
+  @ApiProperty({ description: '팀 유니크 아이디' })
   @PrimaryColumn({ type: 'varchar' })
   uuid: string
 

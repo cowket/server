@@ -71,9 +71,9 @@ export class TeamController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: '팀 조회 (단건)',
-    parameters: [{ name: 'uuid', description: '팀 uuid', required: true, in: 'path' }]
+    description: '단건 팀을 조회한다.'
   })
-  async getTeam(@Param() uuid: string, @Res() res: Response) {
+  async getTeam(@Param('uuid') uuid: string, @Res() res: Response) {
     if (!uuid) throw new HttpException('uuid Required', HttpStatus.BAD_REQUEST)
 
     const team = await this.teamService.getTeamByUuid(uuid)

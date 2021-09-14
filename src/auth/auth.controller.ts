@@ -51,7 +51,7 @@ export class AuthController {
     const accessToken = await this.authService.genAccessToken(user)
 
     res.setHeader('Authorization', accessToken)
-    return res.status(HttpStatus.OK).end()
+    return res.status(HttpStatus.OK).json(user)
   }
 
   @Post('new')
