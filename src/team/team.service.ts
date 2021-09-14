@@ -27,6 +27,12 @@ export class TeamService {
     }
   }
 
+  async getTeamByUuid(uuid: string): Promise<Team> {
+    return this.teamRepository.findOne({
+      where: { uuid }
+    })
+  }
+
   async getAllTeamsByUser(uuid: string): Promise<Team[]> {
     const teams = await this.teamRepository
       .createQueryBuilder('team')

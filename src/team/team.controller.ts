@@ -65,4 +65,18 @@ export class TeamController {
       throw new HttpException('권한 없음', HttpStatus.FORBIDDEN)
     }
   }
+
+  @UseGuards(JwtGuard)
+  @Get(':uuid')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: '팀 조회 (단건)',
+    parameters: [{ name: 'uuid', description: '팀 uuid', required: true, in: 'path' }]
+  })
+  async getTeam(@Param() uuid: string, @Res() res: Response) {
+    if (!uuid) throw new HttpException('uuid Required', HttpStatus.BAD_REQUEST)
+
+    const team = await this.teamService.getTeamByUuid(uuid)
+    return res.status(HttpStatus.OK).json(team)
+  }
 }
