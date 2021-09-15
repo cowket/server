@@ -1,16 +1,25 @@
-import { Body, Controller, Header, HttpCode, HttpStatus, Logger, Post, Res } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Header,
+  HttpCode,
+  HttpStatus,
+  Logger,
+  Post,
+  Req,
+  Res,
+  UseGuards
+} from '@nestjs/common'
 import { ApiOperation, ApiTags } from '@nestjs/swagger'
-import { Response } from 'express'
+import { Request, Response } from 'express'
 import { UsersService } from 'src/users/users.service'
+import { UtilService } from 'src/util/util.service'
 import { AuthService } from './auth.service'
+import { JwtGuard } from './jwt.guard'
 
 export type SimpleUserInfo = {
   email: string
   pw: string
-}
-
-type TokenBody = {
-  token: string
 }
 
 @ApiTags('Auth Controller')
@@ -18,7 +27,11 @@ type TokenBody = {
 export class AuthController {
   private logger: Logger = new Logger('AuthController')
 
-  constructor(private usersService: UsersService, private authService: AuthService) {}
+  constructor(
+    private usersService: UsersService,
+    private authService: AuthService,
+    private utilService: UtilService
+  ) {}
 
   // @UseGuards(AuthGuard('local'))
   @Post('login')
@@ -100,24 +113,16 @@ export class AuthController {
     }
   }
 
+  @UseGuards(JwtGuard)
   @Post('verify')
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: '액세스 토큰 검증',
     description: '현재 사용하고 있는 액세스 토큰 검증'
   })
-  async verify(@Body() tokenBody: TokenBody, @Res() res: Response) {
-    if (!tokenBody || !tokenBody.token) return res.status(400).end()
+  async verify(@Req() req: Request, @Res() res: Response) {
+    const user = this.utilService.getUserInfoFromReq(req)
 
-    try {
-      const verified = await this.authService.verifyToken(tokenBody.token)
-      if (verified) {
-        return res.status(HttpStatus.OK).send(true)
-      } else {
-        return res.status(HttpStatus.FORBIDDEN).send(false)
-      }
-    } catch (error) {
-      return res.status(HttpStatus.FORBIDDEN).send(false)
-    }
+    return res.status(HttpStatus.OK).json(user)
   }
 }
