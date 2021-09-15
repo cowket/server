@@ -58,7 +58,7 @@ export class TeamService {
 
   async isExistTeamName(teamName: string): Promise<boolean> {
     try {
-      const isExistTeam = this.teamRepository.findOne({ where: { name: teamName } })
+      const isExistTeam = await this.teamRepository.findOne({ where: { name: teamName } })
       return !!isExistTeam
     } catch (error) {
       return false

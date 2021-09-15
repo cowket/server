@@ -43,6 +43,10 @@ export class TeamController {
       throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST)
 
     const user = this.utilService.getUserInfoFromReq(req)
+    const isExist = await this.teamService.isExistTeamName(createTeam.name)
+    if (isExist) {
+      throw new HttpException('존재하는 팀 이름', HttpStatus.BAD_REQUEST)
+    }
     const team = await this.teamService.createTeam(createTeam.name, user.uuid)
 
     return res.status(HttpStatus.OK).json(team)
