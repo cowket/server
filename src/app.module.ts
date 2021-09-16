@@ -10,6 +10,7 @@ import { SocketModule } from './socket/socket.module'
 import { Team } from './entities/team'
 import { TeamsModule } from './team/team.module'
 import { Channel } from './entities/channel'
+import { FileModule } from './file/file.module'
 
 const isProd = process.env.NODE_ENV === 'production'
 
@@ -41,7 +42,8 @@ const isProd = process.env.NODE_ENV === 'production'
     AuthModule,
     UsersModule,
     SocketModule,
-    TeamsModule
+    TeamsModule,
+    FileModule
   ],
   providers: []
 })
