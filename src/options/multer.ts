@@ -5,7 +5,7 @@ export const multerOption = {
   storage: diskStorage({
     destination: (request, file, callback) => {
       if (!existsSync('public')) {
-        mkdirSync('public')
+        mkdirSync('pubilc')
       }
 
       callback(null, 'public')

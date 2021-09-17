@@ -37,6 +37,7 @@ export class FileController {
   @ApiResponse({ status: 200, description: '파일 업로드 성공' })
   @ApiResponse({ status: 400, description: '파일 업로드 실패, 용량 제한 및 확장자 확인' })
   uploadFile(@UploadedFile() file: Express.Multer.File, @Res() res: Response) {
+    if (!file) throw new HttpException('파일 읽기 실패', HttpStatus.BAD_REQUEST)
     if (!this.fileService.validateExtImage(file.mimetype, file.originalname))
       throw new HttpException('이미지 확장자만 가능', HttpStatus.BAD_REQUEST)
     return res.status(HttpStatus.OK).end()
