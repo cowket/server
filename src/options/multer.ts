@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync } from 'fs'
 import { diskStorage } from 'multer'
 
-const filePath = process.env.NODE_ENV === 'production' ? '/app/dist/pubilc' : 'public'
+const filePath = process.env.NODE_ENV === 'production' ? '/app/dist/public' : 'public'
 
 export const multerOption = {
   storage: diskStorage({
