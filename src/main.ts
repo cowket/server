@@ -25,7 +25,12 @@ async function bootstrap() {
     allowedHeaders: ['Authorization', 'Content-Type']
   }
 
-  app.useStaticAssets(join(__dirname, '..', 'public'), {
+  const path =
+    process.env.NODE_ENV === 'production'
+      ? join(__dirname, 'public')
+      : join(__dirname, '..', 'public')
+
+  app.useStaticAssets(path, {
     prefix: '/uploads'
   })
 
