@@ -2,9 +2,11 @@ import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { AppModule } from './app.module'
 import { CorsOptions } from 'cors'
+import { NestExpressApplication } from '@nestjs/platform-express'
+import { join } from 'path'
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule)
+  const app = await NestFactory.create<NestExpressApplication>(AppModule)
 
   const config = new DocumentBuilder()
     .setTitle('Cowket Server Document')
@@ -22,6 +24,10 @@ async function bootstrap() {
     exposedHeaders: ['Authorization'],
     allowedHeaders: ['Authorization', 'Content-Type']
   }
+
+  app.useStaticAssets(join(__dirname, '..', 'public'), {
+    prefix: '/uploads'
+  })
 
   app.enableCors((req, callback) => {
     // 테스트용... 추후 수정 필요

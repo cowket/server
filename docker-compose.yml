@@ -8,4 +8,4 @@ services:
     environment:
       NODE_ENV: production
     volumes:
-      - /usr/src/app/uploads:/app/public
+      - /usr/src/app/uploads:/app/dist/public

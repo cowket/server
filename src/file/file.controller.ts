@@ -40,6 +40,8 @@ export class FileController {
     if (!file) throw new HttpException('파일 읽기 실패', HttpStatus.BAD_REQUEST)
     if (!this.fileService.validateExtImage(file.mimetype, file.originalname))
       throw new HttpException('이미지 확장자만 가능', HttpStatus.BAD_REQUEST)
-    return res.status(HttpStatus.OK).end()
+    return res.status(HttpStatus.OK).send({
+      uploads: file.filename
+    })
   }
 }
