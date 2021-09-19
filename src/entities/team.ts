@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
+import { IsBoolean, IsString } from 'class-validator'
 import {
   Entity,
   PrimaryColumn,
@@ -9,6 +10,16 @@ import {
   ManyToOne
 } from 'typeorm'
 import { User } from './user'
+
+export class CreateTeamData {
+  @ApiProperty({ description: '팀 이름' })
+  @IsString()
+  name: string
+
+  @ApiProperty({ description: '팀 비공개 여부' })
+  @IsBoolean()
+  is_private?: boolean
+}
 
 @Entity({ name: 'team' })
 export class Team {
@@ -23,7 +34,7 @@ export class Team {
   @Column('varchar', { length: 200 })
   name: string
 
-  @Column('varchar', { length: 500 })
+  @Column('varchar', { length: 500, default: null })
   avatar: string
 
   @CreateDateColumn()
@@ -31,4 +42,7 @@ export class Team {
 
   @UpdateDateColumn()
   update_date: Date
+
+  @Column('boolean', { default: false })
+  is_private: boolean
 }

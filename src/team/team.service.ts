@@ -42,15 +42,15 @@ export class TeamService {
     return teams
   }
 
-  async createTeam(teamName: string, userUuid: string) {
+  async createTeam(teamName: string, userUuid: string, isPrivate: boolean) {
     const user = await this.usersService.findByUuid(userUuid)
     const team = await this.teamRepository.insert({
-      avatar: '',
       create_date: new Date(),
       update_date: new Date(),
       name: teamName,
       owner: user,
-      uuid: this.utilService.genUuid()
+      uuid: this.utilService.genUuid(),
+      is_private: isPrivate
     })
     const insertedTeam = await this.teamRepository
       .createQueryBuilder('team')

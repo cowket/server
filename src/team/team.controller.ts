@@ -11,12 +11,14 @@ import {
   Put,
   Req,
   Res,
-  UseGuards
+  UseGuards,
+  UsePipes,
+  ValidationPipe
 } from '@nestjs/common'
 import { ApiOperation, ApiTags } from '@nestjs/swagger'
 import { Request, Response } from 'express'
 import { JwtGuard } from 'src/auth/jwt.guard'
-import { CreateTeamData } from 'src/types/team'
+import { CreateTeamData } from 'src/entities/team'
 import { UtilService } from 'src/util/util.service'
 import { TeamService } from './team.service'
 
@@ -42,6 +44,7 @@ export class TeamController {
   @Post('new')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '팀 생성' })
+  @UsePipes(new ValidationPipe({ transform: true }))
   async newTeam(
     @Req() req: Request,
     @Body() createTeam: CreateTeamData,
@@ -55,7 +58,11 @@ export class TeamController {
     if (isExist) {
       throw new HttpException('존재하는 팀 이름', HttpStatus.BAD_REQUEST)
     }
-    const team = await this.teamService.createTeam(createTeam.name, user.uuid)
+    const team = await this.teamService.createTeam(
+      createTeam.name,
+      user.uuid,
+      createTeam.is_private
+    )
 
     return res.status(HttpStatus.OK).json(team)
   }

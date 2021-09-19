@@ -26,8 +26,7 @@ export class UsersService {
 
   findOne(email: string): Promise<User | null> {
     return this.usersRepository.findOne({
-      where: { email },
-      select: ['email', 'password', 'avatar', 'id', 'uuid']
+      where: { email }
     })
   }
 
@@ -69,11 +68,16 @@ export class UsersService {
   }
 
   async updateUser(updateUserData: UpdateUser) {
+    const avatarPath =
+      process.env.NODE_ENV === 'development'
+        ? 'http://localhost:4000/uploads/'
+        : 'https://cowket-api.stackunderflow.xyz/uploads/'
+
     return this.usersRepository
       .createQueryBuilder('users')
       .where({ uuid: updateUserData.uuid })
       .update({
-        avatar: updateUserData.avatar || null,
+        avatar: avatarPath + updateUserData.avatar || null,
         update_date: new Date()
       })
       .execute()
