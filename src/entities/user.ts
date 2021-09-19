@@ -10,15 +10,19 @@ import {
 } from 'typeorm'
 
 export class UpdateUser {
+  @ApiProperty({ description: '유저 아이디' })
   @IsNumber()
   id: number
 
+  @ApiProperty({ description: '유저 uuid' })
   @IsString()
   uuid: string
 
+  @ApiProperty({ description: '유저 이메일' })
   @IsString()
   email: string
 
+  @ApiProperty({ description: '유저 아바타 URL', required: false })
   @IsOptional()
   avatar?: string
 }

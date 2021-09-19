@@ -13,6 +13,7 @@ async function bootstrap() {
     .setDescription('Cowket Server Document on Swagger')
     .setVersion('1.0')
     .addTag('cowket')
+    .addBearerAuth()
     .build()
 
   const document = SwaggerModule.createDocument(app, config)

@@ -8,6 +8,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Put,
   Req,
   Res,
   UseGuards
@@ -94,5 +95,16 @@ export class TeamController {
 
     const team = await this.teamService.getTeamByUuid(uuid)
     return res.status(HttpStatus.OK).json(team)
+  }
+
+  @UseGuards(JwtGuard)
+  @Put(':uuid')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: '팀 업데이트 (작업중)'
+  })
+  async updateTeam(@Param('uuid') uuid: string, @Res() res: Response) {
+    console.log(uuid)
+    return res.status(200).end()
   }
 }

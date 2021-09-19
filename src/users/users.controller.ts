@@ -13,7 +13,7 @@ import {
   UsePipes,
   ValidationPipe
 } from '@nestjs/common'
-import { ApiOperation, ApiTags } from '@nestjs/swagger'
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { Request, Response } from 'express'
 import { JwtGuard } from 'src/auth/jwt.guard'
 import { UpdateUser } from 'src/entities/user'
@@ -54,6 +54,10 @@ export class UsersController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: '유저 정보 업데이트'
+  })
+  @ApiResponse({
+    status: 200,
+    description: '업데이트된 유저 정보'
   })
   @UsePipes(new ValidationPipe({ transform: true }))
   async updateUser(@Body() user: UpdateUser, @Res() res: Response) {
