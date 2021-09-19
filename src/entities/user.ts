@@ -22,10 +22,10 @@ export class User {
   @Column('varchar', { length: 100 })
   email: string
 
-  @Column('varchar', { length: 200 })
+  @Column('varchar', { length: 200, select: false })
   password: string
 
-  @Column()
+  @Column({ select: false })
   refresh_token: string
 
   @ApiProperty({ description: '아바타 URL' })

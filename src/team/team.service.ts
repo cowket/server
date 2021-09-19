@@ -52,8 +52,13 @@ export class TeamService {
       owner: user,
       uuid: this.utilService.genUuid()
     })
+    const insertedTeam = await this.teamRepository
+      .createQueryBuilder('team')
+      .leftJoinAndSelect('team.owner', 'users')
+      .where({ uuid: team.generatedMaps[0].uuid })
+      .getOne()
 
-    return team.generatedMaps
+    return insertedTeam
   }
 
   async isExistTeamName(teamName: string): Promise<boolean> {
