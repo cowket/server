@@ -10,7 +10,13 @@ import {
   UseInterceptors
 } from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express'
-import { ApiBody, ApiOperation, ApiProperty, ApiResponse, ApiTags } from '@nestjs/swagger'
+import {
+  ApiBody,
+  ApiOperation,
+  ApiProperty,
+  ApiResponse,
+  ApiTags
+} from '@nestjs/swagger'
 import { Response } from 'express'
 import { JwtGuard } from 'src/auth/jwt.guard'
 import { multerOption } from 'src/options/multer'
@@ -35,7 +41,10 @@ export class FileController {
     type: FileRequest
   })
   @ApiResponse({ status: 200, description: '파일 업로드 성공' })
-  @ApiResponse({ status: 400, description: '파일 업로드 실패, 용량 제한 및 확장자 확인' })
+  @ApiResponse({
+    status: 400,
+    description: '파일 업로드 실패, 용량 제한 및 확장자 확인'
+  })
   uploadFile(@UploadedFile() file: Express.Multer.File, @Res() res: Response) {
     if (!file) throw new HttpException('파일 읽기 실패', HttpStatus.BAD_REQUEST)
     if (!this.fileService.validateExtImage(file.mimetype, file.originalname))

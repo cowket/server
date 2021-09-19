@@ -22,7 +22,10 @@ import { TeamService } from './team.service'
 @ApiTags('Team Controller')
 @Controller('team')
 export class TeamController {
-  constructor(private teamService: TeamService, private utilService: UtilService) {}
+  constructor(
+    private teamService: TeamService,
+    private utilService: UtilService
+  ) {}
 
   @UseGuards(JwtGuard)
   @Get('all')
@@ -38,7 +41,11 @@ export class TeamController {
   @Post('new')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '팀 생성' })
-  async newTeam(@Req() req: Request, @Body() createTeam: CreateTeamData, @Res() res: Response) {
+  async newTeam(
+    @Req() req: Request,
+    @Body() createTeam: CreateTeamData,
+    @Res() res: Response
+  ) {
     if (!req.body || !createTeam || !createTeam.name)
       throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST)
 
@@ -56,10 +63,15 @@ export class TeamController {
   @Delete(':uuid')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '팀 삭제' })
-  async deleteTeam(@Req() req: Request, @Param('uuid') uuid: string, @Res() res: Response) {
+  async deleteTeam(
+    @Req() req: Request,
+    @Param('uuid') uuid: string,
+    @Res() res: Response
+  ) {
     const user = this.utilService.getUserInfoFromReq(req)
 
-    if (!uuid || !user) throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST)
+    if (!uuid || !user)
+      throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST)
 
     const isSuccess = await this.teamService.deleteTeam(uuid, user.uuid)
 

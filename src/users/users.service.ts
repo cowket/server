@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { User } from 'src/entities/user'
+import { UpdateUser, User } from 'src/entities/user'
 import { Repository } from 'typeorm'
 import * as bcrypt from 'bcryptjs'
 import { ConfigService } from '@nestjs/config'
@@ -47,7 +47,9 @@ export class UsersService {
   }
 
   async cryptPassword(pw: string) {
-    const salt = await bcrypt.genSalt(parseInt(this.configService.get('SE_SALT')))
+    const salt = await bcrypt.genSalt(
+      parseInt(this.configService.get('SE_SALT'))
+    )
     const crypt = await bcrypt.hash(pw, salt)
     this.logger.log(crypt)
 
@@ -64,5 +66,16 @@ export class UsersService {
 
   async findAccessibleTeams(uuid: string) {
     return this.usersGrantRepository.find({ where: { user_uuid: uuid } })
+  }
+
+  async updateUser(updateUserData: UpdateUser) {
+    return this.usersRepository
+      .createQueryBuilder('users')
+      .where({ uuid: updateUserData.uuid })
+      .update({
+        avatar: updateUserData.avatar || null,
+        update_date: new Date()
+      })
+      .execute()
   }
 }

@@ -18,7 +18,10 @@ export class AuthService {
     private configService: ConfigService
   ) {}
 
-  async validateUser(email: string, pw: string): Promise<TokenUserInfo | null | false> {
+  async validateUser(
+    email: string,
+    pw: string
+  ): Promise<TokenUserInfo | null | false> {
     try {
       const user = await this.usersService.findOne(email)
 
@@ -40,7 +43,9 @@ export class AuthService {
   }
 
   async genInitRefreshToken(user: SimpleUserInfo): Promise<string> {
-    return this.jwtService.sign(user, { secret: this.configService.get('TO_SIGN') })
+    return this.jwtService.sign(user, {
+      secret: this.configService.get('TO_SIGN')
+    })
   }
 
   async genAccessToken(user: TokenUserInfo): Promise<string> {
@@ -51,6 +56,8 @@ export class AuthService {
   }
 
   async verifyToken(accessToken: string) {
-    return this.jwtService.verify(accessToken, { secret: this.configService.get('TO_SIGN') })
+    return this.jwtService.verify(accessToken, {
+      secret: this.configService.get('TO_SIGN')
+    })
   }
 }

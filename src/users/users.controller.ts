@@ -1,7 +1,22 @@
-import { Controller, Get, HttpCode, HttpStatus, Logger, Req, Res, UseGuards } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpException,
+  HttpStatus,
+  Logger,
+  Put,
+  Req,
+  Res,
+  UseGuards,
+  UsePipes,
+  ValidationPipe
+} from '@nestjs/common'
 import { ApiOperation, ApiTags } from '@nestjs/swagger'
 import { Request, Response } from 'express'
 import { JwtGuard } from 'src/auth/jwt.guard'
+import { UpdateUser } from 'src/entities/user'
 import { Users } from './users.decorator'
 import { UsersService } from './users.service'
 
@@ -32,5 +47,23 @@ export class UsersController {
     const grants = await this.usersService.findAccessibleTeams(uuid)
 
     return res.status(200).json(grants)
+  }
+
+  @UseGuards(JwtGuard)
+  @Put()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: '유저 정보 업데이트'
+  })
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async updateUser(@Body() user: UpdateUser, @Res() res: Response) {
+    const findUser = await this.usersService.findByUuid(user.uuid)
+    if (!findUser)
+      throw new HttpException('존재하지 않는 유저', HttpStatus.BAD_REQUEST)
+    const result = await this.usersService.updateUser(user)
+    if (!result.affected)
+      throw new HttpException('SQL 에러', HttpStatus.INTERNAL_SERVER_ERROR)
+    const updatedUser = await this.usersService.findByUuid(user.uuid)
+    return res.status(HttpStatus.OK).json(updatedUser)
   }
 }

@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
+import { IsNumber, IsOptional, IsString } from 'class-validator'
 import {
   Entity,
   Column,
@@ -7,6 +8,20 @@ import {
   UpdateDateColumn,
   PrimaryColumn
 } from 'typeorm'
+
+export class UpdateUser {
+  @IsNumber()
+  id: number
+
+  @IsString()
+  uuid: string
+
+  @IsString()
+  email: string
+
+  @IsOptional()
+  avatar?: string
+}
 
 @Entity({ name: 'users' })
 export class User {
