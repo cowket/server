@@ -15,10 +15,10 @@ import {
   UsePipes,
   ValidationPipe
 } from '@nestjs/common'
-import { ApiOperation, ApiTags } from '@nestjs/swagger'
+import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { Request, Response } from 'express'
 import { JwtGuard } from 'src/auth/jwt.guard'
-import { CreateTeamData } from 'src/entities/team'
+import { RequestTeamData, Team, UpdateTeamData } from 'src/entities/team'
 import { UtilService } from 'src/util/util.service'
 import { TeamService } from './team.service'
 
@@ -33,6 +33,7 @@ export class TeamController {
   @UseGuards(JwtGuard)
   @Get('all')
   @ApiOperation({ summary: '유저의 모든 팀 조회' })
+  @ApiOkResponse({ type: [Team] })
   async getAllTeams(@Req() req: Request, @Res() res: Response) {
     const user = this.utilService.getUserInfoFromReq(req)
     const teams = await this.teamService.getAllTeamsByUser(user.uuid)
@@ -44,10 +45,11 @@ export class TeamController {
   @Post('new')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '팀 생성' })
+  @ApiOkResponse({ description: '생성된 팀 정보', type: Team })
   @UsePipes(new ValidationPipe({ transform: true }))
   async newTeam(
     @Req() req: Request,
-    @Body() createTeam: CreateTeamData,
+    @Body() createTeam: RequestTeamData,
     @Res() res: Response
   ) {
     if (!req.body || !createTeam || !createTeam.name)
@@ -71,6 +73,7 @@ export class TeamController {
   @Delete(':uuid')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '팀 삭제' })
+  @ApiOkResponse({ type: Boolean })
   async deleteTeam(
     @Req() req: Request,
     @Param('uuid') uuid: string,
@@ -84,7 +87,7 @@ export class TeamController {
     const isSuccess = await this.teamService.deleteTeam(uuid, user.uuid)
 
     if (isSuccess) {
-      return res.status(HttpStatus.OK).end()
+      return res.status(HttpStatus.OK).send(true)
     } else {
       throw new HttpException('권한 없음', HttpStatus.FORBIDDEN)
     }
@@ -97,6 +100,7 @@ export class TeamController {
     summary: '팀 조회 (단건)',
     description: '단건 팀을 조회한다.'
   })
+  @ApiOkResponse({ type: Team })
   async getTeam(@Param('uuid') uuid: string, @Res() res: Response) {
     if (!uuid) throw new HttpException('uuid Required', HttpStatus.BAD_REQUEST)
 
@@ -110,8 +114,30 @@ export class TeamController {
   @ApiOperation({
     summary: '팀 업데이트 (작업중)'
   })
-  async updateTeam(@Param('uuid') uuid: string, @Res() res: Response) {
-    console.log(uuid)
-    return res.status(200).end()
+  @ApiOkResponse({ type: Team })
+  async updateTeam(
+    @Req() req: Request,
+    @Param('uuid') uuid: string,
+    @Body() body: UpdateTeamData,
+    @Res() res: Response
+  ) {
+    const user = this.utilService.getUserInfoFromReq(req)
+    // 바디
+    if (body.is_private === undefined || !body.name || !uuid)
+      throw new HttpException('필수값 누락', HttpStatus.BAD_REQUEST)
+    // 존재 여부
+    const isExistTeam = (await this.teamService.getCountTeam(uuid)) > 0
+    if (!isExistTeam)
+      throw new HttpException('팀이 존재하지 않음', HttpStatus.BAD_REQUEST)
+    const isOwner = await this.teamService.isOwnerOfTeam(user.uuid, uuid)
+    if (!isOwner)
+      throw new HttpException(
+        '팀의 소유자만 정보를 변경할 수 있음',
+        HttpStatus.FORBIDDEN
+      )
+
+    const updatedTeam = await this.teamService.updateTeam(uuid, body)
+
+    return res.status(HttpStatus.OK).json(updatedTeam)
   }
 }

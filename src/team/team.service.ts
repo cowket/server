@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Team } from 'src/entities/team'
+import { Team, UpdateTeamData } from 'src/entities/team'
 import { UsersService } from 'src/users/users.service'
 import { UtilService } from 'src/util/util.service'
 import { Repository } from 'typeorm'
@@ -28,9 +28,11 @@ export class TeamService {
   }
 
   async getTeamByUuid(uuid: string): Promise<Team> {
-    return this.teamRepository.findOne({
-      where: { uuid }
-    })
+    return this.teamRepository
+      .createQueryBuilder('team')
+      .leftJoinAndSelect('team.owner', 'users')
+      .where('team.uuid = :uuid', { uuid })
+      .getOne()
   }
 
   async getAllTeamsByUser(uuid: string): Promise<Team[]> {
@@ -70,5 +72,37 @@ export class TeamService {
     } catch (error) {
       return false
     }
+  }
+
+  async getCountTeam(uuid: string): Promise<number> {
+    return this.teamRepository
+      .createQueryBuilder('team')
+      .where('team.uuid = :uuid', { uuid })
+      .getCount()
+  }
+
+  async updateTeam(uuid: string, data: UpdateTeamData) {
+    const { is_private, name, avatar } = data
+
+    await this.teamRepository.save({
+      is_private,
+      name,
+      uuid,
+      avatar: avatar || null,
+      update_date: new Date()
+    })
+
+    return this.getTeamByUuid(uuid)
+  }
+
+  async isOwnerOfTeam(userUuid: string, teamUuid: string): Promise<boolean> {
+    const isOwner = await this.teamRepository
+      .createQueryBuilder('team')
+      .leftJoinAndSelect('team.owner', 'users')
+      .where('team.uuid = :teamUuid', { teamUuid })
+      .andWhere('users.uuid = :userUuid', { userUuid })
+      .getCount()
+
+    return !!isOwner
   }
 }
