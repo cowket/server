@@ -26,7 +26,16 @@ export class UsersService {
 
   findOne(email: string): Promise<User | null> {
     return this.usersRepository.findOne({
-      where: { email }
+      where: { email },
+      select: [
+        'avatar',
+        'create_date',
+        'email',
+        'id',
+        'password',
+        'update_date',
+        'uuid'
+      ]
     })
   }
 
