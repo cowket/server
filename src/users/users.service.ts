@@ -44,13 +44,17 @@ export class UsersService {
   }
 
   createUser(email: string, pw: string, refreshToken: string) {
+    const uuid = this.utilService.genUuid()
+    const identicon = this.utilService.genAvatar(uuid)
+
     return this.usersRepository.insert({
       email,
       password: pw,
       create_date: new Date(),
       update_date: new Date(),
-      uuid: this.utilService.genUuid(),
-      refresh_token: refreshToken
+      refresh_token: refreshToken,
+      uuid,
+      avatar: identicon
     })
   }
 
