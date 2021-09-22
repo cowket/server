@@ -1,5 +1,5 @@
-import { Module } from '@nestjs/common'
-import { ConfigModule } from '@nestjs/config'
+import { Global, Module } from '@nestjs/common'
+import { ConfigModule, ConfigService } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { AuthModule } from './auth/auth.module'
 import { UsersModule } from './users/users.module'
@@ -11,9 +11,13 @@ import { Team } from './entities/team'
 import { TeamsModule } from './team/team.module'
 import { Channel } from './entities/channel'
 import { FileModule } from './file/file.module'
+import { JwtModule } from '@nestjs/jwt'
+import { JwtGuard } from './auth/jwt.guard'
+import { APP_GUARD } from '@nestjs/core'
 
 const isProd = process.env.NODE_ENV === 'production'
 
+@Global()
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -43,8 +47,25 @@ const isProd = process.env.NODE_ENV === 'production'
     UsersModule,
     SocketModule,
     TeamsModule,
-    FileModule
+    FileModule,
+    JwtModule.registerAsync({
+      inject: [ConfigService],
+      async useFactory(configService: ConfigService) {
+        return new Promise((resolve, _reject) => {
+          resolve({
+            secret: configService.get('TO_SIGN'),
+            privateKey: configService.get('TO_SIGN'),
+            signOptions: {
+              expiresIn: '1h',
+              noTimestamp: false,
+              mutatePayload: false
+            }
+          })
+        })
+      }
+    })
   ],
-  providers: []
+  providers: [JwtModule, { useClass: JwtGuard, provide: APP_GUARD }],
+  exports: [JwtModule]
 })
 export class AppModule {}
