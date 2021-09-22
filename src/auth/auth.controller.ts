@@ -97,14 +97,9 @@ export class AuthController {
 
     if (!user) {
       const cryptPw = await this.usersService.cryptPassword(pw)
-      const refreshToken = await this.authService.genInitRefreshToken({
-        email,
-        pw
-      })
-      const createdUser = await this.usersService.createUser(
-        email,
-        cryptPw,
-        refreshToken
+      const createdUser = await this.usersService.createUser(email, cryptPw)
+      await this.authService.updateUserRefreshToken(
+        createdUser.generatedMaps[0].uuid
       )
       return res.status(HttpStatus.CREATED).json({
         success: true,

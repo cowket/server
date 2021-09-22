@@ -44,7 +44,7 @@ export class User {
   @Column('varchar', { length: 200, select: false })
   password: string
 
-  @Column({ select: false })
+  @Column({ select: false, nullable: true, length: 1000 })
   refresh_token: string
 
   @ApiProperty({ description: '아바타 URL' })

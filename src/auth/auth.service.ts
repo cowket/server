@@ -3,8 +3,9 @@ import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { User } from 'src/entities/user'
 import { UsersService } from 'src/users/users.service'
-import { SimpleUserInfo } from './auth.controller'
 import * as bcrypt from 'bcryptjs'
+import { InjectRepository } from '@nestjs/typeorm'
+import { Repository } from 'typeorm'
 
 export type TokenUserInfo = Pick<User, 'avatar' | 'email' | 'id' | 'uuid'>
 
@@ -15,7 +16,9 @@ export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
-    private configService: ConfigService
+    private configService: ConfigService,
+    @InjectRepository(User)
+    private usersRepository: Repository<User>
   ) {}
 
   async validateUser(
@@ -42,16 +45,12 @@ export class AuthService {
     }
   }
 
-  async genInitRefreshToken(user: SimpleUserInfo): Promise<string> {
-    return this.jwtService.sign(user, {
-      secret: this.configService.get('TO_SIGN')
-    })
-  }
-
   async genAccessToken(user: TokenUserInfo): Promise<string> {
     return this.jwtService.sign(user, {
       secret: this.configService.get('TO_SIGN'),
-      expiresIn: '1h'
+      expiresIn: '1h',
+      mutatePayload: false,
+      noTimestamp: false
     })
   }
 
@@ -59,5 +58,37 @@ export class AuthService {
     return this.jwtService.verify(accessToken, {
       secret: this.configService.get('TO_SIGN')
     })
+  }
+
+  async updateUserRefreshToken(uuid: string) {
+    const user = await this.usersRepository.findOne({ where: { uuid } })
+    const tokenUser: TokenUserInfo = {
+      avatar: user.avatar,
+      email: user.email,
+      id: user.id,
+      uuid: user.uuid
+    }
+    const refreshToken = await this.jwtService.signAsync(tokenUser, {
+      expiresIn: '7d',
+      secret: this.configService.get('TO_SIGN')
+    })
+
+    this.logger.log(refreshToken)
+
+    return this.usersRepository.update(
+      { uuid },
+      { refresh_token: refreshToken }
+    )
+  }
+
+  async getTokenUserInfoByUuid(uuid: string): Promise<TokenUserInfo> {
+    const user = await this.usersRepository.findOne({ where: { uuid } })
+
+    return {
+      avatar: user.avatar,
+      email: user.email,
+      id: user.id,
+      uuid: user.uuid
+    }
   }
 }

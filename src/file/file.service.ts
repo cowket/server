@@ -9,8 +9,4 @@ export class FileService {
 
     return checkExt && checkMime
   }
-
-  getImageUrl(file: Express.Multer.File) {
-    // return createImageUrl
-  }
 }

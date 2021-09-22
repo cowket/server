@@ -43,7 +43,7 @@ export class UsersService {
     return this.usersRepository.findOne({ where: { uuid } })
   }
 
-  createUser(email: string, pw: string, refreshToken: string) {
+  createUser(email: string, pw: string) {
     const uuid = this.utilService.genUuid()
     const identicon = this.utilService.genAvatar(uuid)
 
@@ -52,7 +52,7 @@ export class UsersService {
       password: pw,
       create_date: new Date(),
       update_date: new Date(),
-      refresh_token: refreshToken,
+      refresh_token: null,
       uuid,
       avatar: identicon
     })
@@ -94,5 +94,12 @@ export class UsersService {
         update_date: new Date()
       })
       .execute()
+  }
+
+  async getRefreshTokenByUuid(uuid: string) {
+    return this.usersRepository.findOne({
+      where: { uuid },
+      select: ['refresh_token']
+    })
   }
 }
