@@ -102,4 +102,20 @@ export class UsersService {
       select: ['refresh_token']
     })
   }
+
+  async setTeamGrant(userUuid: string, teamUuid: string) {
+    return this.usersGrantRepository.insert({
+      user_uuid: userUuid,
+      team_uuid: teamUuid,
+      create_date: new Date()
+    })
+  }
+
+  async setChannelGrant(userUuid: string, channelUuid: string) {
+    return this.usersGrantRepository.insert({
+      user_uuid: userUuid,
+      channel_uuid: channelUuid,
+      create_date: new Date()
+    })
+  }
 }

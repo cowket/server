@@ -18,17 +18,17 @@ export class UserGrant {
   @ManyToMany(() => User)
   @JoinColumn({ referencedColumnName: 'uuid', name: 'user_uuid' })
   @Column('varchar')
-  user_uuid: User
+  user_uuid: string
 
   @ManyToMany(() => Team)
   @JoinColumn({ referencedColumnName: 'uuid', name: 'team_uuid' })
   @Column('varchar', { nullable: true })
-  team_uuid: Team
+  team_uuid: string
 
   @ManyToMany(() => Channel)
   @JoinColumn({ referencedColumnName: 'uuid', name: 'channel_uuid' })
   @Column('varchar', { nullable: true })
-  channel_uuid: Channel
+  channel_uuid: string
 
   @CreateDateColumn({ nullable: false })
   create_date: Date

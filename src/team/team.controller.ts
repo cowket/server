@@ -19,6 +19,7 @@ import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { Request, Response } from 'express'
 import { JwtGuard } from 'src/auth/jwt.guard'
 import { RequestTeamData, Team, UpdateTeamData } from 'src/entities/team'
+import { UsersService } from 'src/users/users.service'
 import { UtilService } from 'src/util/util.service'
 import { TeamService } from './team.service'
 
@@ -27,7 +28,8 @@ import { TeamService } from './team.service'
 export class TeamController {
   constructor(
     private teamService: TeamService,
-    private utilService: UtilService
+    private utilService: UtilService,
+    private userService: UsersService
   ) {}
 
   @UseGuards(JwtGuard)
@@ -65,6 +67,7 @@ export class TeamController {
       user.uuid,
       createTeam.is_private
     )
+    await this.userService.setTeamGrant(user.uuid, team.uuid)
 
     return res.status(HttpStatus.OK).json(team)
   }
