@@ -1,10 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { JwtService } from '@nestjs/jwt'
 import { PassportStrategy } from '@nestjs/passport'
 import { ExtractJwt, Strategy } from 'passport-jwt'
-import { UsersService } from 'src/users/users.service'
-import { AuthService, TokenUserInfo } from './auth.service'
+import { TokenUserInfo } from './auth.service'
 
 type ITokenUserInfo = {
   iat: number
@@ -15,12 +13,7 @@ type ITokenUserInfo = {
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   private logger = new Logger('JwtStrategy')
 
-  constructor(
-    private readonly configService: ConfigService,
-    private readonly jwtService: JwtService,
-    private readonly usersService: UsersService,
-    private readonly authService: AuthService
-  ) {
+  constructor(private readonly configService: ConfigService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
