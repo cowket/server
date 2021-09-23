@@ -13,10 +13,12 @@ import {
   UsePipes,
   ValidationPipe
 } from '@nestjs/common'
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
+import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { Response } from 'express'
+import { AuthService } from 'src/auth/auth.service'
 import { JwtGuard } from 'src/auth/jwt.guard'
-import { UpdateUser } from 'src/entities/user'
+import { UpdateUser, User } from 'src/entities/user'
+import { UserGrant } from 'src/entities/user_grant'
 import { Users } from './users.decorator'
 import { UsersService } from './users.service'
 
@@ -25,7 +27,10 @@ import { UsersService } from './users.service'
 export class UsersController {
   private logger = new Logger('UsersController')
 
-  constructor(private usersService: UsersService) {}
+  constructor(
+    private usersService: UsersService,
+    private authService: AuthService
+  ) {}
 
   @UseGuards(JwtGuard)
   @Get('grant/team')
@@ -33,6 +38,7 @@ export class UsersController {
   @ApiOperation({
     summary: '유저가 접근 가능한 팀 조회'
   })
+  @ApiOkResponse({ type: [UserGrant] })
   async accessibleTeams(@Users() uuid: string, @Res() res: Response) {
     const grants = await this.usersService.findAccessibleTeams(uuid)
 
@@ -45,6 +51,7 @@ export class UsersController {
   @ApiOperation({
     summary: '유저가 접근 가능한 팀 채널 조회'
   })
+  @ApiOkResponse({ type: [UserGrant] })
   async accessibleChannels(
     @Users() uuid: string,
     @Param('uuid') teamUuid: string,
@@ -64,10 +71,7 @@ export class UsersController {
   @ApiOperation({
     summary: '유저 정보 업데이트'
   })
-  @ApiResponse({
-    status: 200,
-    description: '업데이트된 유저 정보'
-  })
+  @ApiOkResponse({ type: User })
   @UsePipes(new ValidationPipe({ transform: true }))
   async updateUser(@Body() user: UpdateUser, @Res() res: Response) {
     const findUser = await this.usersService.findByUuid(user.uuid)
@@ -77,6 +81,10 @@ export class UsersController {
     if (!result.affected)
       throw new HttpException('SQL 에러', HttpStatus.INTERNAL_SERVER_ERROR)
     const updatedUser = await this.usersService.findByUuid(user.uuid)
+    const token = await this.authService.genAccessToken({
+      ...updatedUser
+    })
+    res.setHeader('Authorization', token)
     return res.status(HttpStatus.OK).json(updatedUser)
   }
 }
