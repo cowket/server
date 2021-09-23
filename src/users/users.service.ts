@@ -77,7 +77,9 @@ export class UsersService {
   }
 
   async findAccessibleTeams(uuid: string) {
-    return this.usersGrantRepository.find({ where: { user_uuid: uuid } })
+    return this.usersGrantRepository.find({
+      where: { user_uuid: uuid, channel_uuid: null }
+    })
   }
 
   async updateUser(updateUserData: UpdateUser) {
@@ -105,17 +107,28 @@ export class UsersService {
 
   async setTeamGrant(userUuid: string, teamUuid: string) {
     return this.usersGrantRepository.insert({
-      user_uuid: userUuid,
-      team_uuid: teamUuid,
+      user_uuid: { uuid: userUuid },
+      team_uuid: { uuid: teamUuid },
       create_date: new Date()
     })
   }
 
   async setChannelGrant(userUuid: string, channelUuid: string) {
     return this.usersGrantRepository.insert({
-      user_uuid: userUuid,
-      channel_uuid: channelUuid,
+      user_uuid: { uuid: userUuid },
+      channel_uuid: { uuid: channelUuid },
       create_date: new Date()
     })
+  }
+
+  async findAccessibleChannels(userUuid: string, teamUuid: string) {
+    return this.usersGrantRepository
+      .createQueryBuilder('userGrant')
+      .leftJoinAndSelect('userGrant.team_uuid', 'team')
+      .leftJoinAndSelect('userGrant.channel_uuid', 'channel')
+      .where('user_uuid = :userUuid', { userUuid })
+      .andWhere('team.uuid = :teamUuid', { teamUuid })
+      .andWhere(' channel.uuid IS NOT NULL')
+      .getMany()
   }
 }

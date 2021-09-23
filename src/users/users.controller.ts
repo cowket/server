@@ -6,6 +6,7 @@ import {
   HttpException,
   HttpStatus,
   Logger,
+  Param,
   Put,
   Res,
   UseGuards,
@@ -27,13 +28,32 @@ export class UsersController {
   constructor(private usersService: UsersService) {}
 
   @UseGuards(JwtGuard)
-  @Get('teams')
+  @Get('grant/team')
   @HttpCode(200)
   @ApiOperation({
-    summary: '유저가 소유한 팀 조회 (접근 가능이랑 다름)'
+    summary: '유저가 접근 가능한 팀 조회'
   })
   async accessibleTeams(@Users() uuid: string, @Res() res: Response) {
     const grants = await this.usersService.findAccessibleTeams(uuid)
+
+    return res.status(200).json(grants)
+  }
+
+  @UseGuards(JwtGuard)
+  @Get('grant/channel/:uuid')
+  @HttpCode(200)
+  @ApiOperation({
+    summary: '유저가 접근 가능한 팀 채널 조회'
+  })
+  async accessibleChannels(
+    @Users() uuid: string,
+    @Param('uuid') teamUuid: string,
+    @Res() res: Response
+  ) {
+    const grants = await this.usersService.findAccessibleChannels(
+      uuid,
+      teamUuid
+    )
 
     return res.status(200).json(grants)
   }
