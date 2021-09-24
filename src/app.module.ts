@@ -12,8 +12,6 @@ import { TeamsModule } from './team/team.module'
 import { Channel } from './entities/channel'
 import { FileModule } from './file/file.module'
 import { JwtModule } from '@nestjs/jwt'
-import { JwtGuard } from './auth/jwt.guard'
-import { APP_GUARD } from '@nestjs/core'
 
 const isProd = process.env.NODE_ENV === 'production'
 
@@ -65,7 +63,7 @@ const isProd = process.env.NODE_ENV === 'production'
       }
     })
   ],
-  providers: [JwtModule, { useClass: JwtGuard, provide: APP_GUARD }],
+  providers: [JwtModule],
   exports: [JwtModule]
 })
 export class AppModule {}
