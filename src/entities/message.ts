@@ -17,16 +17,16 @@ export class Message {
   uuid: string
 
   @ManyToOne(() => Team)
-  @JoinColumn()
-  team_uuid: string
+  @JoinColumn({ name: 'team_uuid', referencedColumnName: 'uuid' })
+  team: Team
 
   @ManyToOne(() => Channel)
-  @JoinColumn()
-  channel_uuid: string
+  @JoinColumn({ name: 'channel_uuid', referencedColumnName: 'uuid' })
+  channel: Channel
 
   @ManyToOne(() => User)
-  @JoinColumn()
-  sender: string
+  @JoinColumn({ name: 'sender_uuid', referencedColumnName: 'uuid' })
+  sender: User
 
   @Column('boolean', { default: false })
   is_updated: boolean
