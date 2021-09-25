@@ -15,9 +15,9 @@ import { User } from 'src/entities/user'
   providers: [AuthService, LocalStrategy, JwtStrategy],
   imports: [
     TypeOrmModule.forFeature([User]),
-    UsersModule,
     PassportModule,
-    UtilModule
+    UtilModule,
+    UsersModule
   ],
   controllers: [AuthController]
 })

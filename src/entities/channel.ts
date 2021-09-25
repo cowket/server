@@ -16,11 +16,11 @@ export class Channel {
   uuid: string
 
   @ManyToOne(() => User)
-  @JoinColumn()
+  @JoinColumn({ referencedColumnName: 'uuid', name: 'owner_uuid' })
   owner: User
 
   @ManyToOne(() => Team)
-  @JoinColumn()
+  @JoinColumn({ referencedColumnName: 'uuid', name: 'team_uuid' })
   team: Team
 
   @Column('varchar', { length: 100 })

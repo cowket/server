@@ -16,8 +16,8 @@ export class UsersService {
     private usersGrantRepository: Repository<UserGrant>,
     @InjectRepository(User)
     private usersRepository: Repository<User>,
-    private configService: ConfigService,
-    private utilService: UtilService
+    private utilService: UtilService,
+    private configService: ConfigService
   ) {}
 
   findAll(): Promise<User[]> {
@@ -31,7 +31,6 @@ export class UsersService {
         'avatar',
         'create_date',
         'email',
-        'id',
         'password',
         'update_date',
         'uuid'

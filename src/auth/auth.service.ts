@@ -6,19 +6,18 @@ import { UsersService } from 'src/users/users.service'
 import * as bcrypt from 'bcryptjs'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
-
-export type TokenUserInfo = Pick<User, 'avatar' | 'email' | 'id' | 'uuid'>
+import { TokenUserInfo } from 'src/types/user'
 
 @Injectable()
 export class AuthService {
   private logger: Logger = new Logger('AuthService')
 
   constructor(
-    private usersService: UsersService,
-    private jwtService: JwtService,
     private configService: ConfigService,
     @InjectRepository(User)
-    private usersRepository: Repository<User>
+    private usersRepository: Repository<User>,
+    private usersService: UsersService,
+    private jwtService: JwtService
   ) {}
 
   async validateUser(
@@ -36,7 +35,6 @@ export class AuthService {
         ? {
             avatar: user.avatar,
             email: user.email,
-            id: user.id,
             uuid: user.uuid
           }
         : false
@@ -65,7 +63,6 @@ export class AuthService {
     const tokenUser: TokenUserInfo = {
       avatar: user.avatar,
       email: user.email,
-      id: user.id,
       uuid: user.uuid
     }
     const refreshToken = await this.jwtService.signAsync(tokenUser, {
@@ -87,7 +84,6 @@ export class AuthService {
     return {
       avatar: user.avatar,
       email: user.email,
-      id: user.id,
       uuid: user.uuid
     }
   }

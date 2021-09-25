@@ -3,7 +3,6 @@ import { IsNumber, IsOptional, IsString } from 'class-validator'
 import {
   Entity,
   Column,
-  PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
   PrimaryColumn
@@ -29,10 +28,6 @@ export class UpdateUser {
 
 @Entity({ name: 'users' })
 export class User {
-  @ApiProperty({ description: '유저 아이디' })
-  @PrimaryGeneratedColumn()
-  id: number
-
   @ApiProperty({ description: '유저 유니크 아이디' })
   @PrimaryColumn({ type: 'varchar' })
   uuid: string

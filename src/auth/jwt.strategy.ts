@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { PassportStrategy } from '@nestjs/passport'
 import { ExtractJwt, Strategy } from 'passport-jwt'
-import { TokenUserInfo } from './auth.service'
+import { TokenUserInfo } from 'src/types/user'
 
 type ITokenUserInfo = {
   iat: number

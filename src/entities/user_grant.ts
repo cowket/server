@@ -20,19 +20,19 @@ export class UserGrant {
   @ApiProperty({ description: '유저 정보' })
   @ManyToOne(() => User)
   @JoinColumn({ referencedColumnName: 'uuid', name: 'user_uuid' })
-  @Column('varchar')
+  @Column('varchar', { nullable: false })
   user_uuid: User
 
   @ApiProperty({ description: '팀 정보' })
   @ManyToOne(() => Team)
   @JoinColumn({ referencedColumnName: 'uuid', name: 'team_uuid' })
-  @Column('varchar', { nullable: true })
+  @Column('varchar', { nullable: false })
   team_uuid: Team
 
   @ApiProperty({ description: '채널 정보' })
   @ManyToOne(() => Channel)
   @JoinColumn({ referencedColumnName: 'uuid', name: 'channel_uuid' })
-  @Column('varchar', { nullable: true })
+  @Column('varchar', { nullable: false })
   channel_uuid: Channel
 
   @ApiProperty({ description: '생성일' })

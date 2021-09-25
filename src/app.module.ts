@@ -1,17 +1,21 @@
 import { Global, Module } from '@nestjs/common'
+
+// Module
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { AuthModule } from './auth/auth.module'
 import { UsersModule } from './users/users.module'
-import { User } from './entities/user'
-import { UserGrant } from './entities/user_grant'
-import { UtilModule } from './util/util.module'
 import { SocketModule } from './socket/socket.module'
-import { Team } from './entities/team'
 import { TeamsModule } from './team/team.module'
-import { Channel } from './entities/channel'
 import { FileModule } from './file/file.module'
 import { JwtModule } from '@nestjs/jwt'
+
+// entities
+import { Message } from './entities/message'
+import { Team } from './entities/team'
+import { Channel } from './entities/channel'
+import { User } from './entities/user'
+import { UserGrant } from './entities/user_grant'
 
 const isProd = process.env.NODE_ENV === 'production'
 
@@ -31,7 +35,7 @@ const isProd = process.env.NODE_ENV === 'production'
       database: process.env.DB_NAME,
       // synchronize: !isProd,
       synchronize: false,
-      entities: [User, UserGrant, Team, Channel],
+      entities: [User, UserGrant, Team, Channel, Message],
       // dropSchema: !isProd,
       dropSchema: false,
       migrations: ['dist/migration/**/*.js'],
@@ -40,9 +44,8 @@ const isProd = process.env.NODE_ENV === 'production'
         migrationsDir: 'src/migration'
       }
     }),
-    UtilModule,
-    AuthModule,
     UsersModule,
+    AuthModule,
     SocketModule,
     TeamsModule,
     FileModule,

@@ -1,12 +1,10 @@
 import { Injectable } from '@nestjs/common'
 import { Request } from 'express'
-import { User } from 'src/entities/user'
 import { v4 as uuid } from 'uuid'
 import * as path from 'path'
 import * as fs from 'fs'
 import * as jdenticon from 'jdenticon'
-
-type TokenUserInfo = Pick<User, 'avatar' | 'email' | 'id' | 'uuid'>
+import { TokenUserInfo } from 'src/types/user'
 
 type FullTokenUserInfo = TokenUserInfo & {
   iat: number
