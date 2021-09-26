@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Team, UpdateTeamData } from 'src/entities/team'
+import { RequestTeamData, Team, UpdateTeamData } from 'src/entities/team'
 import { UsersService } from 'src/users/users.service'
 import { UtilService } from 'src/util/util.service'
 import { Repository } from 'typeorm'
@@ -44,15 +44,18 @@ export class TeamService {
     return teams
   }
 
-  async createTeam(teamName: string, userUuid: string, isPrivate: boolean) {
+  async createTeam(createTeam: RequestTeamData, userUuid: string) {
+    const { name, description, is_private } = createTeam
+
     const user = await this.usersService.findByUuid(userUuid)
     const team = await this.teamRepository.insert({
       create_date: new Date(),
       update_date: new Date(),
-      name: teamName,
+      name,
       owner: user,
       uuid: this.utilService.genUuid(),
-      is_private: isPrivate
+      is_private,
+      description
     })
     const insertedTeam = await this.teamRepository
       .createQueryBuilder('team')

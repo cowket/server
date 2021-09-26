@@ -19,6 +19,11 @@ export class RequestTeamData {
   @ApiProperty({ description: '팀 비공개 여부' })
   @IsBoolean()
   is_private?: boolean
+
+  @ApiProperty({ description: '팀 설명' })
+  @IsString()
+  @IsOptional()
+  description?: string
 }
 
 export class UpdateTeamData extends RequestTeamData {
@@ -57,4 +62,8 @@ export class Team {
   @Column('boolean', { default: false })
   @ApiProperty({ description: '팀 공개 여부' })
   is_private: boolean
+
+  @Column('varchar', { length: 500, nullable: true, default: null })
+  @ApiProperty({ description: '팀 설명' })
+  description: string
 }

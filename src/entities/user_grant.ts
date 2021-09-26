@@ -32,7 +32,7 @@ export class UserGrant {
   @ApiProperty({ description: '채널 정보' })
   @ManyToOne(() => Channel)
   @JoinColumn({ referencedColumnName: 'uuid', name: 'channel_uuid' })
-  @Column('varchar', { nullable: false })
+  @Column('varchar', { nullable: true })
   channel_uuid: Channel
 
   @ApiProperty({ description: '생성일' })
