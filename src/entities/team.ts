@@ -7,7 +7,8 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   Column,
-  ManyToOne
+  ManyToOne,
+  Index
 } from 'typeorm'
 import { User } from './user'
 
@@ -43,6 +44,7 @@ export class Team {
   @ApiProperty({ description: '팀 소유자' })
   owner: User
 
+  @Index({ fulltext: true })
   @Column('varchar', { length: 200 })
   @ApiProperty({ description: '팀 이름' })
   name: string
@@ -63,6 +65,7 @@ export class Team {
   @ApiProperty({ description: '팀 공개 여부' })
   is_private: boolean
 
+  @Index({ fulltext: true })
   @Column('varchar', { length: 500, nullable: true, default: null })
   @ApiProperty({ description: '팀 설명' })
   description: string

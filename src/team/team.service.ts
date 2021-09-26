@@ -108,4 +108,14 @@ export class TeamService {
 
     return !!isOwner
   }
+
+  async searchTeamByKeyword(keyword: string) {
+    return this.teamRepository
+      .createQueryBuilder('team')
+      .leftJoinAndSelect('team.owner', 'users')
+      .select()
+      .where(`MATCH(name) AGAINST ('+${keyword}*' in boolean mode)`)
+      .orWhere(`MATCH(description) AGAINST ('+${keyword}*' in boolean mode)`)
+      .getMany()
+  }
 }

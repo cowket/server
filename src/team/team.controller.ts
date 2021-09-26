@@ -15,7 +15,13 @@ import {
   UsePipes,
   ValidationPipe
 } from '@nestjs/common'
-import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger'
+import {
+  ApiBadRequestResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiTags
+} from '@nestjs/swagger'
 import { Request, Response } from 'express'
 import { JwtGuard } from 'src/auth/jwt.guard'
 import { RequestTeamData, Team, UpdateTeamData } from 'src/entities/team'
@@ -111,7 +117,7 @@ export class TeamController {
   @Put(':uuid')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: '팀 업데이트 (작업중)'
+    summary: '팀 업데이트'
   })
   @ApiOkResponse({ type: Team })
   async updateTeam(
@@ -138,5 +144,30 @@ export class TeamController {
     const updatedTeam = await this.teamService.updateTeam(uuid, body)
 
     return res.status(HttpStatus.OK).json(updatedTeam)
+  }
+
+  @UseGuards(JwtGuard)
+  @Get('search/:keyword')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: '팀 검색',
+    description: '키워드로 팀을 검색합니다. 키워드는 2자 이상이어야 합니다.'
+  })
+  @ApiParam({
+    name: 'keyword',
+    description: '검색할 키워드, 팀 이름 및 설명으로 검색합니다.'
+  })
+  @ApiOkResponse({ type: [Team] })
+  @ApiBadRequestResponse({ type: HttpException })
+  async searchTeam(@Param('keyword') keyword: string) {
+    if (!keyword || keyword.length < 2)
+      throw new HttpException(
+        '검색 키워드가 없거나 2자 미만입니다.',
+        HttpStatus.BAD_REQUEST
+      )
+
+    const searchResult = await this.teamService.searchTeamByKeyword(keyword)
+
+    return searchResult
   }
 }
