@@ -16,6 +16,7 @@ import { Team } from './entities/team'
 import { Channel } from './entities/channel'
 import { User } from './entities/user'
 import { UserGrant } from './entities/user_grant'
+import { TeamUserProfile } from './entities/team_user_profile'
 
 const isProd = process.env.NODE_ENV === 'production'
 
@@ -35,7 +36,7 @@ const isProd = process.env.NODE_ENV === 'production'
       database: process.env.DB_NAME,
       // synchronize: !isProd,
       synchronize: false,
-      entities: [User, UserGrant, Team, Channel, Message],
+      entities: [User, UserGrant, Team, Channel, Message, TeamUserProfile],
       // dropSchema: !isProd,
       dropSchema: false,
       migrations: ['dist/migration/**/*.js'],

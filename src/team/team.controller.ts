@@ -17,6 +17,7 @@ import {
 } from '@nestjs/common'
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiOkResponse,
   ApiOperation,
   ApiParam,
@@ -25,6 +26,8 @@ import {
 import { Request, Response } from 'express'
 import { JwtGuard } from 'src/auth/jwt.guard'
 import { RequestTeamData, Team, UpdateTeamData } from 'src/entities/team'
+import { CombineUser, TeamUserProfile } from 'src/entities/team_user_profile'
+import { User } from 'src/entities/user'
 import { UsersService } from 'src/users/users.service'
 import { UtilService } from 'src/util/util.service'
 import { TeamService } from './team.service'
@@ -169,5 +172,41 @@ export class TeamController {
     const searchResult = await this.teamService.searchTeamByKeyword(keyword)
 
     return searchResult
+  }
+
+  @UseGuards(JwtGuard)
+  @Get('grant/all/:uuid')
+  @ApiOperation({
+    summary: '팀 내에 참여중인 모든 유저 조회',
+    description: '팀 내에 가입된 모든 유저의 정보를 반환합니다.'
+  })
+  @ApiParam({
+    name: 'uuid',
+    description: '팀 uuid'
+  })
+  @ApiOkResponse({ type: [CombineUser] })
+  async getAllUserGrantInTeam(@Param('uuid') uuid: string) {
+    const uuids = this.teamService.getGrantsUserInTeam(uuid)
+    return uuids
+  }
+
+  @UseGuards(JwtGuard)
+  @Get('profile/:uuid')
+  @ApiOperation({
+    summary: '팀 내에 유저 프로필 조회',
+    description:
+      '팀 내에 유저 uuid로 유저의 프로필을 조회합니다. 해당 유저가 팀 내에 프로필을 생성하지 않았을 경우 유저 테이블에 있는 내용을 반환합니다.'
+  })
+  @ApiOkResponse({ type: TeamUserProfile || User })
+  @ApiBadRequestResponse({
+    type: HttpException,
+    description: '존재하지 않는 유저 등'
+  })
+  @ApiBearerAuth('access-token')
+  async getUserProfile(@Param('uuid') uuid: string) {
+    const userProfile = await this.teamService.getTeamUserProfile(uuid)
+    if (!userProfile)
+      throw new HttpException('존재하지 않는 유저', HttpStatus.BAD_REQUEST)
+    return userProfile
   }
 }

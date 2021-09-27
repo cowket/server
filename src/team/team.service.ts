@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { RequestTeamData, Team, UpdateTeamData } from 'src/entities/team'
+import { TeamUserProfile } from 'src/entities/team_user_profile'
+import { UserGrant } from 'src/entities/user_grant'
 import { UsersService } from 'src/users/users.service'
 import { UtilService } from 'src/util/util.service'
 import { Repository } from 'typeorm'
@@ -9,6 +11,10 @@ import { Repository } from 'typeorm'
 export class TeamService {
   constructor(
     @InjectRepository(Team) private teamRepository: Repository<Team>,
+    @InjectRepository(TeamUserProfile)
+    private teamUserProfileRepo: Repository<TeamUserProfile>,
+    @InjectRepository(UserGrant)
+    private userGrantRepo: Repository<UserGrant>,
     private usersService: UsersService,
     private utilService: UtilService
   ) {}
@@ -117,5 +123,30 @@ export class TeamService {
       .where(`MATCH(name) AGAINST ('+${keyword}*' in boolean mode)`)
       .orWhere(`MATCH(description) AGAINST ('+${keyword}*' in boolean mode)`)
       .getMany()
+  }
+
+  async getIsExistTeamUserProfile(uuid: string) {
+    const profileCount = await this.teamUserProfileRepo
+      .createQueryBuilder('team_user_profile')
+      .where(`team_user_profile.user_uuid = '${uuid}'`)
+      .getOne()
+
+    return profileCount || false
+  }
+
+  async getTeamUserProfile(uuid: string) {
+    const userBaseProfile = await this.usersService.findByUuid(uuid)
+    if (!userBaseProfile) return null
+    const isExist = await this.getIsExistTeamUserProfile(uuid)
+    return isExist || userBaseProfile
+  }
+
+  async getGrantsUserInTeam(teamUuid: string) {
+    const grantUserUuids = await this.userGrantRepo
+      .createQueryBuilder('grant')
+      .where('grant.team_uuid = :teamUuid', { teamUuid })
+      .getMany()
+
+    return grantUserUuids.map((user) => user.user_uuid)
   }
 }
