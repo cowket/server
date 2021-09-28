@@ -11,6 +11,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Req,
   Res,
   UseGuards,
@@ -23,6 +24,7 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiTags
 } from '@nestjs/swagger'
 import { Request, Response } from 'express'
@@ -220,19 +222,32 @@ export class TeamController {
   }
 
   @UseGuards(JwtGuard)
-  @Get('profile/:uuid')
+  @Get('profile')
   @ApiOperation({
     summary: '팀 내에 유저 프로필 조회',
     description:
-      '팀 내에 유저 uuid로 유저의 프로필을 조회합니다. 해당 유저가 팀 내에 프로필을 생성하지 않았을 경우 유저 테이블에 있는 내용을 반환합니다.'
+      '팀 내에 유저 uuid로 유저의 프로필을 조회합니다. 해당 유저가 팀 내에 프로필을 생성하지 않았을 경우 유저 테이블에 있는 내용을 반환합니다. 조회에는 팀 uuid와 유저 uuid가 필요합니다.'
   })
   @ApiOkResponse({ type: TeamUserProfile || User })
   @ApiBadRequestResponse({
     type: HttpException,
     description: '존재하지 않는 유저 등'
   })
-  async getUserProfile(@Param('uuid') uuid: string) {
-    const userProfile = await this.teamService.getTeamUserProfile(uuid)
+  @ApiQuery({ name: 'user_uuid', required: true })
+  @ApiQuery({ name: 'team_uuid', required: true })
+  async getUserProfile(
+    @Query('user_uuid') user_uuid: string,
+    @Query('team_uuid') team_uuid: string
+  ) {
+    if (!user_uuid || !team_uuid)
+      throw new HttpException(
+        '유저 uuid 혹은 팀 uuid 누락',
+        HttpStatus.BAD_REQUEST
+      )
+    const userProfile = await this.teamService.getTeamUserProfile(
+      user_uuid,
+      team_uuid
+    )
     if (!userProfile)
       throw new HttpException('존재하지 않는 유저', HttpStatus.BAD_REQUEST)
     return userProfile

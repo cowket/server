@@ -8,6 +8,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn
 } from 'typeorm'
+import { Team } from './team'
 import { User } from './user'
 
 export class RequestTeamUserProfile {
@@ -31,6 +32,10 @@ export class RequestTeamUserProfile {
   @IsString()
   @Length(10, 11)
   contact: string
+
+  @ApiProperty({ description: '팀 uuid' })
+  @IsString()
+  team_uuid: string
 }
 
 @Entity({ name: 'team_user_profile' })
@@ -42,6 +47,10 @@ export class TeamUserProfile {
   @ManyToOne(() => User)
   @JoinColumn({ name: 'user_uuid', referencedColumnName: 'uuid' })
   user_uuid: User
+
+  @ManyToOne(() => Team)
+  @JoinColumn({ name: 'team_uuid', referencedColumnName: 'uuid' })
+  team_uuid: Team
 
   @ApiProperty({ description: '표시될 이름' })
   @Column('varchar', { length: 50, nullable: true })

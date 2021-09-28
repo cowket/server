@@ -128,19 +128,20 @@ export class TeamService {
       .getMany()
   }
 
-  async getIsExistTeamUserProfile(uuid: string) {
+  async getIsExistTeamUserProfile(uuid: string, teamUuid: string) {
     const profileCount = await this.teamUserProfileRepo
       .createQueryBuilder('team_user_profile')
       .where(`team_user_profile.user_uuid = '${uuid}'`)
+      .andWhere(`team_user_profile.team_uuid = '${teamUuid}'`)
       .getOne()
 
     return profileCount || false
   }
 
-  async getTeamUserProfile(uuid: string) {
+  async getTeamUserProfile(uuid: string, teamUuid: string) {
     const userBaseProfile = await this.usersService.findByUuid(uuid)
     if (!userBaseProfile) return null
-    const isExist = await this.getIsExistTeamUserProfile(uuid)
+    const isExist = await this.getIsExistTeamUserProfile(uuid, teamUuid)
     return isExist || userBaseProfile
   }
 
