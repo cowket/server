@@ -6,7 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 import { AuthModule } from './auth/auth.module'
 import { UsersModule } from './users/users.module'
 import { SocketModule } from './socket/socket.module'
-import { TeamsModule } from './team/team.module'
+import { TeamModule } from './team/team.module'
 import { FileModule } from './file/file.module'
 import { JwtModule } from '@nestjs/jwt'
 
@@ -46,9 +46,9 @@ const isProd = process.env.NODE_ENV === 'production'
       }
     }),
     UsersModule,
+    TeamModule,
     AuthModule,
     SocketModule,
-    TeamsModule,
     FileModule,
     JwtModule.registerAsync({
       inject: [ConfigService],

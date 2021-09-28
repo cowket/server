@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common'
+import { forwardRef, Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { Team } from 'src/entities/team'
 import { TeamUserProfile } from 'src/entities/team_user_profile'
@@ -11,10 +11,11 @@ import { TeamService } from './team.service'
 @Module({
   imports: [
     TypeOrmModule.forFeature([Team, TeamUserProfile, UserGrant]),
-    UsersModule,
-    UtilModule
+    UtilModule,
+    forwardRef(() => UsersModule)
   ],
   controllers: [TeamController],
-  providers: [TeamService]
+  providers: [TeamService],
+  exports: [TeamService]
 })
-export class TeamsModule {}
+export class TeamModule {}

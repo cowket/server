@@ -2,10 +2,12 @@ import {
   Body,
   Controller,
   Delete,
+  forwardRef,
   Get,
   HttpCode,
   HttpException,
   HttpStatus,
+  Inject,
   Param,
   Post,
   Put,
@@ -38,19 +40,9 @@ export class TeamController {
   constructor(
     private teamService: TeamService,
     private utilService: UtilService,
+    @Inject(forwardRef(() => UsersService))
     private userService: UsersService
   ) {}
-
-  @UseGuards(JwtGuard)
-  @Get('all')
-  @ApiOperation({ summary: '유저의 모든 팀 조회' })
-  @ApiOkResponse({ type: [Team] })
-  async getAllTeams(@Req() req: Request, @Res() res: Response) {
-    const user = this.utilService.getUserInfoFromReq(req)
-    const teams = await this.teamService.getAllTeamsByUser(user.uuid)
-
-    return res.status(HttpStatus.OK).json(teams)
-  }
 
   @UseGuards(JwtGuard)
   @Post('new')
