@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { RequestTeamData, Team, UpdateTeamData } from 'src/entities/team'
-import { TeamUserProfile } from 'src/entities/team_user_profile'
+import {
+  RequestTeamUserProfile,
+  TeamUserProfile
+} from 'src/entities/team_user_profile'
 import { UserGrant } from 'src/entities/user_grant'
 import { UsersService } from 'src/users/users.service'
 import { UtilService } from 'src/util/util.service'
@@ -152,5 +155,12 @@ export class TeamService {
 
   async getAllTeam() {
     return this.teamRepository.find()
+  }
+
+  async createTeamUserProfile(
+    profile: RequestTeamUserProfile,
+    userUuid: string
+  ) {
+    console.log(profile, userUuid)
   }
 }

@@ -19,7 +19,7 @@ import {
 } from '@nestjs/common'
 import {
   ApiBadRequestResponse,
-  ApiBearerAuth,
+  ApiBody,
   ApiOkResponse,
   ApiOperation,
   ApiParam,
@@ -28,7 +28,11 @@ import {
 import { Request, Response } from 'express'
 import { JwtGuard } from 'src/auth/jwt.guard'
 import { RequestTeamData, Team, UpdateTeamData } from 'src/entities/team'
-import { CombineUser, TeamUserProfile } from 'src/entities/team_user_profile'
+import {
+  CombineUser,
+  RequestTeamUserProfile,
+  TeamUserProfile
+} from 'src/entities/team_user_profile'
 import { User } from 'src/entities/user'
 import { UsersService } from 'src/users/users.service'
 import { UtilService } from 'src/util/util.service'
@@ -195,6 +199,27 @@ export class TeamController {
   }
 
   @UseGuards(JwtGuard)
+  @Post('profile')
+  @ApiOperation({
+    summary: '팀 내 프로필 생성',
+    description: '팀 내에 프로필을 생성합니다.'
+  })
+  @ApiOkResponse({ type: TeamUserProfile })
+  @ApiBody({ type: RequestTeamUserProfile })
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async createTeamUserProfile(
+    @Req() req: Request,
+    @Body() profile: RequestTeamUserProfile
+  ) {
+    const user = this.utilService.getUserInfoFromReq(req)
+    const insertedProfile = await this.teamService.createTeamUserProfile(
+      profile,
+      user.uuid
+    )
+    return insertedProfile
+  }
+
+  @UseGuards(JwtGuard)
   @Get('profile/:uuid')
   @ApiOperation({
     summary: '팀 내에 유저 프로필 조회',
@@ -206,7 +231,6 @@ export class TeamController {
     type: HttpException,
     description: '존재하지 않는 유저 등'
   })
-  @ApiBearerAuth('access-token')
   async getUserProfile(@Param('uuid') uuid: string) {
     const userProfile = await this.teamService.getTeamUserProfile(uuid)
     if (!userProfile)
