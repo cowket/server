@@ -45,6 +45,18 @@ export class TeamController {
   ) {}
 
   @UseGuards(JwtGuard)
+  @Get()
+  @ApiOperation({
+    summary: '모든 팀 조회',
+    description: '존재하는 모든 팀을 조회합니다.'
+  })
+  @ApiOkResponse({ type: [Team] })
+  async getAllTeam() {
+    const teams = await this.teamService.getAllTeam()
+    return teams
+  }
+
+  @UseGuards(JwtGuard)
   @Post('new')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '팀 생성' })

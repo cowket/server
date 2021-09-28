@@ -149,4 +149,8 @@ export class TeamService {
 
     return grantUserUuids.map((user) => user.user_uuid)
   }
+
+  async getAllTeam() {
+    return this.teamRepository.find()
+  }
 }
