@@ -10,6 +10,7 @@ import { UsersService } from 'src/users/users.service'
 import { UtilService } from 'src/util/util.service'
 import { Repository } from 'typeorm'
 import * as bcrypt from 'bcryptjs'
+import { ConfigService } from '@nestjs/config'
 
 @Injectable()
 export class TeamService {
@@ -20,7 +21,8 @@ export class TeamService {
     @InjectRepository(UserGrant)
     private userGrantRepo: Repository<UserGrant>,
     private usersService: UsersService,
-    private utilService: UtilService
+    private utilService: UtilService,
+    private configService: ConfigService
   ) {}
 
   async deleteTeam(teamUuid: string, userUuid: string) {
@@ -55,7 +57,15 @@ export class TeamService {
   }
 
   async createTeam(createTeam: RequestTeamData, userUuid: string) {
-    const { name, description, is_private } = createTeam
+    const { name, description, is_private, password } = createTeam
+    let encryptPw = null
+
+    if (is_private && password) {
+      const salt = bcrypt.genSaltSync(
+        parseInt(this.configService.get('SE_SALT'))
+      )
+      encryptPw = bcrypt.hashSync(password, salt)
+    }
 
     const user = await this.usersService.findByUuid(userUuid)
     const team = await this.teamRepository.insert({
@@ -65,7 +75,8 @@ export class TeamService {
       owner: user,
       uuid: this.utilService.genUuid(),
       is_private,
-      description
+      description,
+      password: encryptPw
     })
     const insertedTeam = await this.teamRepository
       .createQueryBuilder('team')
@@ -166,6 +177,15 @@ export class TeamService {
     console.log(profile, userUuid)
   }
 
+  async getTeamPublicType(teamUuid: string) {
+    const { is_private } = await this.teamRepository.findOne({
+      where: { uuid: teamUuid },
+      select: ['is_private']
+    })
+
+    return is_private
+  }
+
   async enterPublicTeam(userUuid: string, teamUuid: string) {
     const team = await this.getTeamByUuid(teamUuid)
     const user = await this.usersService.findByUuid(userUuid)
@@ -178,9 +198,25 @@ export class TeamService {
     })
   }
 
-  async enterPrivateTeam(userUuid: string, teamUuid: string) {}
+  async enterPrivateTeam(userUuid: string, teamUuid: string, password: string) {
+    const isCorretPw = await this.isCorrectPrivateTeamPassword(
+      teamUuid,
+      password
+    )
+
+    if (isCorretPw) {
+      return this.enterPublicTeam(userUuid, teamUuid)
+    } else {
+      return null
+    }
+  }
 
   async isCorrectPrivateTeamPassword(teamUuid: string, password: string) {
-    const team = await this.getTeamByUuid(teamUuid)
+    const { password: teamPw } = await this.teamRepository.findOne({
+      where: { uuid: teamUuid },
+      select: ['password']
+    })
+
+    return bcrypt.compareSync(password, teamPw)
   }
 }

@@ -12,6 +12,17 @@ import {
 } from 'typeorm'
 import { User } from './user'
 
+export class EnterTeamData {
+  @ApiProperty({ description: '팀 유니크 아이디' })
+  @IsString()
+  team_uuid: string
+
+  @ApiProperty({ description: '팀 비밀번호 (비공개 팀일시 필수)' })
+  @IsString()
+  @IsOptional()
+  password?: string
+}
+
 export class RequestTeamData {
   @ApiProperty({ description: '팀 이름' })
   @IsString()
@@ -25,6 +36,11 @@ export class RequestTeamData {
   @IsString()
   @IsOptional()
   description?: string
+
+  @ApiProperty({ description: '팀 비밀번호 (비공개 팀일시 필수)' })
+  @IsString()
+  @IsOptional()
+  password?: string
 }
 
 export class UpdateTeamData extends RequestTeamData {
@@ -69,4 +85,8 @@ export class Team {
   @Column('varchar', { length: 500, nullable: true, default: null })
   @ApiProperty({ description: '팀 설명' })
   description: string
+
+  @Column('varchar', { length: 500, nullable: true, select: false })
+  @ApiProperty({ description: '비공개팀일시 팀 비밀번호' })
+  password: string
 }

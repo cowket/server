@@ -1,4 +1,5 @@
 import { forwardRef, Module } from '@nestjs/common'
+import { ConfigModule } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { Team } from 'src/entities/team'
 import { TeamUserProfile } from 'src/entities/team_user_profile'
@@ -12,7 +13,8 @@ import { TeamService } from './team.service'
   imports: [
     TypeOrmModule.forFeature([Team, TeamUserProfile, UserGrant]),
     UtilModule,
-    forwardRef(() => UsersModule)
+    forwardRef(() => UsersModule),
+    ConfigModule
   ],
   controllers: [TeamController],
   providers: [TeamService],

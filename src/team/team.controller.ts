@@ -29,7 +29,12 @@ import {
 } from '@nestjs/swagger'
 import { Request, Response } from 'express'
 import { JwtGuard } from 'src/auth/jwt.guard'
-import { RequestTeamData, Team, UpdateTeamData } from 'src/entities/team'
+import {
+  EnterTeamData,
+  RequestTeamData,
+  Team,
+  UpdateTeamData
+} from 'src/entities/team'
 import {
   CombineUser,
   RequestTeamUserProfile,
@@ -75,6 +80,12 @@ export class TeamController {
   ) {
     if (!req.body || !createTeam || !createTeam.name)
       throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST)
+
+    if (createTeam.is_private && !createTeam.password)
+      throw new HttpException(
+        '비공개 팀일시 비밀번호는 필수입니다.',
+        HttpStatus.BAD_REQUEST
+      )
 
     const user = this.utilService.getUserInfoFromReq(req)
     const isExist = await this.teamService.isExistTeamName(createTeam.name)
@@ -252,4 +263,41 @@ export class TeamController {
       throw new HttpException('존재하지 않는 유저', HttpStatus.BAD_REQUEST)
     return userProfile
   }
+
+  @UseGuards(JwtGuard)
+  @Post('enter')
+  @ApiOperation({
+    summary: '팀 가입',
+    description:
+      '팀에 가입합니다. 공개팀일 경우 바디에 team_uuid만 넣어주면 가입되며, 비공개팀일 경우 team_uuid와 password가 필요합니다.'
+  })
+  @ApiBody({ type: EnterTeamData })
+  @ApiOkResponse({ type: 'boolean' })
+  async enterTeam(@Body() body: EnterTeamData, @Req() req: Request) {
+    const user = this.utilService.getUserInfoFromReq(req)
+    const isPrivate = await this.teamService.getTeamPublicType(body.team_uuid)
+
+    if (isPrivate) {
+      if (!body.password)
+        throw new HttpException(
+          '비공개팀은 비밀번호가 필수입니다.',
+          HttpStatus.FORBIDDEN
+        )
+      const correct = await this.teamService.enterPrivateTeam(
+        user.uuid,
+        body.team_uuid,
+        body.password
+      )
+      if (correct) return true
+      else
+        throw new HttpException(
+          '비밀번호가 틀렸습니다.',
+          HttpStatus.BAD_REQUEST
+        )
+    } else {
+      await this.teamService.enterPublicTeam(user.uuid, body.team_uuid)
+      return true
+    }
+  }
+  // TODO 팀 가입시 이미 가입되어있는 유저 체크 필요
 }
