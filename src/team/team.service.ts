@@ -9,6 +9,7 @@ import { UserGrant } from 'src/entities/user_grant'
 import { UsersService } from 'src/users/users.service'
 import { UtilService } from 'src/util/util.service'
 import { Repository } from 'typeorm'
+import * as bcrypt from 'bcryptjs'
 
 @Injectable()
 export class TeamService {
@@ -163,5 +164,23 @@ export class TeamService {
     userUuid: string
   ) {
     console.log(profile, userUuid)
+  }
+
+  async enterPublicTeam(userUuid: string, teamUuid: string) {
+    const team = await this.getTeamByUuid(teamUuid)
+    const user = await this.usersService.findByUuid(userUuid)
+
+    return this.userGrantRepo.insert({
+      channel_uuid: null,
+      create_date: new Date(),
+      team_uuid: team,
+      user_uuid: user
+    })
+  }
+
+  async enterPrivateTeam(userUuid: string, teamUuid: string) {}
+
+  async isCorrectPrivateTeamPassword(teamUuid: string, password: string) {
+    const team = await this.getTeamByUuid(teamUuid)
   }
 }
