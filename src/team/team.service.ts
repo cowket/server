@@ -8,9 +8,10 @@ import {
 import { UserGrant } from 'src/entities/user_grant'
 import { UsersService } from 'src/users/users.service'
 import { UtilService } from 'src/util/util.service'
-import { Repository } from 'typeorm'
+import { In, Repository } from 'typeorm'
 import * as bcrypt from 'bcryptjs'
 import { ConfigService } from '@nestjs/config'
+import { User } from 'src/entities/user'
 
 @Injectable()
 export class TeamService {
@@ -22,7 +23,9 @@ export class TeamService {
     private userGrantRepo: Repository<UserGrant>,
     private usersService: UsersService,
     private utilService: UtilService,
-    private configService: ConfigService
+    private configService: ConfigService,
+    @InjectRepository(User)
+    private userRepo: Repository<User>
   ) {}
 
   async deleteTeam(teamUuid: string, userUuid: string) {
@@ -163,7 +166,10 @@ export class TeamService {
       .where('grant.team_uuid = :teamUuid', { teamUuid })
       .getMany()
 
-    return grantUserUuids.map((user) => user.user_uuid)
+    console.log(grantUserUuids)
+
+    // @ts-expect-error User[] -> string[]
+    return grantUserUuids.map((user) => user.user_uuid) as string[]
   }
 
   async getAllTeam() {
@@ -174,7 +180,14 @@ export class TeamService {
     profile: RequestTeamUserProfile,
     userUuid: string
   ) {
-    console.log(profile, userUuid)
+    const user = await this.usersService.findByUuid(userUuid)
+    const team = await this.getTeamByUuid(profile.team_uuid)
+
+    return this.teamUserProfileRepo.insert({
+      ...profile,
+      user_uuid: user,
+      team_uuid: team
+    })
   }
 
   async getTeamPublicType(teamUuid: string) {
@@ -218,5 +231,12 @@ export class TeamService {
     })
 
     return bcrypt.compareSync(password, teamPw)
+  }
+
+  async getAllUserProfile(teamUuid: string, userUuids: string[]) {
+    return this.userRepo
+      .createQueryBuilder('users')
+      .where({ uuid: In(userUuids) })
+      .getMany()
   }
 }

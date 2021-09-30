@@ -99,6 +99,139 @@ export class TeamController {
   }
 
   @UseGuards(JwtGuard)
+  @Get('search/:keyword')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: '팀 검색',
+    description: '키워드로 팀을 검색합니다. 키워드는 2자 이상이어야 합니다.'
+  })
+  @ApiParam({
+    name: 'keyword',
+    description: '검색할 키워드, 팀 이름 및 설명으로 검색합니다.'
+  })
+  @ApiOkResponse({ type: [Team] })
+  @ApiBadRequestResponse({ type: HttpException })
+  async searchTeam(@Param('keyword') keyword: string) {
+    if (!keyword || keyword.length < 2)
+      throw new HttpException(
+        '검색 키워드가 없거나 2자 미만입니다.',
+        HttpStatus.BAD_REQUEST
+      )
+
+    const searchResult = await this.teamService.searchTeamByKeyword(keyword)
+
+    return searchResult
+  }
+
+  @UseGuards(JwtGuard)
+  @Get('grant/all/:uuid')
+  @ApiOperation({
+    summary: '팀 내에 참여중인 모든 유저 조회 (테스트중)',
+    description: '팀 내에 가입된 모든 유저의 정보를 반환합니다.'
+  })
+  @ApiParam({
+    name: 'uuid',
+    description: '팀 uuid'
+  })
+  @ApiOkResponse({ type: [CombineUser] })
+  async getAllUserGrantInTeam(@Param('uuid') uuid: string) {
+    const uuids = await this.teamService.getGrantsUserInTeam(uuid)
+    const users = await this.teamService.getAllUserProfile(uuid, uuids)
+    return users
+  }
+
+  @UseGuards(JwtGuard)
+  @Get('profile')
+  @ApiOperation({
+    summary: '팀 내에 유저 프로필 조회',
+    description:
+      '팀 내에 유저 uuid로 유저의 프로필을 조회합니다. 해당 유저가 팀 내에 프로필을 생성하지 않았을 경우 유저 테이블에 있는 내용을 반환합니다. 조회에는 팀 uuid와 유저 uuid가 필요합니다.'
+  })
+  @ApiOkResponse({ type: TeamUserProfile || User })
+  @ApiBadRequestResponse({
+    type: HttpException,
+    description: '존재하지 않는 유저 등'
+  })
+  @ApiQuery({ name: 'user_uuid', required: true })
+  @ApiQuery({ name: 'team_uuid', required: true })
+  async getUserProfile(
+    @Query('user_uuid') user_uuid: string,
+    @Query('team_uuid') team_uuid: string
+  ) {
+    if (!user_uuid || !team_uuid)
+      throw new HttpException(
+        '유저 uuid 혹은 팀 uuid 누락',
+        HttpStatus.BAD_REQUEST
+      )
+
+    const userProfile = await this.teamService.getTeamUserProfile(
+      user_uuid,
+      team_uuid
+    )
+    if (!userProfile)
+      throw new HttpException('존재하지 않는 유저', HttpStatus.BAD_REQUEST)
+    return userProfile
+  }
+
+  @UseGuards(JwtGuard)
+  @Post('profile')
+  @ApiOperation({
+    summary: '팀 내 프로필 생성',
+    description: '팀 내에 프로필을 생성합니다.'
+  })
+  @ApiOkResponse({ type: TeamUserProfile })
+  @ApiBody({ type: RequestTeamUserProfile })
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async createTeamUserProfile(
+    @Req() req: Request,
+    @Body() profile: RequestTeamUserProfile
+  ) {
+    const user = this.utilService.getUserInfoFromReq(req)
+    const insertedProfile = await this.teamService.createTeamUserProfile(
+      profile,
+      user.uuid
+    )
+    return insertedProfile
+  }
+
+  @UseGuards(JwtGuard)
+  @Post('enter')
+  @ApiOperation({
+    summary: '팀 가입',
+    description:
+      '팀에 가입합니다. 공개팀일 경우 바디에 team_uuid만 넣어주면 가입되며, 비공개팀일 경우 team_uuid와 password가 필요합니다.'
+  })
+  @ApiBody({ type: EnterTeamData })
+  @ApiOkResponse({ type: 'boolean' })
+  async enterTeam(@Body() body: EnterTeamData, @Req() req: Request) {
+    const user = this.utilService.getUserInfoFromReq(req)
+    const isPrivate = await this.teamService.getTeamPublicType(body.team_uuid)
+
+    if (isPrivate) {
+      if (!body.password)
+        throw new HttpException(
+          '비공개팀은 비밀번호가 필수입니다.',
+          HttpStatus.FORBIDDEN
+        )
+      const correct = await this.teamService.enterPrivateTeam(
+        user.uuid,
+        body.team_uuid,
+        body.password
+      )
+      if (correct) return true
+      else
+        throw new HttpException(
+          '비밀번호가 틀렸습니다.',
+          HttpStatus.BAD_REQUEST
+        )
+    } else {
+      await this.teamService.enterPublicTeam(user.uuid, body.team_uuid)
+      return true
+    }
+  }
+  // TODO 팀 가입시 이미 가입되어있는 유저 체크 필요
+
+  @UseGuards(JwtGuard)
   @Delete(':uuid')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '팀 삭제' })
@@ -169,135 +302,4 @@ export class TeamController {
 
     return res.status(HttpStatus.OK).json(updatedTeam)
   }
-
-  @UseGuards(JwtGuard)
-  @Get('search/:keyword')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({
-    summary: '팀 검색',
-    description: '키워드로 팀을 검색합니다. 키워드는 2자 이상이어야 합니다.'
-  })
-  @ApiParam({
-    name: 'keyword',
-    description: '검색할 키워드, 팀 이름 및 설명으로 검색합니다.'
-  })
-  @ApiOkResponse({ type: [Team] })
-  @ApiBadRequestResponse({ type: HttpException })
-  async searchTeam(@Param('keyword') keyword: string) {
-    if (!keyword || keyword.length < 2)
-      throw new HttpException(
-        '검색 키워드가 없거나 2자 미만입니다.',
-        HttpStatus.BAD_REQUEST
-      )
-
-    const searchResult = await this.teamService.searchTeamByKeyword(keyword)
-
-    return searchResult
-  }
-
-  @UseGuards(JwtGuard)
-  @Get('grant/all/:uuid')
-  @ApiOperation({
-    summary: '팀 내에 참여중인 모든 유저 조회',
-    description: '팀 내에 가입된 모든 유저의 정보를 반환합니다.'
-  })
-  @ApiParam({
-    name: 'uuid',
-    description: '팀 uuid'
-  })
-  @ApiOkResponse({ type: [CombineUser] })
-  async getAllUserGrantInTeam(@Param('uuid') uuid: string) {
-    const uuids = this.teamService.getGrantsUserInTeam(uuid)
-    return uuids
-  }
-
-  @UseGuards(JwtGuard)
-  @Post('profile')
-  @ApiOperation({
-    summary: '팀 내 프로필 생성',
-    description: '팀 내에 프로필을 생성합니다.'
-  })
-  @ApiOkResponse({ type: TeamUserProfile })
-  @ApiBody({ type: RequestTeamUserProfile })
-  @UsePipes(new ValidationPipe({ transform: true }))
-  async createTeamUserProfile(
-    @Req() req: Request,
-    @Body() profile: RequestTeamUserProfile
-  ) {
-    const user = this.utilService.getUserInfoFromReq(req)
-    const insertedProfile = await this.teamService.createTeamUserProfile(
-      profile,
-      user.uuid
-    )
-    return insertedProfile
-  }
-
-  @UseGuards(JwtGuard)
-  @Get('profile')
-  @ApiOperation({
-    summary: '팀 내에 유저 프로필 조회',
-    description:
-      '팀 내에 유저 uuid로 유저의 프로필을 조회합니다. 해당 유저가 팀 내에 프로필을 생성하지 않았을 경우 유저 테이블에 있는 내용을 반환합니다. 조회에는 팀 uuid와 유저 uuid가 필요합니다.'
-  })
-  @ApiOkResponse({ type: TeamUserProfile || User })
-  @ApiBadRequestResponse({
-    type: HttpException,
-    description: '존재하지 않는 유저 등'
-  })
-  @ApiQuery({ name: 'user_uuid', required: true })
-  @ApiQuery({ name: 'team_uuid', required: true })
-  async getUserProfile(
-    @Query('user_uuid') user_uuid: string,
-    @Query('team_uuid') team_uuid: string
-  ) {
-    if (!user_uuid || !team_uuid)
-      throw new HttpException(
-        '유저 uuid 혹은 팀 uuid 누락',
-        HttpStatus.BAD_REQUEST
-      )
-    const userProfile = await this.teamService.getTeamUserProfile(
-      user_uuid,
-      team_uuid
-    )
-    if (!userProfile)
-      throw new HttpException('존재하지 않는 유저', HttpStatus.BAD_REQUEST)
-    return userProfile
-  }
-
-  @UseGuards(JwtGuard)
-  @Post('enter')
-  @ApiOperation({
-    summary: '팀 가입',
-    description:
-      '팀에 가입합니다. 공개팀일 경우 바디에 team_uuid만 넣어주면 가입되며, 비공개팀일 경우 team_uuid와 password가 필요합니다.'
-  })
-  @ApiBody({ type: EnterTeamData })
-  @ApiOkResponse({ type: 'boolean' })
-  async enterTeam(@Body() body: EnterTeamData, @Req() req: Request) {
-    const user = this.utilService.getUserInfoFromReq(req)
-    const isPrivate = await this.teamService.getTeamPublicType(body.team_uuid)
-
-    if (isPrivate) {
-      if (!body.password)
-        throw new HttpException(
-          '비공개팀은 비밀번호가 필수입니다.',
-          HttpStatus.FORBIDDEN
-        )
-      const correct = await this.teamService.enterPrivateTeam(
-        user.uuid,
-        body.team_uuid,
-        body.password
-      )
-      if (correct) return true
-      else
-        throw new HttpException(
-          '비밀번호가 틀렸습니다.',
-          HttpStatus.BAD_REQUEST
-        )
-    } else {
-      await this.teamService.enterPublicTeam(user.uuid, body.team_uuid)
-      return true
-    }
-  }
-  // TODO 팀 가입시 이미 가입되어있는 유저 체크 필요
 }
