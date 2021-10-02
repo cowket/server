@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { RequestTeamData, Team, UpdateTeamData } from 'src/entities/team'
 import {
+  CombineUser,
   RequestTeamUserProfile,
   TeamUserProfile
 } from 'src/entities/team_user_profile'
@@ -172,8 +173,6 @@ export class TeamService {
       .where('grant.team_uuid = :teamUuid', { teamUuid })
       .getMany()
 
-    console.log(grantUserUuids)
-
     // @ts-expect-error User[] -> string[]
     return grantUserUuids.map((user) => user.user_uuid) as string[]
   }
@@ -240,9 +239,27 @@ export class TeamService {
   }
 
   async getAllUserProfile(teamUuid: string, userUuids: string[]) {
-    return this.userRepo
+    const allUsers = await this.userRepo
       .createQueryBuilder('users')
       .where({ uuid: In(userUuids) })
       .getMany()
+
+    const teamUserProfiles = await this.teamUserProfileRepo
+      .createQueryBuilder('team_user_profile')
+      .leftJoinAndSelect('team_user_profile.user_uuid', 'user')
+      .where('team_uuid = :teamUuid', { teamUuid })
+      .getMany()
+
+    const combineUser: CombineUser[] = allUsers.map((user) => {
+      return {
+        ...user,
+        team_profile:
+          teamUserProfiles.find(
+            (profile) => profile.user_uuid.uuid === user.uuid
+          ) || null
+      }
+    })
+
+    return combineUser
   }
 }

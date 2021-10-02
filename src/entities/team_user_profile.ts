@@ -75,5 +75,5 @@ export class TeamUserProfile {
 
 export class CombineUser extends User {
   @ApiProperty({ description: '팀 내 프로필', required: false })
-  team_profile: TeamUserProfile | null
+  team_profile?: TeamUserProfile | null
 }
