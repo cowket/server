@@ -76,9 +76,12 @@ export class UsersService {
   }
 
   async findAccessibleTeams(uuid: string) {
-    return this.usersGrantRepository.find({
-      where: { user_uuid: uuid, channel_uuid: null }
-    })
+    return this.usersGrantRepository
+      .createQueryBuilder('user_grant')
+      .leftJoinAndSelect('user_grant.team_uuid', 'team')
+      .leftJoinAndSelect('user_grant.user_uuid', 'users')
+      .where({ user_uuid: uuid, channel_uuid: null })
+      .getMany()
   }
 
   async updateUser(updateUserData: UpdateUser) {
