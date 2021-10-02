@@ -36,6 +36,12 @@ export class TeamService {
 
     if (team) {
       await this.teamRepository.delete({ uuid: teamUuid })
+      await this.userGrantRepo
+        .createQueryBuilder('user_grant')
+        .leftJoin('user_grant.team_uuid', 'team')
+        .where('team_uuid = :teamUuid', { teamUuid })
+        .delete()
+        .execute()
       return true
     } else {
       return false

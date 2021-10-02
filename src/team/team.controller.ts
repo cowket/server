@@ -251,7 +251,10 @@ export class TeamController {
     if (isSuccess) {
       return res.status(HttpStatus.OK).send(true)
     } else {
-      throw new HttpException('권한 없음', HttpStatus.FORBIDDEN)
+      throw new HttpException(
+        '팀이 존재하지 않거나 권한 없음',
+        HttpStatus.BAD_REQUEST
+      )
     }
   }
 
