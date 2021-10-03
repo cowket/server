@@ -126,7 +126,7 @@ export class TeamController {
   @UseGuards(JwtGuard)
   @Get('grant/all/:uuid')
   @ApiOperation({
-    summary: '팀 내에 참여중인 모든 유저 조회 (테스트중)',
+    summary: '팀 내에 참여중인 모든 유저 조회',
     description: '팀 내에 가입된 모든 유저의 정보를 반환합니다.'
   })
   @ApiParam({
