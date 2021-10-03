@@ -17,6 +17,7 @@ import { Channel } from './entities/channel'
 import { User } from './entities/user'
 import { UserGrant } from './entities/user_grant'
 import { TeamUserProfile } from './entities/team_user_profile'
+import { ChannelModule } from './channel/channel.module'
 
 const isProd = process.env.NODE_ENV === 'production'
 
@@ -65,7 +66,8 @@ const isProd = process.env.NODE_ENV === 'production'
           })
         })
       }
-    })
+    }),
+    ChannelModule
   ],
   providers: [JwtModule],
   exports: [JwtModule]

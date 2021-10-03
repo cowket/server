@@ -80,6 +80,7 @@ export class UsersService {
       .createQueryBuilder('user_grant')
       .leftJoinAndSelect('user_grant.team_uuid', 'team')
       .leftJoinAndSelect('user_grant.user_uuid', 'users')
+      .leftJoinAndSelect('team.owner', 'user_grant.user_uuid')
       .where({ user_uuid: uuid, channel_uuid: null })
       .getMany()
   }
