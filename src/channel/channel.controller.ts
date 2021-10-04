@@ -75,7 +75,7 @@ export class ChannelController {
   @Put()
   @ApiOperation({
     summary: '채널 수정',
-    description: '채널의 내용을 수정합니다. 현재는 이름만 가능'
+    description: '채널의 내용을 수정합니다.'
   })
   @ApiBody({ type: UpdateChannelDto })
   @ApiOkResponse({ type: Channel })
