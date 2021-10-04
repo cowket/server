@@ -1,9 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsString, Length } from 'class-validator'
+import { IsOptional, IsString, Length } from 'class-validator'
 import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryColumn,
@@ -31,6 +32,12 @@ export class CreateChannelDto {
   @IsString()
   @Length(2, 100)
   name: string
+
+  @ApiProperty({ description: '채널 설명' })
+  @IsOptional()
+  @IsString()
+  @Length(0, 500)
+  description: string
 }
 
 export class UpdateChannelDto {
@@ -42,6 +49,12 @@ export class UpdateChannelDto {
   @IsString()
   @Length(2, 100)
   name: string
+
+  @ApiProperty({ description: '채널 설명' })
+  @IsOptional()
+  @IsString()
+  @Length(0, 500)
+  description: string
 }
 
 @Entity({ name: 'channel' })
@@ -61,6 +74,7 @@ export class Channel {
   team: Team
 
   @ApiProperty({ description: '채널 이름' })
+  @Index({ fulltext: true })
   @Column('varchar', { length: 100 })
   name: string
 
@@ -71,4 +85,9 @@ export class Channel {
   @ApiProperty({ description: '채널 업데이트 날짜 (프로필 등)' })
   @UpdateDateColumn()
   update_date: Date
+
+  @ApiProperty({ description: '채널 설명' })
+  @Index({ fulltext: true })
+  @Column('varchar', { length: 500, nullable: true })
+  description: string
 }

@@ -32,6 +32,7 @@ import {
 } from 'src/entities/channel'
 import { UtilService } from 'src/util/util.service'
 import { ChannelService } from './channel.service'
+import { UserGrant } from 'src/entities/user_grant'
 
 @ApiTags('Channel Controller')
 @Controller('channel')
@@ -133,21 +134,18 @@ export class ChannelController {
 
   @Get('all/:uuid')
   @ApiOperation({
-    summary: '팀 내 채널 조회',
-    description: '팀 내 모든 채널을 조회합니다.'
+    summary: '팀 내 가입된 채널 조회',
+    description: '팀 내 가입된 모든 채널을 조회합니다.'
   })
-  @ApiOkResponse({ type: [Channel] })
+  @ApiOkResponse({ type: [UserGrant] })
   @ApiParam({ name: 'uuid', description: '팀 uuid' })
-  async getAllChannel(@Param('uuid') uuid: string) {
-    console.log(uuid)
-  }
+  async getAllChannel(@Req() req: Request, @Param('uuid') uuid: string) {
+    const { uuid: userUuid } = this.utilService.getUserInfoFromReq(req)
+    const grantCheck = await this.channelService.grantCheck(userUuid, uuid)
 
-  @Get(':uuid')
-  @ApiOperation({
-    summary: '채널 조회',
-    description: '채널을 조회합니다.'
-  })
-  @ApiOkResponse({ type: Channel })
-  @ApiParam({ name: 'uuid', description: '채널 uuid' })
-  async getChannel(@Param('uuid') uuid: string) {}
+    if (!grantCheck)
+      throw new HttpException('팀에 가입되지 않은 유저', HttpStatus.FORBIDDEN)
+
+    return await this.channelService.grantAllChannel(userUuid, uuid)
+  }
 }

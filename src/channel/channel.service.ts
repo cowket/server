@@ -18,6 +18,27 @@ export class ChannelService {
     private utilService: UtilService
   ) {}
 
+  async grantAllChannel(userUuid: string, teamUuid: string) {
+    return this.userGrantRepo
+      .createQueryBuilder('user_grant')
+      .leftJoinAndSelect('user_grant.user_uuid', 'users')
+      .leftJoinAndSelect('user_grant.team_uuid', 'team')
+      .leftJoinAndSelect('user_grant.channel_uuid', 'channel')
+      .innerJoinAndSelect('channel.owner', 'users_grant.user_uuid.uuid')
+      .innerJoinAndSelect('team.owner', 'user_grant.user_uuid.uuid')
+      .where('user_grant.user_uuid = :userUuid', { userUuid })
+      .andWhere('user_grant.team_uuid = :teamUuid', { teamUuid })
+      .andWhere('user_grant.channel_uuid IS NOT NULL')
+      .getMany()
+  }
+
+  async grantCheck(userUuid: string, teamUuid: string) {
+    const grant = await this.userGrantRepo.findOneOrFail({
+      where: { user_uuid: userUuid, team_uuid: teamUuid }
+    })
+    return !!grant
+  }
+
   async isExistChannel(channelUuid: string) {
     const channel = await this.channelRepo.findOne({
       where: { uuid: channelUuid }
@@ -64,6 +85,7 @@ export class ChannelService {
       uuid,
       name: channelDto.name,
       team: channelDto.team_uuid as unknown,
+      description: channelDto.description || null,
       owner: userUuid as unknown,
       create_date: new Date(),
       update_date: new Date()
@@ -92,6 +114,7 @@ export class ChannelService {
     await this.channelRepo.save({
       uuid: channelDto.channel_uuid,
       name: channelDto.name,
+      description: channelDto.description || null,
       update_date: new Date()
     })
 
