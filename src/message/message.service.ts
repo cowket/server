@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Message, PushMessageDto } from 'src/entities/message'
+import { FetchMessageDto, Message, PushMessageDto } from 'src/entities/message'
 import { UtilService } from 'src/util/util.service'
 import { Repository } from 'typeorm'
 
@@ -34,5 +34,26 @@ export class MessageService {
       .leftJoinAndSelect('message.sender', 'users')
       .where('message.uuid = :uuid', { uuid })
       .getOne()
+  }
+
+  async fetchMessageFromLatest(message: FetchMessageDto) {
+    return (
+      this.messageRepo
+        .createQueryBuilder('message')
+        .leftJoinAndSelect('message.team', 'team')
+        .leftJoinAndSelect('message.channel', 'channel')
+        .leftJoinAndSelect('message.sender', 'users')
+        // .where('message.team = :teamUuid', {
+        //   teamUuid: message.latestMessage.team.uuid
+        // })
+        // .andWhere('message.channel = :channelUuid', {
+        //   channelUuid: message.latestMessage.channel.uuid
+        // })
+        .where('message.create_date < :compareDate', {
+          compareDate: message.latestMessage.create_date
+        })
+        .limit(10)
+        .getMany()
+    )
   }
 }

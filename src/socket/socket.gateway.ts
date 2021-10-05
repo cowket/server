@@ -31,11 +31,11 @@ export class SocketGateway implements OnGatewayInit {
     this.server = server
   }
 
-  @SubscribeMessage('message')
+  @SubscribeMessage('pushMessage')
   async handleMessage(client: Socket, data: SocketPushMessageDto) {
     try {
       const message = await this.messageService.pushMessage(data)
-      this.server.to(data.channelUuid).emit('newMessage', message)
+      this.server.to(data.channelUuid).emit('newMessage', message) // 채널에 메세지 전파
     } catch (error) {
       this.logger.error(error)
       client.emit('errorPacket', { error })

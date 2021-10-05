@@ -21,6 +21,10 @@ export class PushMessageDto {
   content: string // 메세지 (HTML)
 }
 
+export class FetchMessageDto {
+  latestMessage: Partial<Message>
+}
+
 /**
  * 소켓 이벤트 전송시 타입 (클라이언트에서 맞춰야하는 실제 타입)
  */
