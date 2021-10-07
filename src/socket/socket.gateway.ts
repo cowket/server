@@ -1,5 +1,6 @@
-import { Logger } from '@nestjs/common'
+import { Logger, UseFilters, UsePipes, ValidationPipe } from '@nestjs/common'
 import {
+  MessageBody,
   OnGatewayInit,
   SubscribeMessage,
   WebSocketGateway,
@@ -8,7 +9,9 @@ import {
 import { Server, Socket } from 'socket.io'
 import { SocketPushMessageDto } from 'src/entities/message'
 import { MessageService } from 'src/message/message.service'
+import { WsExceptionFilter } from './socket.filter'
 
+@UseFilters(WsExceptionFilter)
 @WebSocketGateway(4001, {
   transports: ['websocket'],
   cors: {
@@ -32,7 +35,11 @@ export class SocketGateway implements OnGatewayInit {
   }
 
   @SubscribeMessage('pushMessage')
-  async handleMessage(client: Socket, data: SocketPushMessageDto) {
+  @UsePipes(new ValidationPipe())
+  async handleMessage(
+    client: Socket,
+    @MessageBody() data: SocketPushMessageDto
+  ) {
     try {
       const message = await this.messageService.pushMessage(data)
       this.server.to(data.channelUuid).emit('newMessage', message) // 채널에 메세지 전파

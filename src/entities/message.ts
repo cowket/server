@@ -1,3 +1,4 @@
+import { IsString, Length } from 'class-validator'
 import {
   Column,
   CreateDateColumn,
@@ -15,9 +16,17 @@ import { User } from './user'
  * 메세지 전송시 타입 (서비스에서 사용 - 내부 타입)
  */
 export class PushMessageDto {
+  @IsString()
   teamUuid: string // 팀 uuid
+
+  @IsString()
   channelUuid: string // 채널 uuid
+
+  @IsString()
   senderUuid: string // 유저 uuid
+
+  @IsString()
+  @Length(2)
   content: string // 메세지 (HTML)
 }
 
