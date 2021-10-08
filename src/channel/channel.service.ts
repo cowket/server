@@ -127,4 +127,8 @@ export class ChannelService {
       team: team_uuid as unknown
     })
   }
+
+  async getAllChannel() {
+    return this.channelRepo.find()
+  }
 }

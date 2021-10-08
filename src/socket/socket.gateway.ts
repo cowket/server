@@ -7,6 +7,7 @@ import {
   WebSocketServer
 } from '@nestjs/websockets'
 import { Server, Socket } from 'socket.io'
+import { ChannelService } from 'src/channel/channel.service'
 import { SocketPushMessageDto } from 'src/entities/message'
 import { MessageService } from 'src/message/message.service'
 import { WsExceptionFilter } from './socket.filter'
@@ -28,10 +29,16 @@ export class SocketGateway implements OnGatewayInit {
   @WebSocketServer()
   server: Server
 
-  constructor(private messageService: MessageService) {}
+  constructor(
+    private messageService: MessageService,
+    private channelService: ChannelService
+  ) {}
 
-  afterInit(server: Server) {
+  async afterInit(server: Server) {
     this.server = server
+
+    const channelData = await this.channelService.getAllChannel()
+    this.logger.log(channelData.map((channel) => channel.uuid))
   }
 
   @SubscribeMessage('pushMessage')
