@@ -1,5 +1,6 @@
-import { Logger, UseFilters, UsePipes, ValidationPipe } from '@nestjs/common'
+import { Logger, UseFilters } from '@nestjs/common'
 import {
+  ConnectedSocket,
   MessageBody,
   OnGatewayInit,
   SubscribeMessage,
@@ -42,14 +43,14 @@ export class SocketGateway implements OnGatewayInit {
   }
 
   @SubscribeMessage('pushMessage')
-  @UsePipes(new ValidationPipe())
   async handleMessage(
-    client: Socket,
-    @MessageBody() data: SocketPushMessageDto
+    @MessageBody() data: SocketPushMessageDto,
+    @ConnectedSocket() client: Socket
   ) {
     try {
       const message = await this.messageService.pushMessage(data)
       this.server.to(data.channelUuid).emit('newMessage', message) // 채널에 메세지 전파
+      this.logger.log(message.uuid, 'message create')
     } catch (error) {
       this.logger.error(error)
       client.emit('errorPacket', { error })
@@ -58,6 +59,6 @@ export class SocketGateway implements OnGatewayInit {
 
   @SubscribeMessage('joinRoom')
   handleJoinRoom(client: Socket, data: any) {
-    client.join(data.channelUuid)
+    client.join(data.channel_uuid)
   }
 }
