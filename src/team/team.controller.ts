@@ -195,6 +195,28 @@ export class TeamController {
   }
 
   @UseGuards(JwtGuard)
+  @Put('profile')
+  @ApiOperation({
+    summary: '팀 내 프로필 수정',
+    description: '팀 내에 프로필을 수정합니다.'
+  })
+  @ApiOkResponse({ type: TeamUserProfile })
+  @ApiBody({ type: RequestTeamUserProfile })
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async updateTeamUserProfile(
+    @Req() req: Request,
+    @Body() profile: RequestTeamUserProfile
+  ) {
+    const user = this.utilService.getUserInfoFromReq(req)
+    const updatedProfile = await this.teamService.updateTeamUserProfile(
+      profile,
+      user.uuid
+    )
+
+    return updatedProfile
+  }
+
+  @UseGuards(JwtGuard)
   @Post('enter')
   @ApiOperation({
     summary: '팀 가입',

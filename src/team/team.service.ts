@@ -195,6 +195,23 @@ export class TeamService {
     })
   }
 
+  async updateTeamUserProfile(
+    profile: RequestTeamUserProfile,
+    userUuid: string
+  ) {
+    const teamUserProfile = await this.teamUserProfileRepo.findOne({
+      where: { user_uuid: userUuid, team_uuid: profile.team_uuid }
+    })
+
+    return this.teamUserProfileRepo.save({
+      id: teamUserProfile.id,
+      avatar: profile.avatar || null,
+      contact: profile.contact || null,
+      name: profile.name,
+      position: profile.position
+    })
+  }
+
   async getTeamPublicType(teamUuid: string) {
     const { is_private } = await this.teamRepository.findOne({
       where: { uuid: teamUuid },
