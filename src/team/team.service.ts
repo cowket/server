@@ -160,10 +160,11 @@ export class TeamService {
     return profileCount || false
   }
 
-  async getTeamUserProfile(uuid: string, teamUuid: string) {
+  async getTeamUserProfile(uuid: string, teamUuid: string, nullable = false) {
     const userBaseProfile = await this.usersService.findByUuid(uuid)
     if (!userBaseProfile) return null
     const isExist = await this.getIsExistTeamUserProfile(uuid, teamUuid)
+    if (nullable) return isExist || null
     return isExist || userBaseProfile
   }
 
