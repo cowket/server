@@ -6,11 +6,12 @@ import { Message } from 'src/entities/message'
 import { TeamModule } from 'src/team/team.module'
 import { MessageController } from './message.controller'
 import { TeamUserProfile } from 'src/entities/team_user_profile'
+import { DirectMessage } from 'src/entities/direct_message'
 
 @Module({
   imports: [
     UtilModule,
-    TypeOrmModule.forFeature([Message, TeamUserProfile]),
+    TypeOrmModule.forFeature([Message, TeamUserProfile, DirectMessage]),
     TeamModule
   ],
   providers: [MessageService],

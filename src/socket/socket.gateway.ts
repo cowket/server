@@ -26,6 +26,7 @@ import { WsExceptionFilter } from './socket.filter'
 })
 export class SocketGateway implements OnGatewayInit {
   private logger = new Logger('SocketGateway')
+  private connected: { [key: string]: { [key: string]: string } } = {}
 
   @WebSocketServer()
   server: Server
@@ -37,9 +38,20 @@ export class SocketGateway implements OnGatewayInit {
 
   async afterInit(server: Server) {
     this.server = server
+  }
 
-    const channelData = await this.channelService.getAllChannel()
-    this.logger.log(channelData.map((channel) => channel.uuid))
+  @SubscribeMessage('cowket:connection')
+  async handleCowketConnection(
+    @MessageBody() data: { team_uuid: string; user_uuid: string },
+    @ConnectedSocket() client: Socket
+  ) {
+    if (!this.connected[data.team_uuid]) {
+      this.connected[data.team_uuid] = {}
+    }
+
+    if (!this.connected[data.team_uuid][client.id]) {
+      this.connected[data.team_uuid][client.id] = data.user_uuid
+    }
   }
 
   @SubscribeMessage('pushMessage')

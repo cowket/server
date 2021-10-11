@@ -18,6 +18,7 @@ import { User } from './entities/user'
 import { UserGrant } from './entities/user_grant'
 import { TeamUserProfile } from './entities/team_user_profile'
 import { ChannelModule } from './channel/channel.module'
+import { DirectMessage } from './entities/direct_message'
 
 const isProd = process.env.NODE_ENV === 'production'
 
@@ -35,16 +36,17 @@ const isProd = process.env.NODE_ENV === 'production'
       username: process.env.DB_USER,
       password: process.env.DB_PW,
       database: process.env.DB_NAME,
-      // synchronize: !isProd,
       synchronize: false,
-      entities: [User, UserGrant, Team, Channel, Message, TeamUserProfile],
-      // dropSchema: !isProd,
-      dropSchema: false,
-      migrations: ['dist/migration/**/*.js'],
-      cli: {
-        entitiesDir: 'src/entities',
-        migrationsDir: 'src/migration'
-      }
+      entities: [
+        User,
+        UserGrant,
+        Team,
+        Channel,
+        Message,
+        TeamUserProfile,
+        DirectMessage
+      ],
+      dropSchema: false
     }),
     UsersModule,
     TeamModule,
