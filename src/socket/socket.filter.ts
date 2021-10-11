@@ -6,10 +6,10 @@ import { Socket } from 'socket.io'
 export class WsExceptionFilter {
   public catch(except: HttpException, host: ArgumentsHost) {
     const client = host.switchToWs().getClient()
-    console.log(client)
+    this.handleError(client, except)
   }
 
   public handleError(client: Socket, except: HttpException | WsException) {
-    console.log(client, except)
+    client.emit('errorPacket', except)
   }
 }

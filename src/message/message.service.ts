@@ -1,17 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
+import {
+  DirectMessage,
+  RequestDirectMessageDto
+} from 'src/entities/direct_message'
 import { FetchMessageDto, Message, PushMessageDto } from 'src/entities/message'
 import { TeamUserProfile } from 'src/entities/team_user_profile'
-import { User } from 'src/entities/user'
 import { TeamService } from 'src/team/team.service'
 import { UtilService } from 'src/util/util.service'
 import { Repository } from 'typeorm'
-
-type MessageIncProfile = Message & {
-  sender: User & {
-    teamUserProfile?: TeamUserProfile | null
-  }
-}
 
 @Injectable()
 export class MessageService {
@@ -22,6 +19,7 @@ export class MessageService {
     @InjectRepository(Message) private messageRepo: Repository<Message>,
     @InjectRepository(TeamUserProfile)
     private tupRepo: Repository<TeamUserProfile>,
+    @InjectRepository(DirectMessage) private dmRepo: Repository<DirectMessage>,
     private teamService: TeamService
   ) {}
 
@@ -57,21 +55,53 @@ export class MessageService {
       .where('message.uuid = :uuid', { uuid })
       .getOne()
 
-    const teamUserProfile = (await this.teamService.getTeamUserProfile(
-      dto.senderUuid,
-      dto.teamUuid,
-      true
-    )) as TeamUserProfile | null
+    return message
+  }
 
-    const newMessage: MessageIncProfile = {
-      ...message,
-      sender: {
-        ...message.sender,
-        teamUserProfile
-      }
-    }
+  async pushDirectMessage(dto: RequestDirectMessageDto) {
+    const uuid = this.utilService.genUuid()
 
-    return newMessage
+    const senderTupCheck = await this.tupRepo
+      .createQueryBuilder('tup')
+      .where('tup.user_uuid = :userUuid', { userUuid: dto.sender_uuid })
+      .andWhere('tup.team_uuid = :teamUuid', { teamUuid: dto.team_uuid })
+      .getOne()
+
+    const receiverTupCheck = await this.tupRepo
+      .createQueryBuilder('tup')
+      .where('tup.user_uuid = :userUuid', { userUuid: dto.receiver_uuid })
+      .andWhere('tup.team_uuid = :teamUuid', { teamUuid: dto.team_uuid })
+      .getOne()
+
+    const senderTup: TeamUserProfile | null = senderTupCheck || null
+    const receiverTup: TeamUserProfile | null = receiverTupCheck || null
+
+    await this.dmRepo.insert({
+      uuid,
+      create_date: new Date(),
+      update_date: new Date(),
+      sender: dto.sender_uuid as unknown,
+      receiver: dto.receiver_uuid as unknown,
+      content: dto.content,
+      sender_team_user_profile: senderTup,
+      receiver_team_user_profile: receiverTup,
+      team: dto.team_uuid as unknown
+    })
+
+    const directMessage = await this.dmRepo
+      .createQueryBuilder('direct_message')
+      .leftJoinAndSelect('direct_message.team', 'team')
+      .leftJoinAndSelect('direct_message.sender', 'sender')
+      .leftJoinAndSelect('direct_message.receiver', 'receiver')
+      .leftJoinAndSelect('direct_message.sender_team_user_profile', 'senderTup')
+      .leftJoinAndSelect(
+        'direct_message.receiver_team_user_profile',
+        'receiverTup'
+      )
+      .where('direct_message.uuid = :uuid', { uuid })
+      .getOne()
+
+    return directMessage
   }
 
   async fetchMessageLatest(channelUuid: string) {

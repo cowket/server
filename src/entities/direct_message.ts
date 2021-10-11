@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
+import { IsString } from 'class-validator'
 import {
   Column,
   CreateDateColumn,
@@ -11,6 +12,24 @@ import {
 import { Team } from './team'
 import { TeamUserProfile } from './team_user_profile'
 import { User } from './user'
+
+export class RequestDirectMessageDto {
+  @ApiProperty({ description: '메세지 내용 (HTML)' })
+  @IsString()
+  content: string
+
+  @ApiProperty({ description: '보내는 유저 uuid' })
+  @IsString()
+  sender_uuid: string
+
+  @ApiProperty({ description: '받는 유저 uuid' })
+  @IsString()
+  receiver_uuid: string
+
+  @ApiProperty({ description: '팀 uuid' })
+  @IsString()
+  team_uuid: string
+}
 
 @Entity({ name: 'direct_message' })
 export class DirectMessage {
@@ -60,7 +79,7 @@ export class DirectMessage {
   @UpdateDateColumn()
   update_date: Date
 
-  @ApiProperty({ description: '메세지 내용' })
+  @ApiProperty({ description: '메세지 내용 (HTML)' })
   @Column('longtext', { nullable: false })
   content: string
 }
