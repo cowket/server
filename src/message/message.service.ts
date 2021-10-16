@@ -104,6 +104,25 @@ export class MessageService {
     return directMessage
   }
 
+  async fetchDirectMessageLatest(
+    sender: string,
+    receiver: string,
+    teamUuid: string
+  ) {
+    return this.dmRepo
+      .createQueryBuilder('dm')
+      .leftJoinAndSelect('dm.team', 'team')
+      .leftJoinAndSelect('dm.sender', 'sender')
+      .leftJoinAndSelect('dm.receiver', 'receiver')
+      .leftJoinAndSelect('dm.sender_team_user_profile', 'senderTup')
+      .leftJoinAndSelect('dm.receiver_team_user_profile', 'receiverTup')
+      .where('team.uuid = :teamUuid', { teamUuid })
+      .andWhere('sender.uuid = :sender', { sender })
+      .andWhere('receiver.uuid = :receiver', { receiver })
+      .limit(10)
+      .getMany()
+  }
+
   async fetchMessageLatest(channelUuid: string) {
     return this.messageRepo
       .createQueryBuilder('message')
