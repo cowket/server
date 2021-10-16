@@ -245,14 +245,17 @@ export class TeamController {
         body.team_uuid,
         body.password
       )
-      if (correct) return true
-      else
+      if (correct) {
+        // 유니크 채널 접근 권한 생성
+        return true
+      } else
         throw new HttpException(
           '비밀번호가 틀렸습니다.',
           HttpStatus.BAD_REQUEST
         )
     } else {
       await this.teamService.enterPublicTeam(user.uuid, body.team_uuid)
+      // 유니크 채널 접근 권한 생성
       return true
     }
   }

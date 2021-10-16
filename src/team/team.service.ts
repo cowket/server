@@ -13,6 +13,7 @@ import { In, Repository } from 'typeorm'
 import * as bcrypt from 'bcryptjs'
 import { ConfigService } from '@nestjs/config'
 import { User } from 'src/entities/user'
+import { ChannelService } from 'src/channel/channel.service'
 
 @Injectable()
 export class TeamService {
@@ -26,7 +27,8 @@ export class TeamService {
     private utilService: UtilService,
     private configService: ConfigService,
     @InjectRepository(User)
-    private userRepo: Repository<User>
+    private userRepo: Repository<User>,
+    private channelService: ChannelService
   ) {}
 
   async deleteTeam(teamUuid: string, userUuid: string) {
@@ -77,21 +79,34 @@ export class TeamService {
       encryptPw = bcrypt.hashSync(password, salt)
     }
 
+    const genTeamUuid = this.utilService.genUuid()
+
     const user = await this.usersService.findByUuid(userUuid)
-    const team = await this.teamRepository.insert({
+    await this.teamRepository.insert({
       create_date: new Date(),
       update_date: new Date(),
       name,
       owner: user,
-      uuid: this.utilService.genUuid(),
+      uuid: genTeamUuid,
       is_private,
       description,
       password: encryptPw
     })
+
+    const uniqueChannel = await this.channelService.createUniqueChannel(
+      genTeamUuid,
+      userUuid
+    )
+    await this.channelService.createGrantChannel(
+      userUuid,
+      genTeamUuid,
+      uniqueChannel.uuid
+    )
+
     const insertedTeam = await this.teamRepository
       .createQueryBuilder('team')
       .leftJoinAndSelect('team.owner', 'users')
-      .where({ uuid: team.generatedMaps[0].uuid })
+      .where({ uuid: genTeamUuid })
       .getOne()
 
     return insertedTeam
@@ -226,6 +241,8 @@ export class TeamService {
     const team = await this.getTeamByUuid(teamUuid)
     const user = await this.usersService.findByUuid(userUuid)
 
+    await this.channelService.createGrantUniqueChannel(teamUuid, userUuid)
+
     return this.userGrantRepo.insert({
       channel_uuid: null,
       create_date: new Date(),
@@ -239,6 +256,7 @@ export class TeamService {
       teamUuid,
       password
     )
+    await this.channelService.createGrantUniqueChannel(teamUuid, userUuid)
 
     if (isCorretPw) {
       return this.enterPublicTeam(userUuid, teamUuid)

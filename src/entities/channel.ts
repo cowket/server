@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsOptional, IsString, Length } from 'class-validator'
+import { IsBoolean, IsOptional, IsString, Length } from 'class-validator'
 import {
   Column,
   CreateDateColumn,
@@ -12,6 +12,22 @@ import {
 } from 'typeorm'
 import { Team } from './team'
 import { User } from './user'
+
+export class InvitePrivateChannelDto {
+  @ApiProperty({ description: '추가 시키려는 참여자의 uuid 리스트' })
+  @IsString({ each: true })
+  user_uuids: string[]
+
+  @ApiProperty({ description: '채널 uuid' })
+  @IsString()
+  channel_uuid: string
+}
+
+export class GetAllPublicQuery {
+  @ApiProperty({ description: '팀 uuid' })
+  @IsString()
+  team_uuid: string
+}
 
 export class DeleteChannelDto {
   @ApiProperty({ description: '팀 uuid' })
@@ -38,6 +54,14 @@ export class CreateChannelDto {
   @IsString()
   @Length(0, 500)
   description: string
+
+  @ApiProperty({
+    description:
+      '비공개 채널/공개 채널 여부 - 비공개 채널의 경우 채널의 소유자가 멤버를 가입시켜야 참여 가능'
+  })
+  @IsOptional()
+  @IsBoolean()
+  is_private?: boolean
 }
 
 export class UpdateChannelDto {
@@ -55,6 +79,14 @@ export class UpdateChannelDto {
   @IsString()
   @Length(0, 500)
   description: string
+
+  @ApiProperty({
+    description:
+      '비공개 채널/공개 채널 여부 - 비공개 채널의 경우 채널의 소유자가 멤버를 가입시켜야 참여 가능'
+  })
+  @IsOptional()
+  @IsBoolean()
+  is_private?: boolean
 }
 
 @Entity({ name: 'channel' })
@@ -90,4 +122,18 @@ export class Channel {
   @Index({ fulltext: true })
   @Column('varchar', { length: 500, nullable: true })
   description: string
+
+  @ApiProperty({
+    description:
+      '기본적으로 생성되는 공개 채널 여부 (해당 채널은 반드시 존재해야 함)'
+  })
+  @Column('boolean', { nullable: true, default: false })
+  unique?: boolean
+
+  @ApiProperty({
+    description:
+      '비공개 채널/공개 채널 여부 - 비공개 채널의 경우 채널의 소유자가 멤버를 가입시켜야 참여 가능'
+  })
+  @Column('boolean', { nullable: true, default: false })
+  is_private?: boolean
 }

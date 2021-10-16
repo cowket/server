@@ -9,6 +9,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Req,
   UseGuards,
   UsePipes,
@@ -28,12 +29,19 @@ import {
   CreateChannelDto,
   Channel,
   UpdateChannelDto,
-  DeleteChannelDto
+  DeleteChannelDto,
+  GetAllPublicQuery,
+  InvitePrivateChannelDto
 } from 'src/entities/channel'
 import { ChannelService } from './channel.service'
 import { UserGrant } from 'src/entities/user_grant'
 import { User } from 'src/users/users.decorator'
 import { TokenUserInfo } from 'src/types/user'
+import {
+  NotOwnerError,
+  NotPrivateChannelError,
+  UniqueChannelError
+} from 'src/error/error'
 
 @ApiTags('Channel Controller')
 @Controller('channel')
@@ -125,10 +133,22 @@ export class ChannelController {
         '채널이 존재하지 않습니다.',
         HttpStatus.BAD_REQUEST
       )
+    try {
+      const removed = await this.channelService.deleteChannel(channelDto)
 
-    const removed = await this.channelService.deleteChannel(channelDto)
-
-    return !!removed
+      return !!removed
+    } catch (error) {
+      if (error instanceof UniqueChannelError) {
+        throw new HttpException(
+          '기본 채널은 삭제할 수 없습니다.',
+          HttpStatus.BAD_REQUEST
+        )
+      }
+      throw new HttpException(
+        '삭제에 실패했습니다.',
+        HttpStatus.INTERNAL_SERVER_ERROR
+      )
+    }
   }
 
   @Get('all/:uuid')
@@ -150,4 +170,65 @@ export class ChannelController {
 
     return await this.channelService.grantAllChannel(user.uuid, uuid)
   }
+
+  @Get('public')
+  @ApiOperation({
+    summary: '공개 채널 조회',
+    description: '공개 채널을 조회합니다.'
+  })
+  @ApiOkResponse({
+    type: [Channel]
+  })
+  @UsePipes(new ValidationPipe())
+  async getAllPublicChannelCtrl(@Query() { team_uuid }: GetAllPublicQuery) {
+    return await this.channelService.getAllPublicChannel(team_uuid)
+  }
+
+  @Post('invite')
+  @ApiOperation({
+    summary: '비공개 채널 참여자 추가',
+    description:
+      '비공개 채널에 참여자를 추가합니다. 채널의 소유자만 참여자를 추가할 수 있습니다.'
+  })
+  @ApiOkResponse({ type: Boolean })
+  @UsePipes(new ValidationPipe())
+  async invitePrivateChannelCtrl(
+    @Body() { channel_uuid, user_uuids }: InvitePrivateChannelDto,
+    @User() user: TokenUserInfo
+  ) {
+    try {
+      await this.channelService.checkPrivateChannelInfo(user.uuid, channel_uuid)
+      const isSuccess = await this.channelService.invitePrivateChannel(
+        user_uuids,
+        channel_uuid
+      )
+      return isSuccess
+    } catch (error) {
+      if (error instanceof NotOwnerError) {
+        throw new HttpException(
+          '채널의 소유자만 참여시킬 수 있습니다.',
+          HttpStatus.FORBIDDEN
+        )
+      } else if (error instanceof NotPrivateChannelError) {
+        throw new HttpException(
+          '비공개 채널이 아닙니다.',
+          HttpStatus.BAD_REQUEST
+        )
+      }
+    }
+  }
+
+  // @Get('search')
+  // @ApiOperation({
+  //   summary: '공개 채널 검색',
+  //   description:
+  //     '공개 채널을 검색합니다. 비공개 채널은 검색 결과에 포함되지 않습니다.'
+  // })
+  // @ApiOkResponse({
+  //   type: [Channel]
+  // })
+  // async searchPublicChannelCtrl(
+  //   @Query('keyword', new LengthValidationPipe()) keyword: string,
+  //   @Query('team_uuid') teamUuid: string
+  // ) {}
 }

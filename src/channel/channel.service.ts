@@ -7,6 +7,11 @@ import {
   DeleteChannelDto
 } from 'src/entities/channel'
 import { UserGrant } from 'src/entities/user_grant'
+import {
+  NotOwnerError,
+  NotPrivateChannelError,
+  UniqueChannelError
+} from 'src/error/error'
 import { UtilService } from 'src/util/util.service'
 import { Repository } from 'typeorm'
 
@@ -121,7 +126,21 @@ export class ChannelService {
     return this.getChannelByUuid(channelDto.channel_uuid)
   }
 
+  async isUniqueChannel(teamUuid: string, channelUuid: string) {
+    const channel = await this.channelRepo.findOne({
+      where: { team: teamUuid, uuid: channelUuid }
+    })
+
+    return channel.unique
+  }
+
   async deleteChannel({ team_uuid, channel_uuid }: DeleteChannelDto) {
+    const isUnique = await this.isUniqueChannel(team_uuid, channel_uuid)
+
+    if (isUnique) {
+      throw new UniqueChannelError()
+    }
+
     return this.channelRepo.delete({
       uuid: channel_uuid,
       team: team_uuid as unknown
@@ -131,4 +150,63 @@ export class ChannelService {
   async getAllChannel() {
     return this.channelRepo.find()
   }
+
+  async createUniqueChannel(teamUuid: string, owner: string) {
+    return this.channelRepo.save({
+      uuid: this.utilService.genUuid(),
+      create_date: new Date(),
+      description: '기본 채널',
+      is_private: false,
+      name: 'General',
+      owner: owner as unknown,
+      team: teamUuid as unknown,
+      unique: true,
+      update_date: new Date()
+    })
+  }
+
+  async createGrantUniqueChannel(teamUuid: string, userUuid: string) {
+    const unqiueChannel = await this.getUniqueChannel(teamUuid)
+    return this.createGrantChannel(userUuid, teamUuid, unqiueChannel.uuid)
+  }
+
+  async getUniqueChannel(teamUuid: string) {
+    return this.channelRepo.findOne({
+      where: { team: teamUuid as unknown, unique: true }
+    })
+  }
+
+  async searchPublicChannel(keyword: string, teamUuid: string) {
+    return this.channelRepo
+      .createQueryBuilder('c')
+      .leftJoinAndSelect('c.owner', 'owner')
+      .leftJoinAndSelect('c.team', 'team')
+      .where(`MATCH(name) AGAINST ('+${keyword}*' in boolean mode)`)
+      .orWhere(`MATCH(description) AGAINST ('+${keyword}*' in boolean mode)`)
+      .andWhere('team.uuid = :teamUuid', { teamUuid })
+  }
+
+  async getAllPublicChannel(teamUuid: string) {
+    return this.channelRepo
+      .createQueryBuilder('c')
+      .leftJoinAndSelect('c.owner', 'owner')
+      .leftJoin('c.team', 'team')
+      .where('team.uuid = :teamUuid', { teamUuid })
+      .andWhere('c.is_private = false')
+      .getMany()
+  }
+
+  async checkPrivateChannelInfo(ownerUuid: string, channelUuid: string) {
+    const channel = await this.getChannelByUuid(channelUuid)
+
+    if (channel.owner.uuid !== ownerUuid) {
+      throw new NotOwnerError()
+    } else if (!channel.is_private) {
+      throw new NotPrivateChannelError()
+    }
+
+    return channel
+  }
+
+  async invitePrivateChannel(userUuids: string[], channelUuid) {}
 }
