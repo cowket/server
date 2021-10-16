@@ -14,16 +14,12 @@ import { DirectMessage } from 'src/entities/direct_message'
 import { Message } from 'src/entities/message'
 import { TokenUserInfo } from 'src/types/user'
 import { User } from 'src/users/users.decorator'
-import { UtilService } from 'src/util/util.service'
 import { MessageService } from './message.service'
 
 @ApiTags('Message Controller')
 @Controller('message')
 export class MessageController {
-  constructor(
-    private messageService: MessageService,
-    private utilService: UtilService
-  ) {}
+  constructor(private messageService: MessageService) {}
 
   @UseGuards(JwtGuard)
   @Get()
@@ -39,7 +35,6 @@ export class MessageController {
     @Req() req: Request,
     @Query('channel_uuid') channelUuid: string
   ) {
-    // const user = this.utilService.getUserInfoFromReq(req)
     return await this.messageService.fetchMessageLatest(channelUuid)
   }
 

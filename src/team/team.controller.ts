@@ -41,9 +41,11 @@ import {
   TeamUserProfile
 } from 'src/entities/team_user_profile'
 import { User } from 'src/entities/user'
+import { TokenUserInfo } from 'src/types/user'
 import { UsersService } from 'src/users/users.service'
 import { UtilService } from 'src/util/util.service'
 import { TeamService } from './team.service'
+import { User as UserDecorator } from 'src/users/users.decorator'
 
 @ApiTags('Team Controller')
 @Controller('team')
@@ -76,7 +78,8 @@ export class TeamController {
   async newTeam(
     @Req() req: Request,
     @Body() createTeam: RequestTeamData,
-    @Res() res: Response
+    @Res() res: Response,
+    @UserDecorator() user: TokenUserInfo
   ) {
     if (!req.body || !createTeam || !createTeam.name)
       throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST)
@@ -87,7 +90,6 @@ export class TeamController {
         HttpStatus.BAD_REQUEST
       )
 
-    const user = this.utilService.getUserInfoFromReq(req)
     const isExist = await this.teamService.isExistTeamName(createTeam.name)
     if (isExist) {
       throw new HttpException('존재하는 팀 이름', HttpStatus.BAD_REQUEST)
@@ -184,9 +186,9 @@ export class TeamController {
   @UsePipes(new ValidationPipe({ transform: true }))
   async createTeamUserProfile(
     @Req() req: Request,
-    @Body() profile: RequestTeamUserProfile
+    @Body() profile: RequestTeamUserProfile,
+    @UserDecorator() user: TokenUserInfo
   ) {
-    const user = this.utilService.getUserInfoFromReq(req)
     const insertedProfile = await this.teamService.createTeamUserProfile(
       profile,
       user.uuid
@@ -205,9 +207,9 @@ export class TeamController {
   @UsePipes(new ValidationPipe({ transform: true }))
   async updateTeamUserProfile(
     @Req() req: Request,
-    @Body() profile: RequestTeamUserProfile
+    @Body() profile: RequestTeamUserProfile,
+    @UserDecorator() user: TokenUserInfo
   ) {
-    const user = this.utilService.getUserInfoFromReq(req)
     const updatedProfile = await this.teamService.updateTeamUserProfile(
       profile,
       user.uuid
@@ -225,8 +227,11 @@ export class TeamController {
   })
   @ApiBody({ type: EnterTeamData })
   @ApiOkResponse({ type: 'boolean' })
-  async enterTeam(@Body() body: EnterTeamData, @Req() req: Request) {
-    const user = this.utilService.getUserInfoFromReq(req)
+  async enterTeam(
+    @Body() body: EnterTeamData,
+    @Req() req: Request,
+    @UserDecorator() user: TokenUserInfo
+  ) {
     const isPrivate = await this.teamService.getTeamPublicType(body.team_uuid)
 
     if (isPrivate) {
@@ -261,10 +266,9 @@ export class TeamController {
   async deleteTeam(
     @Req() req: Request,
     @Param('uuid') uuid: string,
-    @Res() res: Response
+    @Res() res: Response,
+    @UserDecorator() user: TokenUserInfo
   ) {
-    const user = this.utilService.getUserInfoFromReq(req)
-
     if (!uuid || !user)
       throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST)
 
@@ -306,9 +310,9 @@ export class TeamController {
     @Req() req: Request,
     @Param('uuid') uuid: string,
     @Body() body: UpdateTeamData,
-    @Res() res: Response
+    @Res() res: Response,
+    @UserDecorator() user: TokenUserInfo
   ) {
-    const user = this.utilService.getUserInfoFromReq(req)
     // 바디
     if (body.is_private === undefined || !body.name || !uuid)
       throw new HttpException('필수값 누락', HttpStatus.BAD_REQUEST)

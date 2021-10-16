@@ -1,31 +1,13 @@
 import { Injectable } from '@nestjs/common'
-import { Request } from 'express'
 import { v4 as uuid } from 'uuid'
 import * as path from 'path'
 import * as fs from 'fs'
 import * as jdenticon from 'jdenticon'
-import { TokenUserInfo } from 'src/types/user'
-
-type FullTokenUserInfo = TokenUserInfo & {
-  iat: number
-  exp: number
-}
 
 @Injectable()
 export class UtilService {
   genUuid(): string {
     return uuid()
-  }
-
-  getUserInfoFromReq(req: Request): TokenUserInfo {
-    if (req.user) {
-      const user = req.user as FullTokenUserInfo
-      delete user.iat
-      delete user.exp
-      return user
-    } else {
-      return null
-    }
   }
 
   getUploadPath(): string {

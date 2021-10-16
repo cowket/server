@@ -12,8 +12,9 @@ import {
 } from '@nestjs/common'
 import { ApiOperation, ApiTags } from '@nestjs/swagger'
 import { Request, Response } from 'express'
+import { TokenUserInfo } from 'src/types/user'
+import { User } from 'src/users/users.decorator'
 import { UsersService } from 'src/users/users.service'
-import { UtilService } from 'src/util/util.service'
 import { AuthService } from './auth.service'
 import { JwtGuard } from './jwt.guard'
 
@@ -29,8 +30,7 @@ export class AuthController {
 
   constructor(
     private usersService: UsersService,
-    private authService: AuthService,
-    private utilService: UtilService
+    private authService: AuthService
   ) {}
 
   // @UseGuards(AuthGuard('local'))
@@ -122,9 +122,11 @@ export class AuthController {
     summary: '액세스 토큰 검증',
     description: '현재 사용하고 있는 액세스 토큰 검증'
   })
-  async verify(@Req() req: Request, @Res() res: Response) {
-    const user = this.utilService.getUserInfoFromReq(req)
-
+  async verify(
+    @Req() req: Request,
+    @Res() res: Response,
+    @User() user: TokenUserInfo
+  ) {
     return res.status(HttpStatus.OK).json(user)
   }
 }

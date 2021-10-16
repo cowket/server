@@ -30,9 +30,10 @@ import {
   UpdateChannelDto,
   DeleteChannelDto
 } from 'src/entities/channel'
-import { UtilService } from 'src/util/util.service'
 import { ChannelService } from './channel.service'
 import { UserGrant } from 'src/entities/user_grant'
+import { User } from 'src/users/users.decorator'
+import { TokenUserInfo } from 'src/types/user'
 
 @ApiTags('Channel Controller')
 @Controller('channel')
@@ -40,10 +41,7 @@ import { UserGrant } from 'src/entities/user_grant'
 export class ChannelController {
   private _logger = new Logger('ChannelController')
 
-  constructor(
-    private utilService: UtilService,
-    private channelService: ChannelService
-  ) {}
+  constructor(private channelService: ChannelService) {}
 
   @Post()
   @ApiOperation({ summary: '채널 생성', description: '채널을 생성합니다.' })
@@ -52,9 +50,10 @@ export class ChannelController {
   @UsePipes(new ValidationPipe({ transform: true }))
   async createChannel(
     @Req() req: Request,
-    @Body() channelDto: CreateChannelDto
+    @Body() channelDto: CreateChannelDto,
+    @User() user: TokenUserInfo
   ) {
-    const { uuid: userUuid } = this.utilService.getUserInfoFromReq(req)
+    const { uuid: userUuid } = user
     const isDuplicate = await this.channelService.isDuplicatedName(
       channelDto.team_uuid,
       channelDto.name
@@ -82,9 +81,9 @@ export class ChannelController {
   @UsePipes(new ValidationPipe({ transform: true }))
   async updateChannel(
     @Req() req: Request,
-    @Body() channelDto: UpdateChannelDto
+    @Body() channelDto: UpdateChannelDto,
+    @User() user: TokenUserInfo
   ) {
-    const user = this.utilService.getUserInfoFromReq(req)
     const isOwner = await this.channelService.isChannelOwner(
       user.uuid,
       channelDto.channel_uuid
@@ -111,9 +110,9 @@ export class ChannelController {
   @UsePipes(new ValidationPipe({ transform: true }))
   async deleteChannel(
     @Req() req: Request,
-    @Body() channelDto: DeleteChannelDto
+    @Body() channelDto: DeleteChannelDto,
+    @User() user: TokenUserInfo
   ) {
-    const user = this.utilService.getUserInfoFromReq(req)
     const isOwner = await this.channelService.isChannelOwner(
       user.uuid,
       channelDto.channel_uuid
@@ -139,13 +138,16 @@ export class ChannelController {
   })
   @ApiOkResponse({ type: [UserGrant] })
   @ApiParam({ name: 'uuid', description: '팀 uuid' })
-  async getAllChannel(@Req() req: Request, @Param('uuid') uuid: string) {
-    const { uuid: userUuid } = this.utilService.getUserInfoFromReq(req)
-    const grantCheck = await this.channelService.grantCheck(userUuid, uuid)
+  async getAllChannel(
+    @Req() req: Request,
+    @Param('uuid') uuid: string,
+    @User() user: TokenUserInfo
+  ) {
+    const grantCheck = await this.channelService.grantCheck(user.uuid, uuid)
 
     if (!grantCheck)
       throw new HttpException('팀에 가입되지 않은 유저', HttpStatus.FORBIDDEN)
 
-    return await this.channelService.grantAllChannel(userUuid, uuid)
+    return await this.channelService.grantAllChannel(user.uuid, uuid)
   }
 }

@@ -27,6 +27,8 @@ import { TeamService } from 'src/team/team.service'
 import { UtilService } from 'src/util/util.service'
 import { Users } from './users.decorator'
 import { UsersService } from './users.service'
+import { User as UserDecorator } from 'src/users/users.decorator'
+import { TokenUserInfo } from 'src/types/user'
 
 @ApiTags('User Controller')
 @Controller('users')
@@ -45,8 +47,11 @@ export class UsersController {
   @Get('team')
   @ApiOperation({ summary: '유저가 소유자인 모든 팀 조회' })
   @ApiOkResponse({ type: [Team] })
-  async getAllTeams(@Req() req: Request, @Res() res: Response) {
-    const user = this.utilService.getUserInfoFromReq(req)
+  async getAllTeams(
+    @Req() req: Request,
+    @Res() res: Response,
+    @UserDecorator() user: TokenUserInfo
+  ) {
     const teams = await this.teamService.getAllTeamsByUser(user.uuid)
 
     return res.status(HttpStatus.OK).json(teams)
