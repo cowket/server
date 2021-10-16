@@ -20,7 +20,11 @@ async function bootstrap() {
     .build()
 
   const document = SwaggerModule.createDocument(app, config)
-  SwaggerModule.setup('swagger', app, document)
+  SwaggerModule.setup('swagger', app, document, {
+    swaggerOptions: {
+      docExpansion: 'none' // default collapse
+    }
+  })
 
   const defaultCorsOptions: CorsOptions = {
     credentials: true,
