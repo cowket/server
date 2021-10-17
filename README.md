@@ -9,3 +9,5 @@
 ## API 정리
 
 [스웨거](https://cowket-api.stackunderflow.xyz/swagger)에 정리하기
+
+## 구성
