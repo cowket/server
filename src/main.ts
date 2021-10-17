@@ -9,8 +9,8 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule)
 
   const config = new DocumentBuilder()
-    .setTitle('Cowket Server Document')
-    .setDescription('Cowket Server Document on Swagger')
+    .setTitle('Cowket API')
+    .setDescription('Cowket API Document')
     .setVersion('1.0')
     .addTag('cowket')
     .addBearerAuth(
