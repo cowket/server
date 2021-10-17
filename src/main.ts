@@ -11,7 +11,7 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('Cowket API')
     .setDescription('Cowket API Document')
-    .setVersion('1.0')
+    .setVersion('0.1')
     .addTag('cowket')
     .addBearerAuth(
       { type: 'http', scheme: 'bearer', bearerFormat: 'JWT', in: 'header' },
