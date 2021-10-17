@@ -9,6 +9,7 @@ import {
 } from 'typeorm'
 import { Channel } from './channel'
 import { Team } from './team'
+import { TeamUserProfile } from './team_user_profile'
 import { User } from './user'
 
 @Entity({ name: 'user_grant' })
@@ -38,4 +39,9 @@ export class UserGrant {
   @ApiProperty({ description: '생성일' })
   @CreateDateColumn({ nullable: false })
   create_date: Date
+
+  @ApiProperty({ description: '팀 내 프로필' })
+  @ManyToOne(() => TeamUserProfile)
+  @JoinColumn({ name: 'team_user_profile', referencedColumnName: 'id' })
+  team_user_profile: TeamUserProfile
 }

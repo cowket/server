@@ -208,5 +208,17 @@ export class ChannelService {
     return channel
   }
 
+  async getInvitableUserList(channelUuid: string, teamUuid: string) {
+    const members = await this.userGrantRepo
+      .createQueryBuilder('u')
+      .leftJoinAndSelect('u.team_user_profile', 'tup')
+      .leftJoinAndSelect('u.user_uuid', 'user')
+      .leftJoinAndSelect('u.team_uuid', 'team')
+      .where('u.team_uuid = :teamUuid', { teamUuid })
+      .getMany()
+
+    return members.filter((member) => member.channel_uuid.uuid !== channelUuid)
+  }
+
   async invitePrivateChannel(userUuids: string[], channelUuid) {}
 }

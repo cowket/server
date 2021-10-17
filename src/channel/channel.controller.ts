@@ -31,8 +31,10 @@ import {
   UpdateChannelDto,
   DeleteChannelDto,
   GetAllPublicQuery,
-  InvitePrivateChannelDto
+  InvitePrivateChannelDto,
+  InvitableUserQuery
 } from 'src/entities/channel'
+import { User as EntityUser } from 'src/entities/user'
 import { ChannelService } from './channel.service'
 import { UserGrant } from 'src/entities/user_grant'
 import { User } from 'src/users/users.decorator'
@@ -216,6 +218,38 @@ export class ChannelController {
         )
       }
     }
+  }
+
+  @Get('invite/users')
+  @ApiOperation({
+    summary: '채널 참여 가능 유저 리스트 조회',
+    description:
+      '채널에 참여가 가능한 유저 리스트를 조회합니다. 비공개 채널에서 소유자가 참여자를 추가시킬 때, 유저 리스트를 조회하는 부분으로 사용하면 됩니다.'
+  })
+  @ApiOkResponse({
+    type: [EntityUser]
+  })
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async getInvitableUsersCtrl(
+    @Query() query: InvitableUserQuery,
+    @User() user: TokenUserInfo
+  ) {
+    const { channel_uuid, team_uuid } = query
+    const isOwner = await this.channelService.isChannelOwner(
+      user.uuid,
+      channel_uuid
+    )
+
+    if (!isOwner)
+      throw new HttpException(
+        '채널의 소유자만 조회할 수 있습니다.',
+        HttpStatus.FORBIDDEN
+      )
+
+    return await this.channelService.getInvitableUserList(
+      channel_uuid,
+      team_uuid
+    )
   }
 
   // @Get('search')

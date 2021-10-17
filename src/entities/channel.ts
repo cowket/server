@@ -13,6 +13,16 @@ import {
 import { Team } from './team'
 import { User } from './user'
 
+export class InvitableUserQuery {
+  @ApiProperty({ description: '채널 uuid' })
+  @IsString()
+  channel_uuid: string
+
+  @ApiProperty({ description: '팀 uuid' })
+  @IsString()
+  team_uuid: string
+}
+
 export class InvitePrivateChannelDto {
   @ApiProperty({ description: '추가 시키려는 참여자의 uuid 리스트' })
   @IsString({ each: true })
@@ -128,12 +138,12 @@ export class Channel {
       '기본적으로 생성되는 공개 채널 여부 (해당 채널은 반드시 존재해야 함)'
   })
   @Column('boolean', { nullable: true, default: false })
-  unique?: boolean
+  unique: boolean
 
   @ApiProperty({
     description:
       '비공개 채널/공개 채널 여부 - 비공개 채널의 경우 채널의 소유자가 멤버를 가입시켜야 참여 가능'
   })
   @Column('boolean', { nullable: true, default: false })
-  is_private?: boolean
+  is_private: boolean
 }
