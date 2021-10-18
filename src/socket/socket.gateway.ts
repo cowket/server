@@ -10,7 +10,7 @@ import {
 import { Server, Socket } from 'socket.io'
 import { ChannelService } from 'src/channel/channel.service'
 import { RequestDirectMessageDto } from 'src/entities/direct_message'
-import { SocketPushMessageDto } from 'src/entities/message'
+import { LoadMessageDto, SocketPushMessageDto } from 'src/entities/message'
 import { MessageService } from 'src/message/message.service'
 import { WsExceptionFilter } from './socket.filter'
 import type { ConnectedSession } from 'src/types/socket'
@@ -85,6 +85,14 @@ export class SocketGateway implements OnGatewayInit {
       this.logger.error(error)
       client.emit('errorPacket', { error })
     }
+  }
+
+  @SubscribeMessage('loadMessage')
+  async loadMessageLatest(
+    @MessageBody() data: LoadMessageDto,
+    @ConnectedSocket() client: Socket
+  ) {
+    // const messages = await this.messageService.fetchMessageFromLatest()
   }
 
   @SubscribeMessage('joinRoom')

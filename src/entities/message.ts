@@ -14,6 +14,17 @@ import { Team } from './team'
 import { TeamUserProfile } from './team_user_profile'
 import { User } from './user'
 
+export class LoadMessageDto {
+  @IsString()
+  teamUuid: string // 팀 uuid
+
+  @IsString()
+  channelUuid: string // 채널 uuid
+
+  @IsString()
+  topMessageUuid: string // 제일 맨 위에 있는 메세지 uuid
+}
+
 /**
  * 메세지 전송시 타입 (서비스에서 사용 - 내부 타입)
  */
