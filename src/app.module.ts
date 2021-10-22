@@ -19,6 +19,7 @@ import { UserGrant } from './entities/user_grant'
 import { TeamUserProfile } from './entities/team_user_profile'
 import { ChannelModule } from './channel/channel.module'
 import { DirectMessage } from './entities/direct_message'
+import { GrantModule } from './grant/grant.module';
 
 const isProd = process.env.NODE_ENV === 'production'
 
@@ -69,7 +70,8 @@ const isProd = process.env.NODE_ENV === 'production'
         })
       }
     }),
-    ChannelModule
+    ChannelModule,
+    GrantModule
   ],
   providers: [JwtModule],
   exports: [JwtModule]

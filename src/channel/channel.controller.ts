@@ -195,14 +195,15 @@ export class ChannelController {
   @ApiOkResponse({ type: Boolean })
   @UsePipes(new ValidationPipe())
   async invitePrivateChannelCtrl(
-    @Body() { channel_uuid, user_uuids }: InvitePrivateChannelDto,
+    @Body() { channel_uuid, user_uuids, team_uuid }: InvitePrivateChannelDto,
     @User() user: TokenUserInfo
   ) {
     try {
       await this.channelService.checkPrivateChannelInfo(user.uuid, channel_uuid)
       const isSuccess = await this.channelService.invitePrivateChannel(
         user_uuids,
-        channel_uuid
+        channel_uuid,
+        team_uuid
       )
       return isSuccess
     } catch (error) {

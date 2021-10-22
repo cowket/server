@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { forwardRef, Inject, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import {
   Channel,
@@ -12,6 +12,8 @@ import {
   NotPrivateChannelError,
   UniqueChannelError
 } from 'src/error/error'
+import { GrantService } from 'src/grant/grant.service'
+import { TeamService } from 'src/team/team.service'
 import { UtilService } from 'src/util/util.service'
 import { Repository } from 'typeorm'
 
@@ -20,7 +22,9 @@ export class ChannelService {
   constructor(
     @InjectRepository(Channel) private channelRepo: Repository<Channel>,
     @InjectRepository(UserGrant) private userGrantRepo: Repository<UserGrant>,
-    private utilService: UtilService
+    private utilService: UtilService,
+    private grantService: GrantService,
+    @Inject(forwardRef(() => TeamService)) private teamService: TeamService
   ) {}
 
   async grantAllChannel(userUuid: string, teamUuid: string) {
@@ -220,5 +224,46 @@ export class ChannelService {
     return members.filter((member) => member.channel_uuid.uuid !== channelUuid)
   }
 
-  async invitePrivateChannel(userUuids: string[], channelUuid) {}
+  async invitePrivateChannel(
+    userUuids: string[],
+    channelUuid: string,
+    teamUuid: string
+  ) {
+    const teamUserProfiles = await this.teamService.getAllTeamUserProfile(
+      userUuids,
+      teamUuid
+    )
+
+    const insertArr = userUuids.map((userUuid) => {
+      const tup = teamUserProfiles.find(
+        (t) => (t.user_uuid as unknown) === userUuid
+      )
+
+      const obj = {
+        userUuid,
+        tup: null
+      }
+
+      if (tup) {
+        obj.tup = tup
+      }
+
+      return obj
+    })
+
+    return this.userGrantRepo
+      .createQueryBuilder('grant')
+      .insert()
+      .into(UserGrant)
+      .values(
+        insertArr.map((user) => ({
+          channel_uuid: channelUuid as unknown,
+          create_date: new Date(),
+          team_uuid: teamUuid as unknown,
+          user_uuid: user.userUuid as unknown,
+          team_user_profile: user.tup
+        }))
+      )
+      .execute()
+  }
 }

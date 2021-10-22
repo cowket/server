@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { forwardRef, Inject, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { RequestTeamData, Team, UpdateTeamData } from 'src/entities/team'
 import {
@@ -28,6 +28,7 @@ export class TeamService {
     private configService: ConfigService,
     @InjectRepository(User)
     private userRepo: Repository<User>,
+    @Inject(forwardRef(() => ChannelService))
     private channelService: ChannelService
   ) {}
 
@@ -297,5 +298,13 @@ export class TeamService {
     })
 
     return combineUser
+  }
+
+  async getAllTeamUserProfile(userUuids: string[], teamUuid: string) {
+    return this.teamUserProfileRepo
+      .createQueryBuilder('tup')
+      .where('tup.team_uuid = :teamUuid', { teamUuid })
+      .andWhere('tup.user_uuid IN (:userUuids)', { userUuids })
+      .getMany()
   }
 }

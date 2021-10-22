@@ -17,7 +17,7 @@ import { TeamService } from './team.service'
     UtilModule,
     forwardRef(() => UsersModule),
     ConfigModule,
-    ChannelModule
+    forwardRef(() => ChannelModule)
   ],
   controllers: [TeamController],
   providers: [TeamService],

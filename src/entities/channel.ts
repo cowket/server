@@ -31,6 +31,10 @@ export class InvitePrivateChannelDto {
   @ApiProperty({ description: '채널 uuid' })
   @IsString()
   channel_uuid: string
+
+  @ApiProperty({ description: '팀 uuid' })
+  @IsString()
+  team_uuid: string
 }
 
 export class GetAllPublicQuery {
