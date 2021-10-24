@@ -6,6 +6,7 @@ import {
   UpdateChannelDto,
   DeleteChannelDto
 } from 'src/entities/channel'
+import { TeamUserProfile } from 'src/entities/team_user_profile'
 import { UserGrant } from 'src/entities/user_grant'
 import {
   NotOwnerError,
@@ -111,11 +112,18 @@ export class ChannelService {
     teamUuid: string,
     channelUuid: string
   ) {
+    const tup = await this.teamService.getTeamUserProfile(
+      userUuid,
+      teamUuid,
+      true
+    )
+
     return this.userGrantRepo.insert({
       channel_uuid: channelUuid as unknown,
       team_uuid: teamUuid as unknown,
       user_uuid: userUuid as unknown,
-      create_date: new Date()
+      create_date: new Date(),
+      team_user_profile: tup ? ((tup as TeamUserProfile).id as unknown) : null
     })
   }
 
@@ -265,5 +273,57 @@ export class ChannelService {
         }))
       )
       .execute()
+  }
+
+  async isDuplicateGrantChannel(
+    userUuid: string,
+    teamUuid: string,
+    channelUuid: string
+  ) {
+    const [, count] = await this.userGrantRepo.findAndCount({
+      where: {
+        channel_uuid: channelUuid,
+        user_uuid: userUuid,
+        team_uuid: teamUuid
+      }
+    })
+
+    return count > 0
+  }
+
+  async enterPublicChannel(
+    userUuid: string,
+    teamUuid: string,
+    channelUuid: string
+  ) {
+    const isDuplicate = await this.isDuplicateGrantChannel(
+      userUuid,
+      teamUuid,
+      channelUuid
+    )
+
+    if (isDuplicate) {
+      return null
+    }
+
+    const tup = (await this.teamService.getTeamUserProfile(
+      userUuid,
+      teamUuid,
+      true
+    )) as TeamUserProfile | null
+
+    await this.userGrantRepo
+      .createQueryBuilder('ug')
+      .insert()
+      .values({
+        channel_uuid: channelUuid as unknown,
+        create_date: new Date(),
+        team_user_profile: tup ? (tup.id as unknown) : null,
+        team_uuid: teamUuid as unknown,
+        user_uuid: userUuid as unknown
+      })
+      .execute()
+
+    return true
   }
 }

@@ -13,6 +13,16 @@ import {
 import { Team } from './team'
 import { User } from './user'
 
+export class EnterPublicChannelDto {
+  @ApiProperty({ description: '팀 uuid' })
+  @IsString()
+  team_uuid: string
+
+  @ApiProperty({ description: '채널 uuid' })
+  @IsString()
+  channel_uuid: string
+}
+
 export class InvitableUserQuery {
   @ApiProperty({ description: '채널 uuid' })
   @IsString()

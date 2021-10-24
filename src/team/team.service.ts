@@ -241,6 +241,7 @@ export class TeamService {
   async enterPublicTeam(userUuid: string, teamUuid: string) {
     const team = await this.getTeamByUuid(teamUuid)
     const user = await this.usersService.findByUuid(userUuid)
+    const tup = await this.getTeamUserProfile(userUuid, teamUuid, true)
 
     await this.channelService.createGrantUniqueChannel(teamUuid, userUuid)
 
@@ -248,7 +249,8 @@ export class TeamService {
       channel_uuid: null,
       create_date: new Date(),
       team_uuid: team,
-      user_uuid: user
+      user_uuid: user,
+      team_user_profile: tup ? ((tup as TeamUserProfile).id as unknown) : null
     })
   }
 

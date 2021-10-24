@@ -32,7 +32,8 @@ import {
   DeleteChannelDto,
   GetAllPublicQuery,
   InvitePrivateChannelDto,
-  InvitableUserQuery
+  InvitableUserQuery,
+  EnterPublicChannelDto
 } from 'src/entities/channel'
 import { User as EntityUser } from 'src/entities/user'
 import { ChannelService } from './channel.service'
@@ -184,6 +185,33 @@ export class ChannelController {
   @UsePipes(new ValidationPipe())
   async getAllPublicChannelCtrl(@Query() { team_uuid }: GetAllPublicQuery) {
     return await this.channelService.getAllPublicChannel(team_uuid)
+  }
+
+  @Post('public')
+  @ApiOperation({
+    summary: '공개 채널 참여',
+    description: '공개 채널에 참여합니다.'
+  })
+  @ApiOkResponse({ type: Boolean })
+  @UsePipes(new ValidationPipe())
+  async enterPublicChannelCtrl(
+    @Body() dto: EnterPublicChannelDto,
+    @User() user: TokenUserInfo
+  ) {
+    const result = await this.channelService.enterPublicChannel(
+      user.uuid,
+      dto.team_uuid,
+      dto.channel_uuid
+    )
+
+    if (!result) {
+      throw new HttpException(
+        '이미 가입되어 있는 채널이거나 정상적이지 않은 요청입니다.',
+        HttpStatus.BAD_REQUEST
+      )
+    } else {
+      return result
+    }
   }
 
   @Post('invite')
