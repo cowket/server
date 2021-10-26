@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express'
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiOperation,
   ApiProperty,
@@ -27,6 +28,7 @@ class FileRequest {
   file: Express.Multer.File
 }
 
+@ApiBearerAuth('access-token')
 @ApiTags('File Controller')
 @Controller('file')
 export class FileController {

@@ -16,6 +16,7 @@ import {
   ValidationPipe
 } from '@nestjs/common'
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiCreatedResponse,
   ApiOkResponse,
@@ -46,6 +47,7 @@ import {
   UniqueChannelError
 } from 'src/error/error'
 
+@ApiBearerAuth('access-token')
 @ApiTags('Channel Controller')
 @Controller('channel')
 @UseGuards(JwtGuard)

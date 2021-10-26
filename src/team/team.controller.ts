@@ -20,6 +20,7 @@ import {
 } from '@nestjs/common'
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiBody,
   ApiOkResponse,
   ApiOperation,
@@ -47,6 +48,7 @@ import { UtilService } from 'src/util/util.service'
 import { TeamService } from './team.service'
 import { User as UserDecorator } from 'src/users/users.decorator'
 
+@ApiBearerAuth('access-token')
 @ApiTags('Team Controller')
 @Controller('team')
 export class TeamController {

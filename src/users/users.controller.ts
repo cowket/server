@@ -16,7 +16,12 @@ import {
   UsePipes,
   ValidationPipe
 } from '@nestjs/common'
-import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger'
+import {
+  ApiBearerAuth,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags
+} from '@nestjs/swagger'
 import { Request, Response } from 'express'
 import { AuthService } from 'src/auth/auth.service'
 import { JwtGuard } from 'src/auth/jwt.guard'
@@ -30,6 +35,7 @@ import { UsersService } from './users.service'
 import { User as UserDecorator } from 'src/users/users.decorator'
 import { TokenUserInfo } from 'src/types/user'
 
+@ApiBearerAuth('access-token')
 @ApiTags('User Controller')
 @Controller('users')
 export class UsersController {
@@ -74,7 +80,8 @@ export class UsersController {
   @Get('grant/channel/:uuid')
   @HttpCode(200)
   @ApiOperation({
-    summary: '유저가 접근 가능한 팀 채널 조회'
+    summary: '유저가 접근 가능한 팀 채널 조회',
+    deprecated: true
   })
   @ApiOkResponse({ type: [UserGrant] })
   async accessibleChannels(

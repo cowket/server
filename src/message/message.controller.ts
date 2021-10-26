@@ -7,7 +7,12 @@ import {
   Req,
   UseGuards
 } from '@nestjs/common'
-import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger'
+import {
+  ApiBearerAuth,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags
+} from '@nestjs/swagger'
 import { Request } from 'express'
 import { JwtGuard } from 'src/auth/jwt.guard'
 import { DirectMessage } from 'src/entities/direct_message'
@@ -16,6 +21,7 @@ import { TokenUserInfo } from 'src/types/user'
 import { User } from 'src/users/users.decorator'
 import { MessageService } from './message.service'
 
+@ApiBearerAuth('access-token')
 @ApiTags('Message Controller')
 @Controller('message')
 export class MessageController {

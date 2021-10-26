@@ -10,7 +10,7 @@ import {
   Res,
   UseGuards
 } from '@nestjs/common'
-import { ApiOperation, ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { Request, Response } from 'express'
 import { TokenUserInfo } from 'src/types/user'
 import { User } from 'src/users/users.decorator'
@@ -23,6 +23,7 @@ export type SimpleUserInfo = {
   pw: string
 }
 
+@ApiBearerAuth('access-token')
 @ApiTags('Auth Controller')
 @Controller('auth')
 export class AuthController {
