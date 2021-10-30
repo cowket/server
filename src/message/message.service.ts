@@ -120,6 +120,7 @@ export class MessageService {
       .leftJoinAndSelect('dm.receiver', 'receiver')
       .leftJoinAndSelect('dm.sender_team_user_profile', 'senderTup')
       .leftJoinAndSelect('dm.receiver_team_user_profile', 'receiverTup')
+      .orderBy('dm.create_date', 'DESC')
       .where('team.uuid = :teamUuid', { teamUuid })
       .andWhere('sender.uuid = :sender', { sender })
       .andWhere('receiver.uuid = :receiver', { receiver })
