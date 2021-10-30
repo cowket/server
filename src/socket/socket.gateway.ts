@@ -12,7 +12,6 @@ import { RequestDirectMessageDto } from 'src/entities/direct_message'
 import { LoadMessageDto, SocketPushMessageDto } from 'src/entities/message'
 import { MessageService } from 'src/message/message.service'
 import { WsExceptionFilter } from './socket.filter'
-import type { ConnectedSession } from 'src/types/socket'
 import { SocketService } from './socket.service'
 
 @UseFilters(WsExceptionFilter)
@@ -28,8 +27,6 @@ import { SocketService } from './socket.service'
 })
 export class SocketGateway implements OnGatewayInit {
   private logger = new Logger('SocketGateway')
-  private connected: ConnectedSession = {}
-  private connectedByUuid: ConnectedSession = {}
 
   @WebSocketServer()
   server: Server
@@ -49,15 +46,7 @@ export class SocketGateway implements OnGatewayInit {
     @MessageBody() data: { team_uuid: string; user_uuid: string },
     @ConnectedSocket() client: Socket
   ) {
-    if (!this.connected[data.team_uuid]) {
-      this.connected[data.team_uuid] = {}
-      this.connectedByUuid[data.team_uuid] = {}
-    }
-
-    if (!this.connected[data.team_uuid][client.id]) {
-      this.connected[data.team_uuid][client.id] = data.user_uuid
-      this.connectedByUuid[data.team_uuid][data.user_uuid] = client.id
-    }
+    this.socketService.setSession(data.team_uuid, data.user_uuid, client.id)
   }
 
   @SubscribeMessage('pushDirectMessage')
@@ -68,7 +57,12 @@ export class SocketGateway implements OnGatewayInit {
   ) {
     const pushedMessage = await this.messageService.pushDirectMessage(data)
     this.server
-      .to(this.connectedByUuid[data.team_uuid][data.receiver_uuid])
+      .to(
+        this.socketService.getSocketIdByUserUuid(
+          data.receiver_uuid,
+          data.team_uuid
+        )
+      )
       .emit('newDirectMessage', pushedMessage)
     client.emit('newDirectMessage', pushedMessage)
   }
