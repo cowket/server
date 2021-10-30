@@ -5,7 +5,9 @@ import {
   HttpStatus,
   Query,
   Req,
-  UseGuards
+  UseGuards,
+  UsePipes,
+  ValidationPipe
 } from '@nestjs/common'
 import {
   ApiBearerAuth,
@@ -37,6 +39,7 @@ export class MessageController {
   @ApiOkResponse({
     type: [Message]
   })
+  @UsePipes(new ValidationPipe())
   async getMessageLatest(
     @Req() req: Request,
     @Query('channel_uuid') channelUuid: string
@@ -53,6 +56,7 @@ export class MessageController {
   @ApiOkResponse({
     type: [DirectMessage]
   })
+  @UsePipes(new ValidationPipe())
   async getDirectMessageLatest(
     @Query('sender') sender: string,
     @Query('receiver') receiver: string,
