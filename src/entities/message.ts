@@ -14,6 +14,9 @@ import { Team } from './team'
 import { TeamUserProfile } from './team_user_profile'
 import { User } from './user'
 
+export type SystemMessageType = 'enter' | 'public' | 'enter:private'
+export type MessageType = 'user' | 'system'
+
 export class LoadMessageDto {
   @IsString()
   teamUuid: string // 팀 uuid
@@ -94,4 +97,8 @@ export class Message {
   @JoinColumn({ name: 'team_user_profile', referencedColumnName: 'id' })
   @Column({ nullable: true, default: null })
   team_user_profile?: TeamUserProfile
+
+  @ApiProperty({ description: '메세지 타입 "user | system"', default: 'user' })
+  @Column('varchar', { nullable: true, default: 'user' })
+  type: MessageType
 }

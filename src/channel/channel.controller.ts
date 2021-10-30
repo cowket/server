@@ -201,7 +201,7 @@ export class ChannelController {
     @User() user: TokenUserInfo
   ) {
     const result = await this.channelService.enterPublicChannel(
-      user.uuid,
+      user,
       dto.team_uuid,
       dto.channel_uuid
     )

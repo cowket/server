@@ -4,9 +4,13 @@ import {
   DirectMessage,
   RequestDirectMessageDto
 } from 'src/entities/direct_message'
-import { FetchMessageDto, Message, PushMessageDto } from 'src/entities/message'
+import {
+  FetchMessageDto,
+  Message,
+  MessageType,
+  PushMessageDto
+} from 'src/entities/message'
 import { TeamUserProfile } from 'src/entities/team_user_profile'
-import { TeamService } from 'src/team/team.service'
 import { UtilService } from 'src/util/util.service'
 import { Repository } from 'typeorm'
 
@@ -19,11 +23,10 @@ export class MessageService {
     @InjectRepository(Message) private messageRepo: Repository<Message>,
     @InjectRepository(TeamUserProfile)
     private tupRepo: Repository<TeamUserProfile>,
-    @InjectRepository(DirectMessage) private dmRepo: Repository<DirectMessage>,
-    private teamService: TeamService
+    @InjectRepository(DirectMessage) private dmRepo: Repository<DirectMessage>
   ) {}
 
-  async pushMessage(dto: PushMessageDto) {
+  async pushMessage(dto: PushMessageDto, type: MessageType = 'user') {
     const uuid = this.utilService.genUuid()
 
     const tupCheck = await this.tupRepo
@@ -43,7 +46,8 @@ export class MessageService {
       create_date: new Date(),
       update_date: new Date(),
       is_updated: false,
-      team_user_profile: tup || null
+      team_user_profile: tup || null,
+      type: type || 'user'
     })
 
     const message = await this.messageRepo

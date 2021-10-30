@@ -13,10 +13,12 @@ import {
   NotPrivateChannelError,
   UniqueChannelError
 } from 'src/error/error'
-import { GrantService } from 'src/grant/grant.service'
 import { TeamService } from 'src/team/team.service'
 import { UtilService } from 'src/util/util.service'
 import { Repository } from 'typeorm'
+import { MessageService } from 'src/message/message.service'
+import { TokenUserInfo } from 'src/types/user'
+import { UsersService } from 'src/users/users.service'
 
 @Injectable()
 export class ChannelService {
@@ -24,7 +26,8 @@ export class ChannelService {
     @InjectRepository(Channel) private channelRepo: Repository<Channel>,
     @InjectRepository(UserGrant) private userGrantRepo: Repository<UserGrant>,
     private utilService: UtilService,
-    private grantService: GrantService,
+    private messageService: MessageService,
+    @Inject(forwardRef(() => UsersService)) private userService: UsersService,
     @Inject(forwardRef(() => TeamService)) private teamService: TeamService
   ) {}
 
@@ -292,12 +295,12 @@ export class ChannelService {
   }
 
   async enterPublicChannel(
-    userUuid: string,
+    user: TokenUserInfo,
     teamUuid: string,
     channelUuid: string
   ) {
     const isDuplicate = await this.isDuplicateGrantChannel(
-      userUuid,
+      user.uuid,
       teamUuid,
       channelUuid
     )
@@ -307,10 +310,26 @@ export class ChannelService {
     }
 
     const tup = (await this.teamService.getTeamUserProfile(
-      userUuid,
+      user.uuid,
       teamUuid,
       true
     )) as TeamUserProfile | null
+
+    let displayName = ''
+
+    if (!tup) {
+      const pUser = await this.userService.findByUuid(user.uuid)
+      displayName = pUser.email.split('@')[0]
+    } else {
+      displayName = tup.name
+    }
+
+    this.messageService.pushMessage({
+      channelUuid: channelUuid,
+      senderUuid: '',
+      teamUuid: teamUuid,
+      content: displayName + '님이 채널에 참여하셨습니다.'
+    })
 
     await this.userGrantRepo
       .createQueryBuilder('ug')
@@ -320,7 +339,7 @@ export class ChannelService {
         create_date: new Date(),
         team_user_profile: tup ? (tup.id as unknown) : null,
         team_uuid: teamUuid as unknown,
-        user_uuid: userUuid as unknown
+        user_uuid: user.uuid as unknown
       })
       .execute()
 

@@ -5,15 +5,17 @@ import { UserGrant } from 'src/entities/user_grant'
 import { UtilModule } from 'src/util/util.module'
 import { ChannelController } from './channel.controller'
 import { ChannelService } from './channel.service'
-import { GrantModule } from 'src/grant/grant.module'
 import { TeamModule } from 'src/team/team.module'
+import { MessageModule } from 'src/message/message.module'
+import { UsersModule } from 'src/users/users.module'
 
 @Module({
   imports: [
     UtilModule,
     TypeOrmModule.forFeature([UserGrant, Channel]),
-    GrantModule,
-    forwardRef(() => TeamModule)
+    forwardRef(() => TeamModule),
+    forwardRef(() => UsersModule),
+    MessageModule
   ],
   controllers: [ChannelController],
   providers: [ChannelService],
