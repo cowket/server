@@ -26,14 +26,9 @@ export class UtilService {
   }
 
   getHttpFilePath(fileName: string): string {
-    let isSlash = false
-    if (fileName.startsWith('/')) {
-      isSlash = true
-    }
     return process.env.NODE_ENV === 'production'
-      ? this.getUploadHttpPath() + (isSlash ? fileName.slice(1) : fileName)
-      : 'http://localhost:4000/uploads' +
-          (isSlash ? fileName.slice(1) : fileName)
+      ? this.getUploadHttpPath() + fileName
+      : 'http://localhost:4000/uploads' + fileName
   }
 
   genAvatar(uuid: string) {
