@@ -14,6 +14,7 @@ import { LoadMessageDto, SocketPushMessageDto } from 'src/entities/message'
 import { MessageService } from 'src/message/message.service'
 import { WsExceptionFilter } from './socket.filter'
 import type { ConnectedSession } from 'src/types/socket'
+import { SocketService } from './socket.service'
 
 @UseFilters(WsExceptionFilter)
 @WebSocketGateway(4001, {
@@ -36,11 +37,13 @@ export class SocketGateway implements OnGatewayInit {
 
   constructor(
     private messageService: MessageService,
-    private channelService: ChannelService
+    private channelService: ChannelService,
+    private socketService: SocketService
   ) {}
 
-  async afterInit(server: Server) {
+  afterInit(server: Server) {
     this.server = server
+    this.socketService.setSocketServer(server)
   }
 
   @SubscribeMessage('cowket:connection')
@@ -89,8 +92,8 @@ export class SocketGateway implements OnGatewayInit {
 
   @SubscribeMessage('loadMessage')
   async loadMessageLatest(
-    @MessageBody() data: LoadMessageDto,
-    @ConnectedSocket() client: Socket
+    @MessageBody() _data: LoadMessageDto,
+    @ConnectedSocket() _client: Socket
   ) {
     // const messages = await this.messageService.fetchMessageFromLatest()
   }
