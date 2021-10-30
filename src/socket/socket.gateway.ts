@@ -39,10 +39,12 @@ export class SocketGateway implements OnGatewayInit {
   afterInit(server: Server) {
     this.server = server
     this.socketService.setSocketServer(server)
+    this.socketService.initSessionAllTeams()
   }
 
   @SubscribeMessage('cowket:connection')
-  async handleCowketConnection(
+  @UsePipes(new ValidationPipe())
+  handleCowketConnection(
     @MessageBody() data: { team_uuid: string; user_uuid: string },
     @ConnectedSocket() client: Socket
   ) {
