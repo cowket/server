@@ -113,6 +113,8 @@ export class MessageService {
     receiver: string,
     teamUuid: string
   ) {
+    const union = [sender, receiver]
+
     return this.dmRepo
       .createQueryBuilder('dm')
       .leftJoinAndSelect('dm.team', 'team')
@@ -122,8 +124,8 @@ export class MessageService {
       .leftJoinAndSelect('dm.receiver_team_user_profile', 'receiverTup')
       .orderBy('dm.create_date', 'DESC')
       .where('team.uuid = :teamUuid', { teamUuid })
-      .andWhere('sender.uuid = :sender', { sender })
-      .andWhere('receiver.uuid = :receiver', { receiver })
+      .andWhere('sender.uuid IN (:union)', { union })
+      .andWhere('receiver.uuid IN (:union)', { union })
       .limit(10)
       .getMany()
   }
