@@ -18,7 +18,11 @@ import {
 import { Request } from 'express'
 import { JwtGuard } from 'src/auth/jwt.guard'
 import { DirectMessage } from 'src/entities/direct_message'
-import { Message } from 'src/entities/message'
+import {
+  GetDirectMessageQuery,
+  GetMessageQuery,
+  Message
+} from 'src/entities/message'
 import { TokenUserInfo } from 'src/types/user'
 import { User } from 'src/users/users.decorator'
 import { MessageService } from './message.service'
@@ -40,10 +44,8 @@ export class MessageController {
     type: [Message]
   })
   @UsePipes(new ValidationPipe())
-  async getMessageLatest(
-    @Req() req: Request,
-    @Query('channel_uuid') channelUuid: string
-  ) {
+  async getMessageLatest(@Req() req: Request, @Query() query: GetMessageQuery) {
+    const { channel_uuid: channelUuid } = query
     return await this.messageService.fetchMessageLatest(channelUuid)
   }
 
@@ -58,11 +60,11 @@ export class MessageController {
   })
   @UsePipes(new ValidationPipe())
   async getDirectMessageLatest(
-    @Query('sender') sender: string,
-    @Query('receiver') receiver: string,
-    @Query('team_uuid') teamUuid: string,
+    @Query() query: GetDirectMessageQuery,
     @User() user: TokenUserInfo
   ) {
+    const { sender, receiver, team_uuid: teamUuid } = query
+
     if (user.uuid !== sender && user.uuid !== receiver)
       throw new HttpException(
         '조회하려는 유저의 정보가 일치하지 않습니다.',

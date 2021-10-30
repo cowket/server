@@ -17,6 +17,22 @@ import { User } from './user'
 export type SystemMessageType = 'enter' | 'public' | 'enter:private'
 export type MessageType = 'user' | 'system'
 
+export class GetMessageQuery {
+  @IsString()
+  channel_uuid: string
+}
+
+export class GetDirectMessageQuery {
+  @IsString()
+  sender: string
+
+  @IsString()
+  receiver: string
+
+  @IsString()
+  team_uuid: string
+}
+
 export class LoadMessageDto {
   @IsString()
   teamUuid: string // 팀 uuid

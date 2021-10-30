@@ -113,21 +113,28 @@ export class MessageService {
     receiver: string,
     teamUuid: string
   ) {
-    const union = [sender, receiver]
-
-    return this.dmRepo
-      .createQueryBuilder('dm')
-      .leftJoinAndSelect('dm.team', 'team')
-      .leftJoinAndSelect('dm.sender', 'sender')
-      .leftJoinAndSelect('dm.receiver', 'receiver')
-      .leftJoinAndSelect('dm.sender_team_user_profile', 'senderTup')
-      .leftJoinAndSelect('dm.receiver_team_user_profile', 'receiverTup')
-      .orderBy('dm.create_date', 'DESC')
-      .where('team.uuid = :teamUuid', { teamUuid })
-      .andWhere('sender.uuid IN (:union)', { union })
-      .andWhere('receiver.uuid IN (:union)', { union })
-      .limit(10)
-      .getMany()
+    return (
+      this.dmRepo
+        .createQueryBuilder('dm')
+        .leftJoinAndSelect('dm.team', 'team')
+        .leftJoinAndSelect('dm.sender', 'sender')
+        .leftJoinAndSelect('dm.receiver', 'receiver')
+        .leftJoinAndSelect('dm.sender_team_user_profile', 'senderTup')
+        .leftJoinAndSelect('dm.receiver_team_user_profile', 'receiverTup')
+        .orderBy('dm.create_date', 'DESC')
+        .where('team.uuid = :teamUuid', { teamUuid })
+        .andWhere(':sender IN (sender, receiver)', { sender })
+        .andWhere(':receiver IN (sender, receiver)', { receiver })
+        // .where(
+        //   'team.uuid = :teamUuid AND :sender IN (sender, receiver) AND :receiver IN (sender, receiver)',
+        //   { teamUuid, sender, receiver }
+        // )
+        // .andWhere(`'${sender}' in (sender, receiver)`)
+        // .andWhere(`'${receiver}' in (sender, receiver)`)
+        .limit(10)
+        .printSql()
+        .getMany()
+    )
   }
 
   async fetchMessageLatest(channelUuid: string) {
