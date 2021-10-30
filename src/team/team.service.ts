@@ -205,6 +205,11 @@ export class TeamService {
     const user = await this.usersService.findByUuid(userUuid)
     const team = await this.getTeamByUuid(profile.team_uuid)
 
+    if (profile.avatar) {
+      const hostURL = this.configService.get('HOST_URL')
+      profile.avatar = hostURL + '/' + profile.avatar
+    }
+
     return this.teamUserProfileRepo.insert({
       ...profile,
       user_uuid: user,

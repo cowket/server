@@ -89,7 +89,7 @@ export class UsersService {
     const avatarPath =
       process.env.NODE_ENV === 'development'
         ? 'http://localhost:4000/uploads/'
-        : 'https://cowket-api.stackunderflow.xyz/uploads/'
+        : this.configService.get('HOST_URL') + '/uploads/'
 
     return this.usersRepository
       .createQueryBuilder('users')
