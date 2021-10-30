@@ -252,14 +252,34 @@ export class ChannelService {
 
       const obj = {
         userUuid,
-        tup: null
-      }
-
-      if (tup) {
-        obj.tup = tup
+        tup: tup || null
       }
 
       return obj
+    })
+
+    let content = ''
+
+    if (insertArr[0].tup) {
+      content = `${insertArr[0].tup.name}님${
+        insertArr.length > 1
+          ? ` 외 ${insertArr.length - 1}명이 채널에 참여하였습니다.`
+          : '이 채널에 참여하였습니다.'
+      }`
+    } else {
+      const pUser = await this.userService.findByUuid(insertArr[0].userUuid)
+      content = `${pUser.email.split('@')[0]}님${
+        insertArr.length > 1
+          ? ` 외 ${insertArr.length - 1}명이 채널에 참여하였습니다.`
+          : '이 채널에 참여하였습니다.'
+      }`
+    }
+
+    this.messageService.pushMessage({
+      channelUuid,
+      senderUuid: null,
+      teamUuid,
+      content
     })
 
     return this.userGrantRepo
@@ -328,7 +348,7 @@ export class ChannelService {
       channelUuid: channelUuid,
       senderUuid: '',
       teamUuid: teamUuid,
-      content: displayName + '님이 채널에 참여하셨습니다.'
+      content: displayName + '님이 채널에 참여하였습니다.'
     })
 
     await this.userGrantRepo
