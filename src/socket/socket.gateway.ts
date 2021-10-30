@@ -8,7 +8,6 @@ import {
   WebSocketServer
 } from '@nestjs/websockets'
 import { Server, Socket } from 'socket.io'
-import { ChannelService } from 'src/channel/channel.service'
 import { RequestDirectMessageDto } from 'src/entities/direct_message'
 import { LoadMessageDto, SocketPushMessageDto } from 'src/entities/message'
 import { MessageService } from 'src/message/message.service'
@@ -37,7 +36,6 @@ export class SocketGateway implements OnGatewayInit {
 
   constructor(
     private messageService: MessageService,
-    private channelService: ChannelService,
     private socketService: SocketService
   ) {}
 
