@@ -207,6 +207,10 @@ export class TeamService {
     const user = await this.usersService.findByUuid(userUuid)
     const team = await this.getTeamByUuid(profile.team_uuid)
 
+    if (profile.avatar) {
+      profile.avatar = this.utilService.getUploadHttpPath(true) + profile.avatar
+    }
+
     const tup = await this.teamUserProfileRepo.save({
       ...profile,
       user_uuid: user,
@@ -229,6 +233,10 @@ export class TeamService {
     const teamUserProfile = await this.teamUserProfileRepo.findOne({
       where: { user_uuid: userUuid, team_uuid: profile.team_uuid }
     })
+
+    if (profile.avatar) {
+      profile.avatar = this.utilService.getUploadHttpPath(true) + profile.avatar
+    }
 
     return this.teamUserProfileRepo.save({
       id: teamUserProfile.id,
