@@ -101,7 +101,8 @@ export class ChannelService {
       description: channelDto.description || null,
       owner: userUuid as unknown,
       create_date: new Date(),
-      update_date: new Date()
+      update_date: new Date(),
+      is_private: channelDto.is_private || false
     })
 
     await this.createGrantChannel(userUuid, channelDto.team_uuid, uuid)
