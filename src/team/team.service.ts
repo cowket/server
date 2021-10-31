@@ -14,6 +14,7 @@ import * as bcrypt from 'bcryptjs'
 import { ConfigService } from '@nestjs/config'
 import { User } from 'src/entities/user'
 import { ChannelService } from 'src/channel/channel.service'
+import { MessageService } from 'src/message/message.service'
 
 @Injectable()
 export class TeamService {
@@ -29,7 +30,8 @@ export class TeamService {
     @InjectRepository(User)
     private userRepo: Repository<User>,
     @Inject(forwardRef(() => ChannelService))
-    private channelService: ChannelService
+    private channelService: ChannelService,
+    private messageService: MessageService
   ) {}
 
   async deleteTeam(teamUuid: string, userUuid: string) {
@@ -205,16 +207,19 @@ export class TeamService {
     const user = await this.usersService.findByUuid(userUuid)
     const team = await this.getTeamByUuid(profile.team_uuid)
 
-    if (profile.avatar) {
-      const hostURL = this.configService.get('HOST_URL')
-      profile.avatar = hostURL + '/' + profile.avatar
-    }
-
-    return this.teamUserProfileRepo.insert({
+    const tup = await this.teamUserProfileRepo.save({
       ...profile,
       user_uuid: user,
       team_uuid: team
     })
+
+    this.messageService.updateAllTup({
+      teamUserProfileId: tup.id,
+      teamUuid: profile.team_uuid,
+      userUuid
+    })
+
+    return tup
   }
 
   async updateTeamUserProfile(

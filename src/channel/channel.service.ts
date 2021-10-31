@@ -121,6 +121,16 @@ export class ChannelService {
       true
     )
 
+    this.messageService.pushMessage(
+      {
+        channelUuid,
+        teamUuid,
+        senderUuid: null,
+        content: '채널 개설됨'
+      },
+      'system'
+    )
+
     return this.userGrantRepo.insert({
       channel_uuid: channelUuid as unknown,
       team_uuid: teamUuid as unknown,

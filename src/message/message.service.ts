@@ -14,6 +14,12 @@ import { TeamUserProfile } from 'src/entities/team_user_profile'
 import { UtilService } from 'src/util/util.service'
 import { Repository } from 'typeorm'
 
+type UpdateTupRequest = {
+  teamUuid: string
+  userUuid: string
+  teamUserProfileId: number
+}
+
 @Injectable()
 export class MessageService {
   private logger = new Logger()
@@ -46,7 +52,7 @@ export class MessageService {
       create_date: new Date(),
       update_date: new Date(),
       is_updated: false,
-      team_user_profile: tup || null,
+      team_user_profile: tup,
       type: type || 'user'
     })
 
@@ -77,8 +83,8 @@ export class MessageService {
       .andWhere('tup.team_uuid = :teamUuid', { teamUuid: dto.team_uuid })
       .getOne()
 
-    const senderTup: TeamUserProfile | null = senderTupCheck || null
-    const receiverTup: TeamUserProfile | null = receiverTupCheck || null
+    const senderTup = senderTupCheck || null
+    const receiverTup = receiverTupCheck || null
 
     await this.dmRepo.insert({
       uuid,
@@ -113,28 +119,20 @@ export class MessageService {
     receiver: string,
     teamUuid: string
   ) {
-    return (
-      this.dmRepo
-        .createQueryBuilder('dm')
-        .leftJoinAndSelect('dm.team', 'team')
-        .leftJoinAndSelect('dm.sender', 'sender')
-        .leftJoinAndSelect('dm.receiver', 'receiver')
-        .leftJoinAndSelect('dm.sender_team_user_profile', 'senderTup')
-        .leftJoinAndSelect('dm.receiver_team_user_profile', 'receiverTup')
-        .orderBy('dm.create_date', 'DESC')
-        .where('team.uuid = :teamUuid', { teamUuid })
-        .andWhere(':sender IN (sender, receiver)', { sender })
-        .andWhere(':receiver IN (sender, receiver)', { receiver })
-        // .where(
-        //   'team.uuid = :teamUuid AND :sender IN (sender, receiver) AND :receiver IN (sender, receiver)',
-        //   { teamUuid, sender, receiver }
-        // )
-        // .andWhere(`'${sender}' in (sender, receiver)`)
-        // .andWhere(`'${receiver}' in (sender, receiver)`)
-        .limit(10)
-        .printSql()
-        .getMany()
-    )
+    return this.dmRepo
+      .createQueryBuilder('dm')
+      .leftJoinAndSelect('dm.team', 'team')
+      .leftJoinAndSelect('dm.sender', 'sender')
+      .leftJoinAndSelect('dm.receiver', 'receiver')
+      .leftJoinAndSelect('dm.sender_team_user_profile', 'senderTup')
+      .leftJoinAndSelect('dm.receiver_team_user_profile', 'receiverTup')
+      .orderBy('dm.create_date', 'DESC')
+      .where('team.uuid = :teamUuid', { teamUuid })
+      .andWhere(':sender IN (sender, receiver)', { sender })
+      .andWhere(':receiver IN (sender, receiver)', { receiver })
+      .limit(10)
+      .printSql()
+      .getMany()
   }
 
   async fetchMessageLatest(channelUuid: string) {
@@ -169,5 +167,49 @@ export class MessageService {
       })
       .limit(10)
       .getMany()
+  }
+
+  async updateAllTup(req: UpdateTupRequest) {
+    this.updateAllTupInMessage(req)
+    this.updateAllTupInDirectMessage(req)
+  }
+
+  async updateAllTupInMessage({
+    teamUserProfileId,
+    teamUuid,
+    userUuid
+  }: UpdateTupRequest) {
+    return this.messageRepo
+      .createQueryBuilder('m')
+      .update('SET m.team_user_profile = :teamUserProfileId', {
+        teamUserProfileId
+      })
+      .where('m.team_uuid = :teamUuid', { teamUuid })
+      .andWhere('m.sender_uuid = :userUuid', { userUuid })
+      .execute()
+  }
+
+  async updateAllTupInDirectMessage({
+    teamUserProfileId,
+    teamUuid,
+    userUuid
+  }: UpdateTupRequest) {
+    this.dmRepo
+      .createQueryBuilder('m')
+      .update('SET m.sender_team_user_profile = :teamUserProfileId', {
+        teamUserProfileId
+      })
+      .where('m.team_uuid = :teamUuid', { teamUuid })
+      .andWhere('m.sender = :userUuid', { userUuid })
+      .execute()
+
+    this.dmRepo
+      .createQueryBuilder('m')
+      .update('SET m.receiver_team_user_profile = :teamUserProfileId', {
+        teamUserProfileId
+      })
+      .where('m.team_uuid = :teamUuid', { teamUuid })
+      .andWhere('m.receiver = :userUuid', { userUuid })
+      .execute()
   }
 }
