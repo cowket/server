@@ -37,16 +37,16 @@ export class MessageService {
 
     const tupCheck = await this.tupRepo
       .createQueryBuilder('tup')
-      .where('tup.user_uuid = :userUuid', { userUuid: dto.senderUuid })
-      .andWhere('tup.team_uuid = :teamUuid', { teamUuid: dto.teamUuid })
+      .where('tup.user_uuid = :userUuid', { userUuid: dto.sender_uuid })
+      .andWhere('tup.team_uuid = :teamUuid', { teamUuid: dto.team_uuid })
       .getOne()
 
     const tup: TeamUserProfile | null = tupCheck || null
 
     await this.messageRepo.insert({
-      channel: dto.channelUuid as unknown,
-      team: dto.teamUuid as unknown,
-      sender: dto.senderUuid as unknown,
+      channel: dto.channel_uuid as unknown,
+      team: dto.team_uuid as unknown,
+      sender: dto.sender_uuid as unknown,
       content: dto.content,
       uuid,
       create_date: new Date(),

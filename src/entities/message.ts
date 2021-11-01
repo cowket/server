@@ -49,13 +49,13 @@ export class LoadMessageDto {
  */
 export class PushMessageDto {
   @IsString()
-  teamUuid: string // 팀 uuid
+  team_uuid: string // 팀 uuid
 
   @IsString()
-  channelUuid: string // 채널 uuid
+  channel_uuid: string // 채널 uuid
 
   @IsString()
-  senderUuid: string // 유저 uuid
+  sender_uuid: string // 유저 uuid
 
   @IsString()
   @Length(2)

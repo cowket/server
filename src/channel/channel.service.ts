@@ -124,9 +124,9 @@ export class ChannelService {
 
     this.messageService.pushMessage(
       {
-        channelUuid,
-        teamUuid,
-        senderUuid: null,
+        channel_uuid: channelUuid,
+        team_uuid: teamUuid,
+        sender_uuid: null,
         content: '채널 개설됨'
       },
       'system'
@@ -287,9 +287,9 @@ export class ChannelService {
     }
 
     this.messageService.pushMessage({
-      channelUuid,
-      senderUuid: null,
-      teamUuid,
+      channel_uuid: channelUuid,
+      sender_uuid: null,
+      team_uuid: teamUuid,
       content
     })
 
@@ -356,9 +356,9 @@ export class ChannelService {
     }
 
     this.messageService.pushMessage({
-      channelUuid: channelUuid,
-      senderUuid: '',
-      teamUuid: teamUuid,
+      channel_uuid: channelUuid,
+      sender_uuid: null,
+      team_uuid: teamUuid,
       content: displayName + '님이 채널에 참여하였습니다.'
     })
 

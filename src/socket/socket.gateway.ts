@@ -76,8 +76,11 @@ export class SocketGateway implements OnGatewayInit {
   ) {
     try {
       const message = await this.messageService.pushMessage(data)
-      this.server.to(data.channelUuid).emit('newMessage', message) // 채널에 메세지 전파
+      this.server.to(data.channel_uuid).emit('newMessage', message) // 채널에 메세지 전파
       this.logger.log(message.uuid, 'message create')
+      this.logger.debug(
+        `has client rooms ${client.rooms.has(data.channel_uuid)}`
+      )
     } catch (error) {
       this.logger.error(error)
       client.emit('errorPacket', { error })
@@ -94,6 +97,7 @@ export class SocketGateway implements OnGatewayInit {
 
   @SubscribeMessage('joinRoom')
   handleJoinRoom(client: Socket, data: any) {
+    this.logger.debug(`join client: ${client.id}, ${data.channel_uuid}`)
     client.join(data.channel_uuid)
   }
 }
