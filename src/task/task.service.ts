@@ -12,10 +12,12 @@ export class TaskService {
     name: 'Message Collector Task',
     timeZone: 'Asia/Seoul'
   })
-  messageCollectorTask() {
-    this.logger.log('task run: removeUnstableMessages')
-    this.messageService.removeUnstableMessages()
-    this.logger.log('task run: removeUnstableDirectMessages')
-    this.messageService.removeUnstableDirectMessages()
+  async messageCollectorTask() {
+    if (process.env.NODE_ENV === 'production') {
+      this.logger.log('task run: removeUnstableMessages')
+      await this.messageService.removeUnstableMessages()
+      this.logger.log('task run: removeUnstableDirectMessages')
+      await this.messageService.removeUnstableDirectMessages()
+    }
   }
 }
