@@ -12,6 +12,7 @@ import {
 } from 'typeorm'
 import { Team } from './team'
 import { User } from './user'
+import { UserGrant } from './user_grant'
 
 export class EnterPublicChannelDto {
   @ApiProperty({ description: '팀 uuid' })
@@ -160,4 +161,12 @@ export class Channel {
   })
   @Column('boolean', { nullable: true, default: false })
   is_private: boolean
+}
+
+export class UnionMembers extends Channel {
+  @ApiProperty({
+    description: '유저의 접근 정보',
+    type: (_type) => [UserGrant]
+  })
+  members: UserGrant[]
 }

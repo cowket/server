@@ -22,6 +22,7 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiTags
 } from '@nestjs/swagger'
 import { Request } from 'express'
@@ -34,7 +35,8 @@ import {
   GetAllPublicQuery,
   InvitePrivateChannelDto,
   InvitableUserQuery,
-  EnterPublicChannelDto
+  EnterPublicChannelDto,
+  UnionMembers
 } from 'src/entities/channel'
 import { User as EntityUser } from 'src/entities/user'
 import { ChannelService } from './channel.service'
@@ -55,6 +57,15 @@ export class ChannelController {
   private _logger = new Logger('ChannelController')
 
   constructor(private channelService: ChannelService) {}
+
+  @Get()
+  @ApiOperation({ summary: '채널 조회', description: '채널을 조회합니다.' })
+  @ApiOkResponse({ type: UnionMembers })
+  @ApiQuery({ name: 'uuid', description: '채널 uuid' })
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async getChannelCtrl(@Query('uuid') uuid: string) {
+    return this.channelService.getChannelByUuidDetail(uuid)
+  }
 
   @Post()
   @ApiOperation({ summary: '채널 생성', description: '채널을 생성합니다.' })

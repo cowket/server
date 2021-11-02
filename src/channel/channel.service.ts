@@ -91,6 +91,33 @@ export class ChannelService {
       .getOne()
   }
 
+  async getChannelByUuidDetail(uuid: string) {
+    const members = await this.userGrantRepo
+      .createQueryBuilder('user_grant')
+      .leftJoinAndSelect('user_grant.user_uuid', 'users')
+      .leftJoinAndSelect('user_grant.team_user_profile', 'tup')
+      .where('user_grant.channel_uuid = :uuid', { uuid })
+      .getMany()
+    const channel = await this.getChannelByUuid(uuid)
+
+    return {
+      ...channel,
+      members
+    }
+  }
+
+  async getTeamByChannelUuid(uuid: string) {
+    const channel = await this.channelRepo
+      .createQueryBuilder('channel')
+      .leftJoinAndSelect('channel.team', 'team')
+      .where('channel.uuid = :uuid', { uuid })
+      .getOne()
+
+    console.log(channel)
+
+    return channel ? channel.team : null
+  }
+
   async createChannel(userUuid: string, channelDto: CreateChannelDto) {
     const uuid = this.utilService.genUuid()
 
