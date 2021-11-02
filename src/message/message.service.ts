@@ -212,4 +212,26 @@ export class MessageService {
       .andWhere('m.receiver = :userUuid', { userUuid })
       .execute()
   }
+
+  async removeUnstableMessages() {
+    return this.messageRepo
+      .createQueryBuilder('m')
+      .delete()
+      .where('m.team_uuid = NULL')
+      .orWhere('m.channel_uuid = NULL')
+      .orWhere('m.content = NULL')
+      .orWhere("m.sender_uuid = NULL AND m.type = 'user'")
+      .execute()
+  }
+
+  async removeUnstableDirectMessages() {
+    return this.dmRepo
+      .createQueryBuilder('dm')
+      .delete()
+      .where('dm.sender = NULL')
+      .orWhere('dm.receiver = NULL')
+      .orWhere('dm.content = NULL')
+      .orWhere('dm.team = NULL')
+      .execute()
+  }
 }

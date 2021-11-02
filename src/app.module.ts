@@ -21,6 +21,8 @@ import { ChannelModule } from './channel/channel.module'
 import { DirectMessage } from './entities/direct_message'
 import { GrantModule } from './grant/grant.module'
 import { HealthModule } from './health/health.module'
+import { TaskService } from './task/task.service'
+import { ScheduleModule } from '@nestjs/schedule'
 
 const isProd = process.env.NODE_ENV === 'production'
 
@@ -74,9 +76,10 @@ const isProd = process.env.NODE_ENV === 'production'
     }),
     ChannelModule,
     GrantModule,
-    HealthModule
+    HealthModule,
+    ScheduleModule.forRoot()
   ],
-  providers: [JwtModule],
+  providers: [JwtModule, TaskService],
   exports: [JwtModule]
 })
 export class AppModule {}
