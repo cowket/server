@@ -58,14 +58,13 @@ export class SocketGateway implements OnGatewayInit {
     @ConnectedSocket() client: Socket
   ) {
     const pushedMessage = await this.messageService.pushDirectMessage(data)
-    this.server
-      .to(
-        this.socketService.getSocketIdByUserUuid(
-          data.receiver_uuid,
-          data.team_uuid
-        )
-      )
-      .emit('newDirectMessage', pushedMessage)
+    const receiverSocketId = this.socketService.getSocketIdByUserUuid(
+      data.receiver_uuid,
+      data.team_uuid
+    )
+    this.logger.debug('receiverSocketId: ' + receiverSocketId)
+    this.server.to(receiverSocketId).emit('newDirectMessage', pushedMessage)
+    this.logger.debug('senderSocketId: ' + client.id)
     client.emit('newDirectMessage', pushedMessage)
   }
 
