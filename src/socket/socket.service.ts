@@ -20,6 +20,10 @@ export class SocketService {
     return this._server
   }
 
+  getServer() {
+    return this._server
+  }
+
   async initSessionAllTeams() {
     const allTeams = await this.teamService.getAllTeam()
     allTeams.forEach((team) => {

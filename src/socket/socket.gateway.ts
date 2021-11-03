@@ -95,7 +95,7 @@ export class SocketGateway implements OnGatewayInit {
   }
 
   @SubscribeMessage('joinRoom')
-  handleJoinRoom(client: Socket, data: any) {
+  handleJoinRoom(client: Socket, data: { channel_uuid: string }) {
     this.logger.debug(`join client: ${client.id}, ${data.channel_uuid}`)
     client.join(data.channel_uuid)
   }

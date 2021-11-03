@@ -9,4 +9,15 @@ export class HealthController {
   getSessionHealth() {
     return this.socketService.getSession()
   }
+
+  @Get('sockets')
+  async getSocketStatus() {
+    const server = this.socketService.getServer()
+    const sockets = await server.allSockets()
+    const result = []
+    for (const o of sockets.keys()) {
+      result.push(o)
+    }
+    return result
+  }
 }
