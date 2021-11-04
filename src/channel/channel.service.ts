@@ -266,11 +266,27 @@ export class ChannelService {
       .createQueryBuilder('u')
       .leftJoinAndSelect('u.team_user_profile', 'tup')
       .leftJoinAndSelect('u.user_uuid', 'user')
-      .leftJoinAndSelect('u.team_uuid', 'team')
+      .leftJoin('u.team_uuid', 'team')
       .where('u.team_uuid = :teamUuid', { teamUuid })
+      .andWhere('u.channel_uuid IS NULL')
       .getMany()
 
-    return members.filter((member) => member.channel_uuid.uuid !== channelUuid)
+    const enteredMembers = await this.userGrantRepo
+      .createQueryBuilder('u')
+      .leftJoinAndSelect('u.team_user_profile', 'tup')
+      .leftJoinAndSelect('u.user_uuid', 'user')
+      .leftJoin('u.team_uuid', 'team')
+      .leftJoin('u.channel_uuid', 'channel')
+      .where('u.team_uuid = :teamUuid', { teamUuid })
+      .andWhere('channel.uuid = :channelUuid', { channelUuid })
+      .getMany()
+
+    enteredMembers.forEach((member) => {
+      const idx = members.findIndex((m) => m.id === member.id)
+      members.splice(idx, 1)
+    })
+
+    return members
   }
 
   async invitePrivateChannel(
