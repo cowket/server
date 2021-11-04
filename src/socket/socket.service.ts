@@ -48,6 +48,7 @@ export class SocketService {
   } // return all entry for health check
 
   setSession(teamUuid: string, userUuid: string, socketId: string) {
+    this.collect(teamUuid, userUuid)
     if (!this.connectSession.has(teamUuid)) {
       this.connectSession.set(teamUuid, {
         [userUuid]: socketId,
@@ -59,6 +60,15 @@ export class SocketService {
         [userUuid]: socketId,
         [socketId]: userUuid
       })
+    }
+  }
+
+  collect(teamUuid: string, userUuid: string) {
+    const t = this.connectSession.get(teamUuid)
+
+    for (const [k, v] of Object.entries(t)) {
+      if (k === userUuid) delete t[userUuid]
+      if (v === userUuid) delete t[k]
     }
   }
 }

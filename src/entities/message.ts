@@ -118,3 +118,5 @@ export class Message {
   @Column('varchar', { nullable: true, default: 'user' })
   type: MessageType
 }
+
+export class ScrollUpMessageDto {}
