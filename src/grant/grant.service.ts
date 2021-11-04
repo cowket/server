@@ -19,4 +19,13 @@ export class GrantService {
       .where('team.uuid = :teamUuid', { teamUuid })
       .getMany()
   }
+
+  async updateAllTup(tupId: number, userUuid: string, teamUuid: string) {
+    return this.userGrantRepo
+      .createQueryBuilder('ug')
+      .update('SET ug.team_user_profile = :tupId', { tupId })
+      .where('ug.user_uuid = :userUuid', { userUuid })
+      .andWhere('ug.team_uuid = :teamUuid', { teamUuid })
+      .execute()
+  }
 }

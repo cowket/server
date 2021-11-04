@@ -6,6 +6,7 @@ import { Team } from 'src/entities/team'
 import { TeamUserProfile } from 'src/entities/team_user_profile'
 import { User } from 'src/entities/user'
 import { UserGrant } from 'src/entities/user_grant'
+import { GrantModule } from 'src/grant/grant.module'
 import { MessageModule } from 'src/message/message.module'
 import { UsersModule } from 'src/users/users.module'
 import { UtilModule } from 'src/util/util.module'
@@ -19,7 +20,8 @@ import { TeamService } from './team.service'
     forwardRef(() => UsersModule),
     ConfigModule,
     forwardRef(() => ChannelModule),
-    MessageModule
+    MessageModule,
+    GrantModule
   ],
   controllers: [TeamController],
   providers: [TeamService],

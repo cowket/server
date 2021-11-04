@@ -15,6 +15,7 @@ import { ConfigService } from '@nestjs/config'
 import { User } from 'src/entities/user'
 import { ChannelService } from 'src/channel/channel.service'
 import { MessageService } from 'src/message/message.service'
+import { GrantService } from 'src/grant/grant.service'
 
 @Injectable()
 export class TeamService {
@@ -31,7 +32,8 @@ export class TeamService {
     private userRepo: Repository<User>,
     @Inject(forwardRef(() => ChannelService))
     private channelService: ChannelService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private grantService: GrantService
   ) {}
 
   async deleteTeam(teamUuid: string, userUuid: string) {
@@ -222,6 +224,8 @@ export class TeamService {
       teamUuid: profile.team_uuid,
       userUuid
     })
+
+    this.grantService.updateAllTup(tup.id, user.uuid, team.uuid)
 
     return tup
   }
