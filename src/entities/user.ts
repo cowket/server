@@ -53,4 +53,8 @@ export class User {
   @ApiProperty({ description: '유저 업데이트일' })
   @UpdateDateColumn()
   update_date: Date
+
+  @ApiProperty({ description: 'Socket ID' })
+  @Column({ select: false, default: null })
+  socket_id: string
 }

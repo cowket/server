@@ -134,4 +134,37 @@ export class UsersService {
       .andWhere(' channel.uuid IS NOT NULL')
       .getMany()
   }
+
+  async setSocketId(socketId: string, userUuid: string) {
+    return this.usersRepository
+      .createQueryBuilder('user')
+      .update('SET user.socket_id = :socketId', { socketId })
+      .where('user.uuid = :userUuid', { userUuid })
+      .execute()
+  }
+
+  async removeSocketId(socketId: string) {
+    return this.usersRepository
+      .createQueryBuilder('user')
+      .update()
+      .set({ socket_id: null })
+      .where('user.socket_id = :socketId', { socketId })
+      .execute()
+  }
+
+  async getUserUuidBySocketId(socketId: string) {
+    const user = await this.usersRepository.findOne({
+      where: { socket_id: socketId }
+    })
+
+    return user.uuid
+  }
+
+  async getSocketIdByUserUuid(userUuid: string) {
+    const user = await this.usersRepository.findOne({
+      where: { uuid: userUuid }
+    })
+
+    return user.socket_id
+  }
 }

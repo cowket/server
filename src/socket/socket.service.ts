@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common'
 import { WebSocketServer } from '@nestjs/websockets'
 import { Server } from 'socket.io'
 import { TeamService } from 'src/team/team.service'
+import { UsersService } from 'src/users/users.service'
 
 @Injectable()
 export class SocketService {
@@ -10,7 +11,10 @@ export class SocketService {
   private _server: Server
   private connectSession = new Map<string, { [k: string]: string }>() // 게이트웨이에서 서비스로 이관
 
-  constructor(private teamService: TeamService) {}
+  constructor(
+    private teamService: TeamService,
+    private userService: UsersService
+  ) {}
 
   setSocketServer(_server: Server) {
     this._server = _server
@@ -70,5 +74,13 @@ export class SocketService {
       if (k === userUuid) delete t[userUuid]
       if (v === userUuid) delete t[k]
     }
+  }
+
+  async registerSocket(socketId: string, userUuid: string) {
+    return this.userService.setSocketId(socketId, userUuid)
+  }
+
+  async removeSocket(socketId: string) {
+    return this.userService.removeSocketId(socketId)
   }
 }

@@ -2,6 +2,8 @@ import { Logger, UseFilters, UsePipes, ValidationPipe } from '@nestjs/common'
 import {
   ConnectedSocket,
   MessageBody,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
   OnGatewayInit,
   SubscribeMessage,
   WebSocketGateway,
@@ -25,7 +27,9 @@ import { SocketService } from './socket.service'
   path: '/',
   namespace: 'cowket'
 })
-export class SocketGateway implements OnGatewayInit {
+export class SocketGateway
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
+{
   private logger = new Logger('SocketGateway')
 
   @WebSocketServer()
@@ -40,6 +44,19 @@ export class SocketGateway implements OnGatewayInit {
     this.server = server
     this.socketService.setSocketServer(server)
     this.socketService.initSessionAllTeams()
+  }
+
+  handleConnection(client: Socket) {
+    client.on(
+      'cowket:connection-with-auth-required',
+      (innerClient: Socket, userUuid: string) => {
+        this.socketService.registerSocket(innerClient.id, userUuid)
+      }
+    )
+  }
+
+  handleDisconnect(client: Socket) {
+    this.socketService.removeSocket(client.id)
   }
 
   @SubscribeMessage('cowket:connection')
