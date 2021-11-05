@@ -13,8 +13,10 @@ import { Server, Socket } from 'socket.io'
 import { RequestDirectMessageDto } from 'src/entities/direct_message'
 import { LoadMessageDto, SocketPushMessageDto } from 'src/entities/message'
 import { MessageService } from 'src/message/message.service'
+import { UsersService } from 'src/users/users.service'
 import { WsExceptionFilter } from './socket.filter'
 import { SocketService } from './socket.service'
+import { getSocketEvent } from './socket.type'
 
 @UseFilters(WsExceptionFilter)
 @WebSocketGateway(4001, {
@@ -37,35 +39,26 @@ export class SocketGateway
 
   constructor(
     private messageService: MessageService,
-    private socketService: SocketService
+    private socketService: SocketService,
+    private userService: UsersService
   ) {}
 
   afterInit(server: Server) {
     this.server = server
     this.socketService.setSocketServer(server)
-    this.socketService.initSessionAllTeams()
   }
 
   handleConnection(client: Socket) {
     client.on(
       'cowket:connection-with-auth-required',
-      (innerClient: Socket, userUuid: string) => {
-        this.socketService.registerSocket(innerClient.id, userUuid)
+      async (innerClient: Socket, userUuid: string) => {
+        await this.socketService.registerSocket(innerClient.id, userUuid)
       }
     )
   }
 
-  handleDisconnect(client: Socket) {
-    this.socketService.removeSocket(client.id)
-  }
-
-  @SubscribeMessage('cowket:connection')
-  @UsePipes(new ValidationPipe())
-  handleCowketConnection(
-    @MessageBody() data: { team_uuid: string; user_uuid: string },
-    @ConnectedSocket() client: Socket
-  ) {
-    this.socketService.setSession(data.team_uuid, data.user_uuid, client.id)
+  async handleDisconnect(client: Socket) {
+    await this.socketService.removeSocket(client.id)
   }
 
   @SubscribeMessage('pushDirectMessage')
@@ -75,14 +68,18 @@ export class SocketGateway
     @ConnectedSocket() client: Socket
   ) {
     const pushedMessage = await this.messageService.pushDirectMessage(data)
-    const receiverSocketId = this.socketService.getSocketIdByUserUuid(
-      data.receiver_uuid,
-      data.team_uuid
+    const receiverSocketId = await this.userService.getSocketIdByUserUuid(
+      data.receiver_uuid
     )
-    this.logger.debug('receiverSocketId: ' + receiverSocketId)
-    this.server.to(receiverSocketId).emit('newDirectMessage', pushedMessage)
-    this.logger.debug('senderSocketId: ' + client.id)
-    client.emit('newDirectMessage', pushedMessage)
+
+    client.emit(getSocketEvent('PUSH_DIRECT_MESSAGE'), pushedMessage)
+    this.server
+      .to(receiverSocketId)
+      .emit(getSocketEvent('PUSH_DIRECT_MESSAGE'), pushedMessage)
+
+    this.logger.debug(
+      `direct message: ${data.sender_uuid} -> ${data.receiver_uuid}`
+    )
   }
 
   @SubscribeMessage('pushMessage')

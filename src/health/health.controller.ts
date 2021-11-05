@@ -5,14 +5,9 @@ import { SocketService } from 'src/socket/socket.service'
 export class HealthController {
   constructor(private socketService: SocketService) {}
 
-  @Get('session')
-  getSessionHealth() {
-    return this.socketService.getSession()
-  }
-
   @Get('sockets')
   async getSocketStatus() {
-    const server = this.socketService.getServer()
+    const server = this.socketService.getSocketServer()
     const sockets = await server.allSockets()
     const result = []
     for (const o of sockets.keys()) {
