@@ -138,8 +138,9 @@ export class UsersService {
   async setSocketId(socketId: string, userUuid: string) {
     return this.usersRepository
       .createQueryBuilder('user')
-      .update('SET user.socket_id = :socketId', { socketId })
-      .where('user.uuid = :userUuid', { userUuid })
+      .update()
+      .set({ socket_id: socketId })
+      .where('uuid = :userUuid', { userUuid })
       .execute()
   }
 
@@ -148,7 +149,7 @@ export class UsersService {
       .createQueryBuilder('user')
       .update()
       .set({ socket_id: null })
-      .where('user.socket_id = :socketId', { socketId })
+      .where('socket_id = :socketId', { socketId })
       .execute()
   }
 
@@ -162,7 +163,8 @@ export class UsersService {
 
   async getSocketIdByUserUuid(userUuid: string) {
     const user = await this.usersRepository.findOne({
-      where: { uuid: userUuid }
+      where: { uuid: userUuid },
+      select: ['socket_id']
     })
 
     return user.socket_id

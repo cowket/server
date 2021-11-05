@@ -50,9 +50,9 @@ export class SocketGateway
 
   handleConnection(client: Socket) {
     client.on(
-      'cowket:connection-with-auth-required',
-      async (innerClient: Socket, userUuid: string) => {
-        await this.socketService.registerSocket(innerClient.id, userUuid)
+      getSocketEvent('CONNECTION_WITH_AUTH'),
+      async (data: { user_uuid: string }) => {
+        await this.socketService.registerSocket(client.id, data.user_uuid)
       }
     )
   }
@@ -61,7 +61,7 @@ export class SocketGateway
     await this.socketService.removeSocket(client.id)
   }
 
-  @SubscribeMessage('pushDirectMessage')
+  @SubscribeMessage(getSocketEvent('PUSH_DIRECT_MESSAGE'))
   @UsePipes(new ValidationPipe())
   async handleDirectMessage(
     @MessageBody() data: RequestDirectMessageDto,
@@ -72,35 +72,33 @@ export class SocketGateway
       data.receiver_uuid
     )
 
-    client.emit(getSocketEvent('PUSH_DIRECT_MESSAGE'), pushedMessage)
+    client.emit(getSocketEvent('NEW_DIRECT_MESSAGE'), pushedMessage)
     this.server
       .to(receiverSocketId)
-      .emit(getSocketEvent('PUSH_DIRECT_MESSAGE'), pushedMessage)
+      .emit(getSocketEvent('NEW_DIRECT_MESSAGE'), pushedMessage)
 
     this.logger.debug(
-      `direct message: ${data.sender_uuid} -> ${data.receiver_uuid}`
+      `direct message: ${data.sender_uuid}(${client.id}) -> ${data.receiver_uuid}(${receiverSocketId})`
     )
   }
 
-  @SubscribeMessage('pushMessage')
+  @SubscribeMessage(getSocketEvent('PUSH_MESSAGE'))
   async handleMessage(
     @MessageBody() data: SocketPushMessageDto,
     @ConnectedSocket() client: Socket
   ) {
     try {
       const message = await this.messageService.pushMessage(data)
-      this.server.to(data.channel_uuid).emit('newMessage', message) // 채널에 메세지 전파
-      this.logger.log(message.uuid, 'message create')
-      this.logger.debug(
-        `has client rooms ${client.rooms.has(data.channel_uuid)}`
-      )
+      this.server
+        .to(data.channel_uuid)
+        .emit(getSocketEvent('NEW_MESSAGE'), message) // 채널에 메세지 전파
     } catch (error) {
       this.logger.error(error)
       client.emit('errorPacket', { error })
     }
   }
 
-  @SubscribeMessage('loadMessage')
+  @SubscribeMessage(getSocketEvent('LOAD_MESSAGE'))
   async loadMessageLatest(
     @MessageBody() _data: LoadMessageDto,
     @ConnectedSocket() _client: Socket
@@ -108,9 +106,8 @@ export class SocketGateway
     // const messages = await this.messageService.fetchMessageFromLatest()
   }
 
-  @SubscribeMessage('joinRoom')
+  @SubscribeMessage(getSocketEvent('JOIN_ROOM'))
   handleJoinRoom(client: Socket, data: { channel_uuid: string }) {
-    this.logger.debug(`join client: ${client.id}, ${data.channel_uuid}`)
     client.join(data.channel_uuid)
   }
 }
