@@ -9,3 +9,11 @@ services:
       NODE_ENV: production
     volumes:
       - /usr/src/app/uploads:/app/dist/public
+  redis:
+    image: redis-alpine
+    container_name: cowket-redis
+    host_name: cowket-redis
+    restart: always
+    ports:
+      - 6379:6379
+    command: redis-server
