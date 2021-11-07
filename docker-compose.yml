@@ -10,7 +10,7 @@ services:
     volumes:
       - /usr/src/app/uploads:/app/dist/public
   redis:
-    image: redis-alpine
+    image: redis:alpine
     container_name: cowket-redis
     restart: always
     ports:
