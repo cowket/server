@@ -4,11 +4,9 @@ import { AppModule } from './app.module'
 import { CorsOptions } from 'cors'
 import { NestExpressApplication } from '@nestjs/platform-express'
 import { join } from 'path'
-import { RedisIoAdapter } from './redis.adapter'
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule)
-  app.useWebSocketAdapter(new RedisIoAdapter(app))
 
   const config = new DocumentBuilder()
     .setTitle('Cowket API')
