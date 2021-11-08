@@ -5,7 +5,10 @@ enum SocketEvent {
   NEW_MESSAGE = 'newMessage',
   JOIN_ROOM = 'joinRoom',
   LOAD_MESSAGE = 'loadMessage',
-  CONNECTION_WITH_AUTH = 'cowket:connection-with-auth-required'
+  LOAD_DIRECT_MESSAGE = 'loadDirectMessage',
+  CONNECTION_WITH_AUTH = 'cowket:connection-with-auth-required',
+  LOADED_SCROLL_MESSAGE = 'loadedScrollMessage',
+  LOADED_SCROLL_DIRECT_MESSAGE = 'loadedScrollMessage'
 }
 
 type TSocketEvent =
@@ -15,7 +18,10 @@ type TSocketEvent =
   | 'NEW_MESSAGE'
   | 'JOIN_ROOM'
   | 'LOAD_MESSAGE'
+  | 'LOAD_DIRECT_MESSAGE'
   | 'CONNECTION_WITH_AUTH'
+  | 'LOADED_SCROLL_MESSAGE'
+  | 'LOADED_SCROLL_DIRECT_MESSAGE'
 
 export function getSocketEvent(eventName: TSocketEvent) {
   return SocketEvent[eventName]

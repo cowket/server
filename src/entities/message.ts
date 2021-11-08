@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsString, Length } from 'class-validator'
+import { IsObject, IsString, Length } from 'class-validator'
 import {
   Column,
   CreateDateColumn,
@@ -31,17 +31,6 @@ export class GetDirectMessageQuery {
 
   @IsString()
   team_uuid: string
-}
-
-export class LoadMessageDto {
-  @IsString()
-  teamUuid: string // 팀 uuid
-
-  @IsString()
-  channelUuid: string // 채널 uuid
-
-  @IsString()
-  topMessageUuid: string // 제일 맨 위에 있는 메세지 uuid
 }
 
 /**
@@ -119,4 +108,7 @@ export class Message {
   type: MessageType
 }
 
-export class ScrollUpMessageDto {}
+export class LoadMessageDto {
+  @IsObject()
+  topMessage: Message // 제일 맨 위에 있는 메세지
+}

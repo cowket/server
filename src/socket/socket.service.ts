@@ -6,7 +6,7 @@ import { UsersService } from 'src/users/users.service'
 @Injectable()
 export class SocketService {
   @WebSocketServer()
-  private logger = new Logger()
+  private logger = new Logger(SocketService.name)
   private _server: Server
 
   constructor(private userService: UsersService) {}

@@ -99,11 +99,13 @@ export class SocketGateway
   }
 
   @SubscribeMessage(getSocketEvent('LOAD_MESSAGE'))
+  @UsePipes(new ValidationPipe())
   async loadMessageLatest(
-    @MessageBody() _data: LoadMessageDto,
-    @ConnectedSocket() _client: Socket
+    @MessageBody() data: LoadMessageDto,
+    @ConnectedSocket() client: Socket
   ) {
-    // const messages = await this.messageService.fetchMessageFromLatest()
+    const messages = await this.messageService.fetchMessageFromLatest(data)
+    client.emit(getSocketEvent('LOADED_SCROLL_MESSAGE'), messages)
   }
 
   @SubscribeMessage(getSocketEvent('JOIN_ROOM'))

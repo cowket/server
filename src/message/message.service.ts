@@ -5,7 +5,7 @@ import {
   RequestDirectMessageDto
 } from 'src/entities/direct_message'
 import {
-  FetchMessageDto,
+  LoadMessageDto,
   Message,
   MessageType,
   PushMessageDto
@@ -148,7 +148,7 @@ export class MessageService {
       .getMany()
   }
 
-  async fetchMessageFromLatest(message: FetchMessageDto) {
+  async fetchMessageFromLatest(data: LoadMessageDto) {
     return this.messageRepo
       .createQueryBuilder('message')
       .leftJoinAndSelect('message.team', 'team')
@@ -157,13 +157,19 @@ export class MessageService {
       .leftJoinAndSelect('message.team_user_profile', 'team_user_profile')
       .orderBy('message.create_date', 'DESC')
       .where('message.team = :teamUuid', {
-        teamUuid: message.latestMessage.team.uuid
+        teamUuid: data.topMessage.team.uuid
       })
       .andWhere('message.channel = :channelUuid', {
-        channelUuid: message.latestMessage.channel.uuid
+        channelUuid: data.topMessage.channel.uuid
       })
-      .andWhere('message.create_date < :compareDate', {
-        compareDate: message.latestMessage.create_date
+      .andWhere(
+        'TIMESTAMP(message.create_date, "%T") < TIMESTAMP(:compareDate, "%T")',
+        {
+          compareDate: data.topMessage.create_date
+        }
+      )
+      .andWhere('message.uuid != :messageUuid', {
+        messageUuid: data.topMessage.uuid
       })
       .limit(10)
       .getMany()
@@ -238,5 +244,16 @@ export class MessageService {
       .andWhere('receiver.uuid IS NULL')
       .andWhere('team.uuid IS NULL')
       .execute()
+  }
+
+  async getMessageByUuid(uuid: string) {
+    return this.messageRepo
+      .createQueryBuilder('message')
+      .leftJoinAndSelect('message.team', 'team')
+      .leftJoinAndSelect('message.channel', 'channel')
+      .leftJoinAndSelect('message.sender', 'users')
+      .leftJoinAndSelect('message.team_user_profile', 'team_user_profile')
+      .where('message.uuid = :uuid', { uuid })
+      .getOne()
   }
 }

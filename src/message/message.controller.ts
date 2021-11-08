@@ -3,6 +3,7 @@ import {
   Get,
   HttpException,
   HttpStatus,
+  Param,
   Query,
   Req,
   UseGuards,
@@ -27,13 +28,13 @@ import { TokenUserInfo } from 'src/types/user'
 import { User } from 'src/users/users.decorator'
 import { MessageService } from './message.service'
 
+// @UseGuards(JwtGuard)
 @ApiBearerAuth('access-token')
 @ApiTags('Message Controller')
 @Controller('message')
 export class MessageController {
   constructor(private messageService: MessageService) {}
 
-  @UseGuards(JwtGuard)
   @Get()
   @ApiOperation({
     summary: '채널의 최근 메세지 10개를 조회',
@@ -49,7 +50,14 @@ export class MessageController {
     return await this.messageService.fetchMessageLatest(channelUuid)
   }
 
-  @UseGuards(JwtGuard)
+  @Get(':uuid')
+  @ApiOkResponse({
+    type: Message
+  })
+  async getMessage(@Param('uuid') uuid: string) {
+    return this.messageService.getMessageByUuid(uuid)
+  }
+
   @Get('dm')
   @ApiOperation({
     summary: '최근 다이렉트 메세지 10개를 조회',
