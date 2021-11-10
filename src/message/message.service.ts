@@ -10,6 +10,7 @@ import {
   MessageType,
   PushMessageDto
 } from 'src/entities/message'
+import { Reaction } from 'src/entities/reaction'
 import { TeamUserProfile } from 'src/entities/team_user_profile'
 import { UtilService } from 'src/util/util.service'
 import { Repository } from 'typeorm'
@@ -29,7 +30,8 @@ export class MessageService {
     @InjectRepository(Message) private messageRepo: Repository<Message>,
     @InjectRepository(TeamUserProfile)
     private tupRepo: Repository<TeamUserProfile>,
-    @InjectRepository(DirectMessage) private dmRepo: Repository<DirectMessage>
+    @InjectRepository(DirectMessage) private dmRepo: Repository<DirectMessage>,
+    @InjectRepository(Reaction) private reactRepo: Repository<Reaction>
   ) {}
 
   async pushMessage(dto: PushMessageDto, type: MessageType = 'user') {
@@ -65,7 +67,14 @@ export class MessageService {
       .where('message.uuid = :uuid', { uuid })
       .getOne()
 
-    return message
+    const reaction = await this.reactRepo.find({
+      where: { message: uuid }
+    })
+
+    return {
+      ...message,
+      reaction
+    }
   }
 
   async pushDirectMessage(dto: RequestDirectMessageDto) {

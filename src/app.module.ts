@@ -9,6 +9,12 @@ import { SocketModule } from './socket/socket.module'
 import { TeamModule } from './team/team.module'
 import { FileModule } from './file/file.module'
 import { JwtModule } from '@nestjs/jwt'
+import { ChannelModule } from './channel/channel.module'
+import { DirectMessage } from './entities/direct_message'
+import { GrantModule } from './grant/grant.module'
+import { HealthModule } from './health/health.module'
+import { TaskService } from './task/task.service'
+import { ScheduleModule } from '@nestjs/schedule'
 
 // entities
 import { Message } from './entities/message'
@@ -17,12 +23,9 @@ import { Channel } from './entities/channel'
 import { User } from './entities/user'
 import { UserGrant } from './entities/user_grant'
 import { TeamUserProfile } from './entities/team_user_profile'
-import { ChannelModule } from './channel/channel.module'
-import { DirectMessage } from './entities/direct_message'
-import { GrantModule } from './grant/grant.module'
-import { HealthModule } from './health/health.module'
-import { TaskService } from './task/task.service'
-import { ScheduleModule } from '@nestjs/schedule'
+import { Reaction } from './entities/reaction'
+import { ReactionItem } from './entities/reaction_item'
+import { ReactModule } from './react/react.module'
 
 const isProd = process.env.NODE_ENV === 'production'
 
@@ -48,7 +51,9 @@ const isProd = process.env.NODE_ENV === 'production'
         Channel,
         Message,
         TeamUserProfile,
-        DirectMessage
+        DirectMessage,
+        Reaction,
+        ReactionItem
       ],
       dropSchema: false
     }),
@@ -76,7 +81,8 @@ const isProd = process.env.NODE_ENV === 'production'
     ChannelModule,
     GrantModule,
     HealthModule,
-    ScheduleModule.forRoot()
+    ScheduleModule.forRoot(),
+    ReactModule
   ],
   providers: [JwtModule, TaskService],
   exports: [JwtModule]
