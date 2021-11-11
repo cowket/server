@@ -199,14 +199,14 @@ export class MessageService {
   }: UpdateTupRequest) {
     return (
       this.messageRepo
-        .createQueryBuilder('m')
+        .createQueryBuilder()
         // .update('SET m.team_user_profile = :teamUserProfileId', {
         //   teamUserProfileId
         // })
         .update()
         .set({ team_user_profile: teamUserProfileId as unknown })
-        .where('team_uuid = :teamUuid', { teamUuid })
-        .andWhere('sender_uuid = :userUuid', { userUuid })
+        .where('message.team_uuid = :teamUuid', { teamUuid })
+        .andWhere('message.sender_uuid = :userUuid', { userUuid })
         .execute()
     )
   }
@@ -217,25 +217,25 @@ export class MessageService {
     userUuid
   }: UpdateTupRequest) {
     this.dmRepo
-      .createQueryBuilder('m')
+      .createQueryBuilder()
       // .update('SET m.sender_team_user_profile = :teamUserProfileId', {
       //   teamUserProfileId
       // })
       .update()
       .set({ sender_team_user_profile: teamUserProfileId as unknown })
-      .where('team_uuid = :teamUuid', { teamUuid })
-      .andWhere('sender = :userUuid', { userUuid })
+      .where('direct_message.team_uuid = :teamUuid', { teamUuid })
+      .andWhere('direct_message.message.sender = :userUuid', { userUuid })
       .execute()
 
     this.dmRepo
-      .createQueryBuilder('m')
+      .createQueryBuilder()
       // .update('SET m.receiver_team_user_profile = :teamUserProfileId', {
       //   teamUserProfileId
       // })
       .update()
       .set({ receiver_team_user_profile: teamUserProfileId as unknown })
-      .where('team_uuid = :teamUuid', { teamUuid })
-      .andWhere('receiver = :userUuid', { userUuid })
+      .where('direct_message.team_uuid = :teamUuid', { teamUuid })
+      .andWhere('direct_message.receiver = :userUuid', { userUuid })
       .execute()
   }
 
