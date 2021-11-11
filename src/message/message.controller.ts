@@ -14,6 +14,7 @@ import {
   ApiBearerAuth,
   ApiOkResponse,
   ApiOperation,
+  ApiQuery,
   ApiTags
 } from '@nestjs/swagger'
 import { Request } from 'express'
@@ -44,9 +45,14 @@ export class MessageController {
   @ApiOkResponse({
     type: [Message]
   })
-  @UsePipes(new ValidationPipe())
+  @ApiQuery({
+    name: 'channel_uuid',
+    required: false
+  })
+  // @UsePipes(new ValidationPipe())
   async getMessageLatest(@Req() req: Request, @Query() query: GetMessageQuery) {
     const { channel_uuid: channelUuid } = query
+    console.log(1)
     return await this.messageService.fetchMessageLatest(channelUuid)
   }
 

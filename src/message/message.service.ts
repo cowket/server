@@ -145,16 +145,23 @@ export class MessageService {
   }
 
   async fetchMessageLatest(channelUuid: string) {
-    return this.messageRepo
-      .createQueryBuilder('message')
-      .leftJoinAndSelect('message.team', 'team')
-      .leftJoinAndSelect('message.channel', 'channel')
-      .leftJoinAndSelect('message.sender', 'users')
-      .leftJoinAndSelect('message.team_user_profile', 'team_user_profile')
-      .orderBy('message.create_date', 'DESC')
-      .where(`message.channel = '${channelUuid}'`)
-      .limit(10)
-      .getMany()
+    return (
+      this.messageRepo
+        .createQueryBuilder('message')
+        // .leftJoinAndSelect('message.team', 'team')
+        // .leftJoinAndSelect('message.channel', 'channel')
+        // .leftJoinAndSelect('message.sender', 'users')
+        // .leftJoinAndSelect('message.team_user_profile', 'team_user_profile')
+        .leftJoinAndSelect(
+          'message.reactions',
+          'reaction',
+          'reaction.message = message.uuid'
+        )
+        .orderBy('message.create_date', 'DESC')
+        // .where(`message.channel = '${channelUuid}'`)
+        .limit(10)
+        .getMany()
+    )
   }
 
   async fetchMessageFromLatest(data: LoadMessageDto) {

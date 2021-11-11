@@ -1,15 +1,18 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsObject, IsString, Length } from 'class-validator'
+import { IsObject, IsOptional, IsString, Length } from 'class-validator'
 import {
   Column,
   CreateDateColumn,
   Entity,
   JoinColumn,
+  JoinTable,
   ManyToOne,
+  OneToMany,
   PrimaryColumn,
   UpdateDateColumn
 } from 'typeorm'
 import { Channel } from './channel'
+import { Reaction } from './reaction'
 import { Team } from './team'
 import { TeamUserProfile } from './team_user_profile'
 import { User } from './user'
@@ -18,7 +21,8 @@ export type SystemMessageType = 'enter' | 'public' | 'enter:private'
 export type MessageType = 'user' | 'system'
 
 export class GetMessageQuery {
-  @IsString()
+  // @IsString()
+  @IsOptional()
   channel_uuid: string
 }
 
@@ -106,6 +110,10 @@ export class Message {
   @ApiProperty({ description: '메세지 타입 "user | system"', default: 'user' })
   @Column('varchar', { nullable: true, default: 'user' })
   type: MessageType
+
+  @OneToMany(() => Reaction, (reaction) => reaction.message.uuid)
+  @JoinColumn({ name: 'reactions', referencedColumnName: 'uuid' })
+  reactions: Reaction[]
 }
 
 export class LoadMessageDto {
