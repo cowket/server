@@ -21,11 +21,15 @@ export class GrantService {
   }
 
   async updateAllTup(tupId: number, userUuid: string, teamUuid: string) {
-    return this.userGrantRepo
-      .createQueryBuilder()
-      .update('SET user_grant.team_user_profile = :tupId', { tupId })
-      .where('user_grant.user_uuid = :userUuid', { userUuid })
-      .andWhere('user_grant.team_uuid = :teamUuid', { teamUuid })
-      .execute()
+    return (
+      this.userGrantRepo
+        .createQueryBuilder()
+        // .update('SET user_grant.team_user_profile = :tupId', { tupId })
+        .update()
+        .set({ team_user_profile: tupId as unknown })
+        .where('user_grant.user_uuid = :userUuid', { userUuid })
+        .andWhere('user_grant.team_uuid = :teamUuid', { teamUuid })
+        .execute()
+    )
   }
 }

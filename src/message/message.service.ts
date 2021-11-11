@@ -223,7 +223,7 @@ export class MessageService {
       // })
       .update()
       .set({ sender_team_user_profile: teamUserProfileId as unknown })
-      .where('direct_message.team_uuid = :teamUuid', { teamUuid })
+      .where('direct_message.team = :teamUuid', { teamUuid })
       .andWhere('direct_message.message.sender = :userUuid', { userUuid })
       .execute()
 
@@ -234,7 +234,7 @@ export class MessageService {
       // })
       .update()
       .set({ receiver_team_user_profile: teamUserProfileId as unknown })
-      .where('direct_message.team_uuid = :teamUuid', { teamUuid })
+      .where('direct_message.team = :teamUuid', { teamUuid })
       .andWhere('direct_message.receiver = :userUuid', { userUuid })
       .execute()
   }
