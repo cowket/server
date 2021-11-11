@@ -21,8 +21,7 @@ export class UtilService {
 
   getUploadHttpPath(slash = false): string {
     return process.env.NODE_ENV === 'production'
-      ? this.configService.get('HOST_URL') ||
-          'https://cw.malrang.dev' + '/uploads' + (slash ? '/' : '')
+      ? this.configService.get('HOST_URL') + '/uploads' + (slash ? '/' : '')
       : 'http://localhost:4000/uploads' + (slash ? '/' : '')
   }
 
