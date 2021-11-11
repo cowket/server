@@ -5,7 +5,6 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
-  JoinTable,
   ManyToOne,
   OneToMany,
   PrimaryColumn,
@@ -111,8 +110,11 @@ export class Message {
   @Column('varchar', { nullable: true, default: 'user' })
   type: MessageType
 
-  @OneToMany(() => Reaction, (reaction) => reaction.message.uuid)
-  @JoinColumn({ name: 'reactions', referencedColumnName: 'uuid' })
+  @OneToMany(() => Reaction, (reaction) => reaction.message, {
+    eager: true,
+    cascade: true
+  })
+  @JoinColumn({ name: 'reactions' })
   reactions: Reaction[]
 }
 

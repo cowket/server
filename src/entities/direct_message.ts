@@ -6,9 +6,11 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryColumn,
   UpdateDateColumn
 } from 'typeorm'
+import { Reaction } from './reaction'
 import { Team } from './team'
 import { TeamUserProfile } from './team_user_profile'
 import { User } from './user'
@@ -82,4 +84,11 @@ export class DirectMessage {
   @ApiProperty({ description: '메세지 내용 (HTML)' })
   @Column('longtext', { nullable: false })
   content: string
+
+  @OneToMany(() => Reaction, (reaction) => reaction.message, {
+    eager: true,
+    cascade: true
+  })
+  @JoinColumn({ name: 'reactions' })
+  reactions: Reaction[]
 }
