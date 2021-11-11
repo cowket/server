@@ -89,7 +89,8 @@ export class UsersService {
     const avatarPath =
       process.env.NODE_ENV === 'development'
         ? 'http://localhost:4000/uploads/'
-        : this.configService.get('HOST_URL') + '/uploads/'
+        : this.configService.get('HOST_URL') ||
+          'https://cw.malrang.dev' + '/uploads/'
 
     return this.usersRepository
       .createQueryBuilder('users')
