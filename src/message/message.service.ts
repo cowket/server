@@ -188,8 +188,8 @@ export class MessageService {
   }
 
   async updateAllTup(req: UpdateTupRequest) {
-    this.updateAllTupInMessage(req)
-    this.updateAllTupInDirectMessage(req)
+    await this.updateAllTupInMessage(req)
+    await this.updateAllTupInDirectMessage(req)
   }
 
   async updateAllTupInMessage({

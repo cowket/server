@@ -219,13 +219,13 @@ export class TeamService {
       team_uuid: team
     })
 
-    this.messageService.updateAllTup({
+    await this.messageService.updateAllTup({
       teamUserProfileId: tup.id,
       teamUuid: profile.team_uuid,
       userUuid
     })
 
-    this.grantService.updateAllTup(tup.id, user.uuid, team.uuid)
+    await this.grantService.updateAllTup(tup.id, user.uuid, team.uuid)
 
     return tup
   }
