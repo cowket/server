@@ -10,7 +10,6 @@ RUN npm i -g pm2
 COPY . .
 
 # Test, Build
-RUN npm t
 RUN npm run build
 
 EXPOSE 4000

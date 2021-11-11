@@ -205,8 +205,8 @@ export class MessageService {
         // })
         .update()
         .set({ team_user_profile: teamUserProfileId as unknown })
-        .where('m.team_uuid = :teamUuid', { teamUuid })
-        .andWhere('m.sender_uuid = :userUuid', { userUuid })
+        .where('team_uuid = :teamUuid', { teamUuid })
+        .andWhere('sender_uuid = :userUuid', { userUuid })
         .execute()
     )
   }
@@ -229,9 +229,11 @@ export class MessageService {
 
     this.dmRepo
       .createQueryBuilder('m')
-      .update('SET m.receiver_team_user_profile = :teamUserProfileId', {
-        teamUserProfileId
-      })
+      // .update('SET m.receiver_team_user_profile = :teamUserProfileId', {
+      //   teamUserProfileId
+      // })
+      .update()
+      .set({ receiver_team_user_profile: teamUserProfileId as unknown })
       .where('team_uuid = :teamUuid', { teamUuid })
       .andWhere('receiver = :userUuid', { userUuid })
       .execute()
