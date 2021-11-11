@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsObject, IsOptional, IsString, Length } from 'class-validator'
+import { IsObject, IsString, Length } from 'class-validator'
 import {
   Column,
   CreateDateColumn,
@@ -20,8 +20,7 @@ export type SystemMessageType = 'enter' | 'public' | 'enter:private'
 export type MessageType = 'user' | 'system'
 
 export class GetMessageQuery {
-  // @IsString()
-  @IsOptional()
+  @IsString()
   channel_uuid: string
 }
 

@@ -29,7 +29,7 @@ import { TokenUserInfo } from 'src/types/user'
 import { User } from 'src/users/users.decorator'
 import { MessageService } from './message.service'
 
-// @UseGuards(JwtGuard)
+@UseGuards(JwtGuard)
 @ApiBearerAuth('access-token')
 @ApiTags('Message Controller')
 @Controller('message')
@@ -49,10 +49,9 @@ export class MessageController {
     name: 'channel_uuid',
     required: false
   })
-  // @UsePipes(new ValidationPipe())
+  @UsePipes(new ValidationPipe())
   async getMessageLatest(@Req() req: Request, @Query() query: GetMessageQuery) {
     const { channel_uuid: channelUuid } = query
-    console.log(1)
     return await this.messageService.fetchMessageLatest(channelUuid)
   }
 
