@@ -197,14 +197,18 @@ export class MessageService {
     teamUuid,
     userUuid
   }: UpdateTupRequest) {
-    return this.messageRepo
-      .createQueryBuilder('m')
-      .update('SET m.team_user_profile = :teamUserProfileId', {
-        teamUserProfileId
-      })
-      .where('m.team_uuid = :teamUuid', { teamUuid })
-      .andWhere('m.sender_uuid = :userUuid', { userUuid })
-      .execute()
+    return (
+      this.messageRepo
+        .createQueryBuilder('m')
+        // .update('SET m.team_user_profile = :teamUserProfileId', {
+        //   teamUserProfileId
+        // })
+        .update()
+        .set({ team_user_profile: teamUserProfileId as unknown })
+        .where('m.team_uuid = :teamUuid', { teamUuid })
+        .andWhere('m.sender_uuid = :userUuid', { userUuid })
+        .execute()
+    )
   }
 
   async updateAllTupInDirectMessage({
@@ -214,9 +218,11 @@ export class MessageService {
   }: UpdateTupRequest) {
     this.dmRepo
       .createQueryBuilder('m')
-      .update('SET m.sender_team_user_profile = :teamUserProfileId', {
-        teamUserProfileId
-      })
+      // .update('SET m.sender_team_user_profile = :teamUserProfileId', {
+      //   teamUserProfileId
+      // })
+      .update()
+      .set({ sender_team_user_profile: teamUserProfileId as unknown })
       .where('m.team_uuid = :teamUuid', { teamUuid })
       .andWhere('m.sender = :userUuid', { userUuid })
       .execute()
