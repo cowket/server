@@ -93,11 +93,12 @@ export class UsersService {
 
     return this.usersRepository
       .createQueryBuilder('users')
-      .where({ uuid: updateUserData.uuid })
-      .update({
+      .update()
+      .set({
         avatar: avatarPath + updateUserData.avatar || null,
         update_date: new Date()
       })
+      .where({ uuid: updateUserData.uuid })
       .execute()
   }
 
