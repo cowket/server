@@ -12,7 +12,6 @@ import { UsersModule } from 'src/users/users.module'
 import { UtilModule } from 'src/util/util.module'
 import { TeamController } from './team.controller'
 import { TeamService } from './team.service'
-import { UserProfileModule } from './user-profile/user-profile.module'
 
 @Module({
   imports: [
@@ -22,8 +21,7 @@ import { UserProfileModule } from './user-profile/user-profile.module'
     ConfigModule,
     forwardRef(() => ChannelModule),
     MessageModule,
-    GrantModule,
-    UserProfileModule
+    GrantModule
   ],
   controllers: [TeamController],
   providers: [TeamService],
