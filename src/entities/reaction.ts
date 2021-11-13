@@ -7,6 +7,7 @@ import {
 } from 'typeorm'
 import { Message } from './message'
 import { ReactionItem } from './reaction_item'
+import { TeamUserProfile } from './team_user_profile'
 import { User } from './user'
 
 @Entity('reaction')
@@ -28,4 +29,8 @@ export class Reaction {
   @ManyToOne(() => ReactionItem)
   @JoinColumn({ name: 'content', referencedColumnName: 'id' })
   content: ReactionItem
+
+  @ManyToOne(() => TeamUserProfile, { nullable: true })
+  @JoinColumn({ name: 'team_user_profile', referencedColumnName: 'id' })
+  team_user_profile: TeamUserProfile
 }

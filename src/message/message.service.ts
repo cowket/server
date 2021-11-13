@@ -34,6 +34,14 @@ export class MessageService {
     @InjectRepository(Reaction) private reactRepo: Repository<Reaction>
   ) {}
 
+  async findMessageByUuid(uuid: string) {
+    return this.messageRepo.findOne({ where: { uuid } })
+  }
+
+  async findDirectMessageByUuid(uuid: string) {
+    return this.dmRepo.findOne({ where: { uuid } })
+  }
+
   async pushMessage(dto: PushMessageDto, type: MessageType = 'user') {
     const uuid = this.utilService.genUuid()
 
