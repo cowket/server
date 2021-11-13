@@ -1,8 +1,8 @@
 {
   "name": "cowket-server",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "Web socket server with NestJS",
+  "author": "vue2598@gmail.com",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
@@ -94,6 +94,9 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "setupFiles": [
+      "dotenv/config"
+    ]
   }
 }
