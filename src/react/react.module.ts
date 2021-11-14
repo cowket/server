@@ -9,6 +9,7 @@ import { UtilModule } from 'src/util/util.module'
 @Module({
   imports: [TypeOrmModule.forFeature([Reaction, ReactionItem]), UtilModule],
   providers: [ReactService],
+  exports: [ReactService],
   controllers: [ReactController]
 })
 export class ReactModule {}

@@ -7,6 +7,7 @@ import { MessageController } from './message.controller'
 import { TeamUserProfile } from 'src/entities/team_user_profile'
 import { DirectMessage } from 'src/entities/direct_message'
 import { Reaction } from 'src/entities/reaction'
+import { ReactModule } from 'src/react/react.module'
 
 @Global()
 @Module({
@@ -17,7 +18,8 @@ import { Reaction } from 'src/entities/reaction'
       TeamUserProfile,
       DirectMessage,
       Reaction
-    ])
+    ]),
+    ReactModule
   ],
   providers: [MessageService],
   exports: [MessageService],

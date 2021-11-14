@@ -112,4 +112,22 @@ export class SocketGateway
   handleJoinRoom(client: Socket, data: { channel_uuid: string }) {
     client.join(data.channel_uuid)
   }
+
+  @SubscribeMessage(getSocketEvent('DELETE_MESSAGE'))
+  // @UsePipes(new ValidationPipe())
+  async deleteMessage(
+    @MessageBody()
+    data: {
+      message_uuid: string
+      channel_uuid: string
+    },
+    @ConnectedSocket() _client: Socket
+  ) {
+    // owner check
+    // const userUuid = await this.userService.getUserUuidBySocketId(client.id)
+    await this.messageService.deleteMessage(data.message_uuid)
+    this.server.to(data.channel_uuid).emit(getSocketEvent('DELETED_MESSAGE'), {
+      message_uuid: data.message_uuid
+    })
+  }
 }

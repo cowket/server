@@ -12,6 +12,7 @@ import {
 } from 'src/entities/message'
 import { Reaction } from 'src/entities/reaction'
 import { TeamUserProfile } from 'src/entities/team_user_profile'
+import { ReactService } from 'src/react/react.service'
 import { UtilService } from 'src/util/util.service'
 import { Repository } from 'typeorm'
 
@@ -31,7 +32,8 @@ export class MessageService {
     @InjectRepository(TeamUserProfile)
     private tupRepo: Repository<TeamUserProfile>,
     @InjectRepository(DirectMessage) private dmRepo: Repository<DirectMessage>,
-    @InjectRepository(Reaction) private reactRepo: Repository<Reaction>
+    @InjectRepository(Reaction) private reactRepo: Repository<Reaction>,
+    private reactService: ReactService
   ) {}
 
   async findMessageByUuid(uuid: string) {
@@ -273,4 +275,11 @@ export class MessageService {
       .where('message.uuid = :uuid', { uuid })
       .getOne()
   }
+
+  async deleteMessage(uuid: string) {
+    await this.reactService.deleteReactions(uuid)
+    return this.messageRepo.delete({ uuid })
+  }
+
+  async deleteDirectMessage(_uuid: string) {}
 }
