@@ -38,3 +38,9 @@ lerna-debug.log*
 
 /public
 ormconfig.json
+
+/migrations
+/migration
+
+src/migrations
+src/migration
