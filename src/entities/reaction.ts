@@ -27,8 +27,8 @@ export class Reaction {
   create_date: Date
 
   @ManyToOne(() => ReactionItem)
-  @JoinColumn({ name: 'content', referencedColumnName: 'id' })
-  content: ReactionItem
+  @JoinColumn({ name: 'reaction_item', referencedColumnName: 'id' })
+  reaction_item: ReactionItem
 
   @ManyToOne(() => TeamUserProfile, { nullable: true })
   @JoinColumn({ name: 'team_user_profile', referencedColumnName: 'id' })

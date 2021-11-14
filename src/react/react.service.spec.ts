@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm'
 import { Reaction } from 'src/entities/reaction'
 import { ReactionItem } from 'src/entities/reaction_item'
+import { UtilService } from 'src/util/util.service'
 import { ReactService } from './react.service'
 
 let service: ReactService
@@ -13,7 +14,7 @@ type MockFindOpts<T> = {
 class MockReactionRepo {
   mockDB: Partial<Reaction>[] = [
     {
-      content: {
+      reaction_item: {
         content: '🔥',
         id: 1,
         create_date: new Date()
@@ -25,7 +26,7 @@ class MockReactionRepo {
   async findOne(t: MockFindOpts<Reaction>) {
     const reaction = new Reaction()
     reaction.uuid = 'test-uuid'
-    reaction.content = {
+    reaction.reaction_item = {
       content: '🔥',
       id: 1,
       create_date: new Date()
@@ -81,6 +82,12 @@ describe('ReactService', () => {
         {
           provide: getRepositoryToken(ReactionItem),
           useClass: MockReactionItemRepo
+        },
+        {
+          provide: UtilService,
+          useValue: {
+            genUuid: jest.fn()
+          }
         }
       ]
     }).compile()
