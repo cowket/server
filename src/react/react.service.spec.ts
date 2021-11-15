@@ -1,11 +1,13 @@
-import { Test, TestingModule } from '@nestjs/testing'
+import { Test } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm'
 import { Reaction } from 'src/entities/reaction'
 import { ReactionItem } from 'src/entities/reaction_item'
 import { UtilService } from 'src/util/util.service'
 import { ReactService } from './react.service'
+import { Repository } from 'typeorm'
 
 let service: ReactService
+let repo: Repository<Reaction>
 
 type MockFindOpts<T> = {
   where: Partial<T>
@@ -34,6 +36,8 @@ class MockReactionRepo {
 
     return reaction
   }
+
+  find = jest.fn().mockReturnValue(this.mockDB)
 }
 
 class MockReactionItemRepo {
@@ -93,6 +97,7 @@ describe('ReactService', () => {
     }).compile()
 
     service = m.get<ReactService>(ReactService)
+    repo = m.get<Repository<Reaction>>(getRepositoryToken(Reaction))
   })
 
   it('define', () => {
@@ -131,7 +136,14 @@ describe('ReactService', () => {
     expect(notExistReactionItem).toBeFalsy()
   })
 
-  it.todo('findReactions (By message)')
+  it('findReactions (By message)', async () => {
+    const reactions = await service.findReactions('123')
+    const findSpy = jest.spyOn(repo, 'find')
+
+    expect(findSpy).toBeCalledTimes(1)
+    expect(reactions).toBeDefined()
+    expect(reactions).toHaveLength(1)
+  })
 
   it.todo('deleteReactions (Multiple)')
 
