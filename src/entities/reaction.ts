@@ -1,4 +1,5 @@
 import {
+  Column,
   CreateDateColumn,
   Entity,
   JoinColumn,
@@ -33,4 +34,7 @@ export class Reaction {
   @ManyToOne(() => TeamUserProfile, { nullable: true })
   @JoinColumn({ name: 'team_user_profile', referencedColumnName: 'id' })
   team_user_profile: TeamUserProfile
+
+  @Column('varchar', { nullable: false, default: 'message' })
+  match_type: 'message' | 'dm'
 }

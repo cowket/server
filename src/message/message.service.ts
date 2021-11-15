@@ -277,9 +277,19 @@ export class MessageService {
   }
 
   async deleteMessage(uuid: string) {
-    await this.reactService.deleteReactions(uuid)
+    await this.reactService.deleteReactions(uuid, 'message')
     return this.messageRepo.delete({ uuid })
   }
 
-  async deleteDirectMessage(_uuid: string) {}
+  async deleteDirectMessage(uuid: string) {
+    await this.reactService.deleteReactions(uuid, 'dm')
+    return this.messageRepo.delete({ uuid })
+  }
+
+  async isOwnerMessage(userUuid: string, messageUuid: string) {
+    const message = await this.messageRepo.findOne({
+      where: { sender: { uuid: userUuid }, uuid: messageUuid }
+    })
+    return !!message
+  }
 }

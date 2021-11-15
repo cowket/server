@@ -121,3 +121,11 @@ export class LoadMessageDto {
   @IsObject()
   topMessage: Message // 제일 맨 위에 있는 메세지
 }
+
+export class DeleteMessageDto {
+  @IsString()
+  message_uuid: string
+
+  @IsString()
+  channel_uuid: string
+}

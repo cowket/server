@@ -114,20 +114,33 @@ export class SocketGateway
   }
 
   @SubscribeMessage(getSocketEvent('DELETE_MESSAGE'))
-  // @UsePipes(new ValidationPipe())
+  @UsePipes(new ValidationPipe())
   async deleteMessage(
     @MessageBody()
     data: {
       message_uuid: string
       channel_uuid: string
     },
-    @ConnectedSocket() _client: Socket
+    @ConnectedSocket() client: Socket
   ) {
-    // owner check
-    // const userUuid = await this.userService.getUserUuidBySocketId(client.id)
+    const userUuid = await this.userService.getUserUuidBySocketId(client.id)
+    const isOwner = await this.messageService.isOwnerMessage(
+      userUuid,
+      data.message_uuid
+    )
+    if (!isOwner) {
+      return client.emit('errorPacket', {
+        message: '메세지의 소유자가 아닙니다.'
+      })
+    }
     await this.messageService.deleteMessage(data.message_uuid)
-    this.server.to(data.channel_uuid).emit(getSocketEvent('DELETED_MESSAGE'), {
+    client.emit(getSocketEvent('DELETED_MESSAGE'), {
       message_uuid: data.message_uuid
     })
+    return this.server
+      .to(data.channel_uuid)
+      .emit(getSocketEvent('DELETED_MESSAGE'), {
+        message_uuid: data.message_uuid
+      })
   }
 }

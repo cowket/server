@@ -68,7 +68,10 @@ export class ReactService {
     })
   }
 
-  async deleteReactions(message_uuid: string) {
-    return this.reactionRepo.delete({ message: { uuid: message_uuid } })
+  async deleteReactions(messageUuid: string, matchType: 'message' | 'dm') {
+    return this.reactionRepo.delete({
+      message: { uuid: messageUuid },
+      match_type: matchType
+    })
   }
 }
