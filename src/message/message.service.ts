@@ -48,9 +48,9 @@ export class MessageService {
     const tup: TeamUserProfile | null = tupCheck || null
 
     await this.messageRepo.insert({
-      channel: dto.channel_uuid as unknown,
-      team: dto.team_uuid as unknown,
-      sender: dto.sender_uuid as unknown,
+      channel: { uuid: dto.channel_uuid },
+      team: { uuid: dto.team_uuid },
+      sender: { uuid: dto.sender_uuid },
       content: dto.content,
       uuid,
       create_date: new Date(),
@@ -102,12 +102,12 @@ export class MessageService {
       uuid,
       create_date: new Date(),
       update_date: new Date(),
-      sender: dto.sender_uuid as unknown,
-      receiver: dto.receiver_uuid as unknown,
+      sender: { uuid: dto.sender_uuid },
+      receiver: { uuid: dto.receiver_uuid },
       content: dto.content,
       sender_team_user_profile: senderTup,
       receiver_team_user_profile: receiverTup,
-      team: dto.team_uuid as unknown
+      team: { uuid: dto.team_uuid }
     })
 
     const directMessage = await this.messageRepo
@@ -211,7 +211,7 @@ export class MessageService {
     return this.messageRepo
       .createQueryBuilder()
       .update()
-      .set({ sender_team_user_profile: teamUserProfileId as unknown })
+      .set({ sender_team_user_profile: { id: teamUserProfileId } })
       .where('message.team_uuid = :teamUuid', { teamUuid })
       .andWhere('message.sender_uuid = :userUuid', { userUuid })
       .execute()
@@ -225,7 +225,7 @@ export class MessageService {
     await this.messageRepo
       .createQueryBuilder()
       .update()
-      .set({ sender_team_user_profile: teamUserProfileId as unknown })
+      .set({ sender_team_user_profile: { id: teamUserProfileId } })
       .where('direct_message.team = :teamUuid', { teamUuid })
       .andWhere('direct_message.message.sender = :userUuid', { userUuid })
       .execute()
@@ -233,7 +233,7 @@ export class MessageService {
     return this.messageRepo
       .createQueryBuilder()
       .update()
-      .set({ receiver_team_user_profile: teamUserProfileId as unknown })
+      .set({ receiver_team_user_profile: { id: teamUserProfileId } })
       .where('direct_message.team = :teamUuid', { teamUuid })
       .andWhere('direct_message.receiver = :userUuid', { userUuid })
       .execute()

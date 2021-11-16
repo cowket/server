@@ -26,7 +26,11 @@ export class GrantService {
         .createQueryBuilder()
         // .update('SET user_grant.team_user_profile = :tupId', { tupId })
         .update()
-        .set({ team_user_profile: tupId as unknown })
+        .set({
+          team_user_profile: {
+            id: tupId
+          }
+        })
         .where('user_grant.user_uuid = :userUuid', { userUuid })
         .andWhere('user_grant.team_uuid = :teamUuid', { teamUuid })
         .execute()
