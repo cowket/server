@@ -4,6 +4,8 @@ WORKDIR /app
 
 COPY ./dist/main.js .
 
+RUN npm i -g pm2
+
 EXPOSE 4000
 EXPOSE 4001
 
