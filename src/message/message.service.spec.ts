@@ -1,6 +1,5 @@
 import { Test } from '@nestjs/testing'
 import { getRepositoryToken } from '@nestjs/typeorm'
-import { DirectMessage } from 'src/entities/direct_message'
 import { Message } from 'src/entities/message'
 import { Reaction } from 'src/entities/reaction'
 import { TeamUserProfile } from 'src/entities/team_user_profile'
@@ -28,8 +27,6 @@ class MockMessageRepo {
 
 class MockTeamUserProfileRepo {}
 
-class MockDirectMessageRepo {}
-
 class MockReactionRepo {}
 
 describe('MessageService', () => {
@@ -50,10 +47,6 @@ describe('MessageService', () => {
         {
           provide: getRepositoryToken(TeamUserProfile),
           useClass: MockTeamUserProfileRepo
-        },
-        {
-          provide: getRepositoryToken(DirectMessage),
-          useClass: MockDirectMessageRepo
         },
         {
           provide: getRepositoryToken(Reaction),
