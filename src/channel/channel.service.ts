@@ -113,20 +113,20 @@ export class ChannelService {
       .where('channel.uuid = :uuid', { uuid })
       .getOne()
 
-    console.log(channel)
-
     return channel ? channel.team : null
   }
 
   async createChannel(userUuid: string, channelDto: CreateChannelDto) {
     const uuid = this.utilService.genUuid()
+    const owner = await this.userService.findByUuid(userUuid)
+    const team = await this.teamService.getTeamByUuid(channelDto.team_uuid)
 
     await this.channelRepo.insert({
       uuid,
       name: channelDto.name,
-      team: channelDto.team_uuid as unknown,
+      team,
       description: channelDto.description || null,
-      owner: userUuid as unknown,
+      owner,
       create_date: new Date(),
       update_date: new Date(),
       is_private: channelDto.is_private || false
@@ -159,10 +159,16 @@ export class ChannelService {
       'system'
     )
 
+    const channel = await this.getChannelByUuid(channelUuid)
+    const team = await this.teamService.getTeamByUuid(teamUuid)
+    const user = await this.userService.findByUuid(userUuid)
+
+    console.log(user)
+
     return this.userGrantRepo.insert({
-      channel_uuid: channelUuid as unknown,
-      team_uuid: teamUuid as unknown,
-      user_uuid: userUuid as unknown,
+      channel_uuid: channel,
+      team_uuid: team,
+      user_uuid: user,
       create_date: new Date(),
       team_user_profile: tup ? ((tup as TeamUserProfile).id as unknown) : null
     })
@@ -194,9 +200,11 @@ export class ChannelService {
       throw new UniqueChannelError()
     }
 
+    const team = await this.teamService.getTeamByUuid(team_uuid)
+
     return this.channelRepo.delete({
       uuid: channel_uuid,
-      team: team_uuid as unknown
+      team
     })
   }
 
@@ -205,14 +213,17 @@ export class ChannelService {
   }
 
   async createUniqueChannel(teamUuid: string, owner: string) {
+    const _team = await this.teamService.getTeamByUuid(teamUuid)
+    const _owner = await this.userService.findByUuid(owner)
+
     return this.channelRepo.save({
       uuid: this.utilService.genUuid(),
       create_date: new Date(),
       description: '기본 채널',
       is_private: false,
       name: 'General',
-      owner: owner as unknown,
-      team: teamUuid as unknown,
+      owner: _owner,
+      team: _team,
       unique: true,
       update_date: new Date()
     })
@@ -224,8 +235,10 @@ export class ChannelService {
   }
 
   async getUniqueChannel(teamUuid: string) {
+    const team = await this.teamService.getTeamByUuid(teamUuid)
+
     return this.channelRepo.findOne({
-      where: { team: teamUuid as unknown, unique: true }
+      where: { team, unique: true }
     })
   }
 
@@ -336,18 +349,25 @@ export class ChannelService {
       content
     })
 
+    const channel = await this.getChannelByUuid(channelUuid)
+    const team = await this.teamService.getTeamByUuid(teamUuid)
+
     return this.userGrantRepo
       .createQueryBuilder('grant')
       .insert()
       .into(UserGrant)
       .values(
-        insertArr.map((user) => ({
-          channel_uuid: channelUuid as unknown,
-          create_date: new Date(),
-          team_uuid: teamUuid as unknown,
-          user_uuid: user.userUuid as unknown,
-          team_user_profile: user.tup
-        }))
+        insertArr.map((user) => {
+          return {
+            channel_uuid: channel,
+            create_date: new Date(),
+            team_uuid: team,
+            user_uuid: {
+              uuid: user.userUuid
+            },
+            team_user_profile: user.tup
+          }
+        })
       )
       .execute()
   }
@@ -409,11 +429,13 @@ export class ChannelService {
       .createQueryBuilder('ug')
       .insert()
       .values({
-        channel_uuid: channelUuid as unknown,
+        channel_uuid: {
+          uuid: channelUuid
+        },
         create_date: new Date(),
-        team_user_profile: tup ? (tup.id as unknown) : null,
-        team_uuid: teamUuid as unknown,
-        user_uuid: user.uuid as unknown
+        team_user_profile: tup ? { id: tup.id } : null,
+        team_uuid: { uuid: teamUuid },
+        user_uuid: { uuid: user.uuid }
       })
       .execute()
 

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsObject, IsString, Length } from 'class-validator'
+import { MessageType } from 'src/message/message.dto'
 import {
   Column,
   CreateDateColumn,
@@ -16,52 +16,6 @@ import { Team } from './team'
 import { TeamUserProfile } from './team_user_profile'
 import { User } from './user'
 
-export type SystemMessageType = 'enter' | 'public' | 'enter:private'
-export type MessageType = 'user' | 'system'
-
-export class GetMessageQuery {
-  @IsString()
-  channel_uuid: string
-}
-
-export class GetDirectMessageQuery {
-  @IsString()
-  sender: string
-
-  @IsString()
-  receiver: string
-
-  @IsString()
-  team_uuid: string
-}
-
-/**
- * 메세지 전송시 타입 (서비스에서 사용 - 내부 타입)
- */
-export class PushMessageDto {
-  @IsString()
-  team_uuid: string // 팀 uuid
-
-  @IsString()
-  channel_uuid: string // 채널 uuid
-
-  @IsString()
-  sender_uuid: string // 유저 uuid
-
-  @IsString()
-  @Length(2)
-  content: string // 메세지 (HTML)
-}
-
-export class FetchMessageDto {
-  latestMessage: Partial<Message>
-}
-
-/**
- * 소켓 이벤트 전송시 타입 (클라이언트에서 맞춰야하는 실제 타입)
- */
-export class SocketPushMessageDto extends PushMessageDto {}
-
 @Entity('message')
 export class Message {
   @ApiProperty({ description: '메세지 uuid' })
@@ -74,14 +28,32 @@ export class Message {
   team: Team
 
   @ApiProperty({ description: '채널 정보' })
-  @ManyToOne(() => Channel)
+  @ManyToOne(() => Channel, { nullable: true })
   @JoinColumn({ name: 'channel_uuid', referencedColumnName: 'uuid' })
   channel: Channel
 
   @ApiProperty({ description: '메세지 보낸 유저 정보' })
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { nullable: true })
   @JoinColumn({ name: 'sender_uuid', referencedColumnName: 'uuid' })
   sender: User
+
+  @ApiProperty({ description: '팀 유저 프로필', nullable: true })
+  @ManyToOne(() => TeamUserProfile, { nullable: true })
+  @JoinColumn({ name: 'sender_team_user_profile', referencedColumnName: 'id' })
+  sender_team_user_profile?: TeamUserProfile
+
+  @ApiProperty({ description: '다이렉트 메세지일 경우 받는 유저' })
+  @ManyToOne(() => User, { nullable: true })
+  @JoinColumn({ name: 'receiver_uuid', referencedColumnName: 'uuid' })
+  receiver?: User
+
+  @ApiProperty({ description: '팀 유저 프로필 (받는 유저)', nullable: true })
+  @ManyToOne(() => TeamUserProfile, { nullable: true })
+  @JoinColumn({
+    name: 'receiver_team_user_profile',
+    referencedColumnName: 'id'
+  })
+  receiver_team_user_profile?: TeamUserProfile
 
   @ApiProperty({ description: '편집 여부' })
   @Column('boolean', { default: false })
@@ -99,12 +71,6 @@ export class Message {
   @Column('longtext', { nullable: false })
   content: string
 
-  @ApiProperty({ description: '팀 유저 프로필', nullable: true })
-  @ManyToOne(() => TeamUserProfile)
-  @JoinColumn({ name: 'team_user_profile', referencedColumnName: 'id' })
-  @Column({ nullable: true, default: null })
-  team_user_profile?: TeamUserProfile
-
   @ApiProperty({ description: '메세지 타입 "user | system"', default: 'user' })
   @Column('varchar', { nullable: true, default: 'user' })
   type: MessageType
@@ -115,17 +81,4 @@ export class Message {
   })
   @JoinColumn({ name: 'reactions' })
   reactions: Reaction[]
-}
-
-export class LoadMessageDto {
-  @IsObject()
-  topMessage: Message // 제일 맨 위에 있는 메세지
-}
-
-export class DeleteMessageDto {
-  @IsString()
-  message_uuid: string
-
-  @IsString()
-  channel_uuid: string
 }

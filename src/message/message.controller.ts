@@ -19,14 +19,10 @@ import {
 } from '@nestjs/swagger'
 import { Request } from 'express'
 import { JwtGuard } from 'src/auth/jwt.guard'
-import { DirectMessage } from 'src/entities/direct_message'
-import {
-  GetDirectMessageQuery,
-  GetMessageQuery,
-  Message
-} from 'src/entities/message'
+import { Message } from 'src/entities/message'
 import { TokenUserInfo } from 'src/types/user'
 import { User } from 'src/users/users.decorator'
+import { GetDirectMessageQuery, GetMessageQuery } from './message.dto'
 import { MessageService } from './message.service'
 
 @UseGuards(JwtGuard)
@@ -69,7 +65,7 @@ export class MessageController {
     description: '유저와 유저 사이의 최근 다이렉트 메세지 10개를 조회합니다.'
   })
   @ApiOkResponse({
-    type: [DirectMessage]
+    type: [Message]
   })
   @UsePipes(new ValidationPipe())
   async getDirectMessageLatest(

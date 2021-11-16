@@ -10,8 +10,11 @@ import {
   WebSocketServer
 } from '@nestjs/websockets'
 import { Server, Socket } from 'socket.io'
-import { RequestDirectMessageDto } from 'src/entities/direct_message'
-import { LoadMessageDto, SocketPushMessageDto } from 'src/entities/message'
+import {
+  LoadMessageDto,
+  RequestDirectMessageDto,
+  SocketPushMessageDto
+} from 'src/message/message.dto'
 import { MessageService } from 'src/message/message.service'
 import { UsersService } from 'src/users/users.service'
 import { WsExceptionFilter } from './socket.filter'

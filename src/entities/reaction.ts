@@ -6,7 +6,6 @@ import {
   ManyToOne,
   PrimaryColumn
 } from 'typeorm'
-import { DirectMessage } from './direct_message'
 import { Message } from './message'
 import { ReactionItem } from './reaction_item'
 import { TeamUserProfile } from './team_user_profile'
@@ -20,10 +19,6 @@ export class Reaction {
   @ManyToOne(() => Message, { nullable: true })
   @JoinColumn({ name: 'message', referencedColumnName: 'uuid' })
   message?: Message
-
-  @ManyToOne(() => DirectMessage, { nullable: true })
-  @JoinColumn({ name: 'direct_message', referencedColumnName: 'uuid' })
-  direct_message?: DirectMessage
 
   @ManyToOne(() => User)
   @JoinColumn({ name: 'user', referencedColumnName: 'uuid' })

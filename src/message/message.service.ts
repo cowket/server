@@ -1,20 +1,17 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import {
-  DirectMessage,
-  RequestDirectMessageDto
-} from 'src/entities/direct_message'
-import {
-  LoadMessageDto,
-  Message,
-  MessageType,
-  PushMessageDto
-} from 'src/entities/message'
+import { Message } from 'src/entities/message'
 import { Reaction } from 'src/entities/reaction'
 import { TeamUserProfile } from 'src/entities/team_user_profile'
 import { ReactService } from 'src/react/react.service'
 import { UtilService } from 'src/util/util.service'
 import { Repository } from 'typeorm'
+import {
+  LoadMessageDto,
+  MessageType,
+  PushMessageDto,
+  RequestDirectMessageDto
+} from './message.dto'
 
 type UpdateTupRequest = {
   teamUuid: string
@@ -31,17 +28,12 @@ export class MessageService {
     @InjectRepository(Message) private messageRepo: Repository<Message>,
     @InjectRepository(TeamUserProfile)
     private tupRepo: Repository<TeamUserProfile>,
-    @InjectRepository(DirectMessage) private dmRepo: Repository<DirectMessage>,
     @InjectRepository(Reaction) private reactRepo: Repository<Reaction>,
     private reactService: ReactService
   ) {}
 
   async findMessageByUuid(uuid: string) {
     return this.messageRepo.findOne({ where: { uuid } })
-  }
-
-  async findDirectMessageByUuid(uuid: string) {
-    return this.dmRepo.findOne({ where: { uuid } })
   }
 
   async pushMessage(dto: PushMessageDto, type: MessageType = 'user') {
@@ -64,7 +56,7 @@ export class MessageService {
       create_date: new Date(),
       update_date: new Date(),
       is_updated: false,
-      team_user_profile: tup,
+      sender_team_user_profile: tup,
       type: type || 'user'
     })
 
@@ -73,7 +65,10 @@ export class MessageService {
       .leftJoinAndSelect('message.team', 'team')
       .leftJoinAndSelect('message.channel', 'channel')
       .leftJoinAndSelect('message.sender', 'users')
-      .leftJoinAndSelect('message.team_user_profile', 'team_user_profile')
+      .leftJoinAndSelect(
+        'message.sender_team_user_profile',
+        'team_user_profile'
+      )
       .leftJoinAndSelect(
         'message.reactions',
         'reactions',
@@ -103,7 +98,7 @@ export class MessageService {
     const senderTup = senderTupCheck || null
     const receiverTup = receiverTupCheck || null
 
-    await this.dmRepo.insert({
+    await this.messageRepo.insert({
       uuid,
       create_date: new Date(),
       update_date: new Date(),
@@ -115,7 +110,7 @@ export class MessageService {
       team: dto.team_uuid as unknown
     })
 
-    const directMessage = await this.dmRepo
+    const directMessage = await this.messageRepo
       .createQueryBuilder('direct_message')
       .leftJoinAndSelect('direct_message.team', 'team')
       .leftJoinAndSelect('direct_message.sender', 'sender')
@@ -136,7 +131,7 @@ export class MessageService {
     receiver: string,
     teamUuid: string
   ) {
-    return this.dmRepo
+    return this.messageRepo
       .createQueryBuilder('dm')
       .leftJoinAndSelect('dm.team', 'team')
       .leftJoinAndSelect('dm.sender', 'sender')
@@ -158,7 +153,10 @@ export class MessageService {
       .leftJoinAndSelect('message.team', 'team')
       .leftJoinAndSelect('message.channel', 'channel')
       .leftJoinAndSelect('message.sender', 'users')
-      .leftJoinAndSelect('message.team_user_profile', 'team_user_profile')
+      .leftJoinAndSelect(
+        'message.sender_team_user_profile',
+        'team_user_profile'
+      )
       .leftJoinAndSelect(
         'message.reactions',
         'reaction',
@@ -176,7 +174,10 @@ export class MessageService {
       .leftJoinAndSelect('message.team', 'team')
       .leftJoinAndSelect('message.channel', 'channel')
       .leftJoinAndSelect('message.sender', 'users')
-      .leftJoinAndSelect('message.team_user_profile', 'team_user_profile')
+      .leftJoinAndSelect(
+        'message.sender_team_user_profile',
+        'team_user_profile'
+      )
       .orderBy('message.create_date', 'DESC')
       .where('message.team = :teamUuid', {
         teamUuid: data.topMessage.team.uuid
@@ -210,7 +211,7 @@ export class MessageService {
     return this.messageRepo
       .createQueryBuilder()
       .update()
-      .set({ team_user_profile: teamUserProfileId as unknown })
+      .set({ sender_team_user_profile: teamUserProfileId as unknown })
       .where('message.team_uuid = :teamUuid', { teamUuid })
       .andWhere('message.sender_uuid = :userUuid', { userUuid })
       .execute()
@@ -221,7 +222,7 @@ export class MessageService {
     teamUuid,
     userUuid
   }: UpdateTupRequest) {
-    await this.dmRepo
+    await this.messageRepo
       .createQueryBuilder()
       .update()
       .set({ sender_team_user_profile: teamUserProfileId as unknown })
@@ -229,7 +230,7 @@ export class MessageService {
       .andWhere('direct_message.message.sender = :userUuid', { userUuid })
       .execute()
 
-    return this.dmRepo
+    return this.messageRepo
       .createQueryBuilder()
       .update()
       .set({ receiver_team_user_profile: teamUserProfileId as unknown })
@@ -253,7 +254,7 @@ export class MessageService {
   }
 
   async removeUnstableDirectMessages() {
-    return this.dmRepo
+    return this.messageRepo
       .createQueryBuilder('dm')
       .leftJoin('dm.sender', 'sender')
       .leftJoin('dm.receiver', 'receiver')
@@ -271,7 +272,10 @@ export class MessageService {
       .leftJoinAndSelect('message.team', 'team')
       .leftJoinAndSelect('message.channel', 'channel')
       .leftJoinAndSelect('message.sender', 'users')
-      .leftJoinAndSelect('message.team_user_profile', 'team_user_profile')
+      .leftJoinAndSelect(
+        'message.sender_team_user_profile',
+        'team_user_profile'
+      )
       .where('message.uuid = :uuid', { uuid })
       .getOne()
   }

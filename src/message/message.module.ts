@@ -5,7 +5,6 @@ import { MessageService } from './message.service'
 import { Message } from 'src/entities/message'
 import { MessageController } from './message.controller'
 import { TeamUserProfile } from 'src/entities/team_user_profile'
-import { DirectMessage } from 'src/entities/direct_message'
 import { Reaction } from 'src/entities/reaction'
 import { ReactModule } from 'src/react/react.module'
 
@@ -13,12 +12,7 @@ import { ReactModule } from 'src/react/react.module'
 @Module({
   imports: [
     UtilModule,
-    TypeOrmModule.forFeature([
-      Message,
-      TeamUserProfile,
-      DirectMessage,
-      Reaction
-    ]),
+    TypeOrmModule.forFeature([Message, TeamUserProfile, Reaction]),
     ReactModule
   ],
   providers: [MessageService],

@@ -10,7 +10,6 @@ import { TeamModule } from './team/team.module'
 import { FileModule } from './file/file.module'
 import { JwtModule } from '@nestjs/jwt'
 import { ChannelModule } from './channel/channel.module'
-import { DirectMessage } from './entities/direct_message'
 import { GrantModule } from './grant/grant.module'
 import { TaskService } from './task/task.service'
 import { ScheduleModule } from '@nestjs/schedule'
@@ -50,7 +49,6 @@ const isProd = process.env.NODE_ENV === 'production'
         Channel,
         Message,
         TeamUserProfile,
-        DirectMessage,
         Reaction,
         ReactionItem
       ],
