@@ -1,16 +1,8 @@
 FROM node:14-alpine
+
 WORKDIR /app
 
-COPY package*.json ./
-
-RUN npm i -g npm@7.22.0
-RUN npm i
-RUN npm i -g pm2
-
-COPY . .
-
-# Test, Build
-RUN npm run build
+COPY ./dist/main.js .
 
 EXPOSE 4000
 EXPOSE 4001
