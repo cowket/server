@@ -10,6 +10,8 @@ import {
   WebSocketServer
 } from '@nestjs/websockets'
 import { Server, Socket } from 'socket.io'
+import { TeamUserProfile } from 'src/entities/team_user_profile'
+import { User } from 'src/entities/user'
 import {
   LoadMessageDto,
   RequestDirectMessageDto,
@@ -18,6 +20,7 @@ import {
 import { MessageService } from 'src/message/message.service'
 import { CreateReactionDto } from 'src/react/react.dto'
 import { ReactService } from 'src/react/react.service'
+import { TeamService } from 'src/team/team.service'
 import { UsersService } from 'src/users/users.service'
 import { WsExceptionFilter } from './socket.filter'
 import { SocketService } from './socket.service'
@@ -34,9 +37,7 @@ import { getSocketEvent } from './socket.type'
   path: '/',
   namespace: 'cowket'
 })
-export class SocketGateway
-  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
-{
+export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   private logger = new Logger('SocketGateway')
 
   @WebSocketServer()
@@ -46,7 +47,8 @@ export class SocketGateway
     private messageService: MessageService,
     private socketService: SocketService,
     private userService: UsersService,
-    private reactService: ReactService
+    private reactService: ReactService,
+    private teamService: TeamService
   ) {}
 
   afterInit(server: Server) {
@@ -55,12 +57,9 @@ export class SocketGateway
   }
 
   handleConnection(client: Socket) {
-    client.on(
-      getSocketEvent('CONNECTION_WITH_AUTH'),
-      async (data: { user_uuid: string }) => {
-        await this.socketService.registerSocket(client.id, data.user_uuid)
-      }
-    )
+    client.on(getSocketEvent('CONNECTION_WITH_AUTH'), async (data: { user_uuid: string }) => {
+      await this.socketService.registerSocket(client.id, data.user_uuid)
+    })
   }
 
   async handleDisconnect(client: Socket) {
@@ -74,14 +73,10 @@ export class SocketGateway
     @ConnectedSocket() client: Socket
   ) {
     const pushedMessage = await this.messageService.pushDirectMessage(data)
-    const receiverSocketId = await this.userService.getSocketIdByUserUuid(
-      data.receiver_uuid
-    )
+    const receiverSocketId = await this.userService.getSocketIdByUserUuid(data.receiver_uuid)
 
     client.emit(getSocketEvent('NEW_DIRECT_MESSAGE'), pushedMessage)
-    this.server
-      .to(receiverSocketId)
-      .emit(getSocketEvent('NEW_DIRECT_MESSAGE'), pushedMessage)
+    this.server.to(receiverSocketId).emit(getSocketEvent('NEW_DIRECT_MESSAGE'), pushedMessage)
 
     this.logger.debug(
       `direct message: ${data.sender_uuid}(${client.id}) -> ${data.receiver_uuid}(${receiverSocketId})`
@@ -95,9 +90,7 @@ export class SocketGateway
   ) {
     try {
       const message = await this.messageService.pushMessage(data)
-      this.server
-        .to(data.channel_uuid)
-        .emit(getSocketEvent('NEW_MESSAGE'), message) // 채널에 메세지 전파
+      this.server.to(data.channel_uuid).emit(getSocketEvent('NEW_MESSAGE'), message) // 채널에 메세지 전파
     } catch (error) {
       this.logger.error(error)
       client.emit('errorPacket', { error })
@@ -106,10 +99,7 @@ export class SocketGateway
 
   @SubscribeMessage(getSocketEvent('LOAD_MESSAGE'))
   @UsePipes(new ValidationPipe())
-  async loadMessageLatest(
-    @MessageBody() data: LoadMessageDto,
-    @ConnectedSocket() client: Socket
-  ) {
+  async loadMessageLatest(@MessageBody() data: LoadMessageDto, @ConnectedSocket() client: Socket) {
     const messages = await this.messageService.fetchMessageFromLatest(data)
     client.emit(getSocketEvent('LOADED_SCROLL_MESSAGE'), messages)
   }
@@ -129,11 +119,8 @@ export class SocketGateway
     },
     @ConnectedSocket() client: Socket
   ) {
-    const userUuid = await this.userService.getUserUuidBySocketId(client.id)
-    const isOwner = await this.messageService.isOwnerMessage(
-      userUuid,
-      data.message_uuid
-    )
+    const userUuid = (await this.userService.getUserUuidBySocketId(client.id)) as string
+    const isOwner = await this.messageService.isOwnerMessage(userUuid, data.message_uuid)
     if (!isOwner) {
       return client.emit('errorPacket', {
         message: '메세지의 소유자가 아닙니다.'
@@ -143,17 +130,28 @@ export class SocketGateway
     client.emit(getSocketEvent('DELETED_MESSAGE'), {
       message_uuid: data.message_uuid
     })
-    return this.server
-      .to(data.channel_uuid)
-      .emit(getSocketEvent('DELETED_MESSAGE'), {
-        message_uuid: data.message_uuid
-      })
+    return this.server.to(data.channel_uuid).emit(getSocketEvent('DELETED_MESSAGE'), {
+      message_uuid: data.message_uuid
+    })
   }
 
   @SubscribeMessage(getSocketEvent('REACTION_MESSAGE'))
   @UsePipes(new ValidationPipe())
-  async handleReaction(
-    @MessageBody() data: CreateReactionDto,
-    @ConnectedSocket() client: Socket
-  ) {}
+  async handleReaction(@MessageBody() data: CreateReactionDto, @ConnectedSocket() client: Socket) {
+    try {
+      const user = (await this.userService.getUserUuidBySocketId(client.id, true)) as User
+      const tup = (await this.teamService.getTeamUserProfile(
+        user.uuid,
+        data.team_uuid,
+        true
+      )) as TeamUserProfile | null
+      await this.reactService.createReaction({ uuid: data.message_uuid }, data.reaction, user, tup)
+      const message = await this.messageService.getMessageByUuid(data.message_uuid)
+      return this.server
+        .to(data.channel_uuid)
+        .emit(getSocketEvent('UPDATED_REACTION_MESSAGE'), message)
+    } catch (error) {
+      client.emit('errorPacket', error)
+    }
+  }
 }

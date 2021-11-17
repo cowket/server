@@ -149,8 +149,7 @@ export class Channel {
   description: string
 
   @ApiProperty({
-    description:
-      '기본적으로 생성되는 공개 채널 여부 (해당 채널은 반드시 존재해야 함)'
+    description: '기본적으로 생성되는 공개 채널 여부 (해당 채널은 반드시 존재해야 함)'
   })
   @Column('boolean', { nullable: true, default: false })
   unique: boolean

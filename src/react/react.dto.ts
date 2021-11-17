@@ -4,4 +4,13 @@ import { IsString } from 'class-validator'
 export class CreateReactionDto {
   @IsString()
   message_uuid: string
+
+  @IsString()
+  team_uuid: string
+
+  @IsString()
+  channel_uuid: string
+
+  @IsString()
+  reaction: string
 }

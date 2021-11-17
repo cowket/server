@@ -6,12 +6,7 @@ import { TeamUserProfile } from 'src/entities/team_user_profile'
 import { ReactService } from 'src/react/react.service'
 import { UtilService } from 'src/util/util.service'
 import { Repository } from 'typeorm'
-import {
-  LoadMessageDto,
-  MessageType,
-  PushMessageDto,
-  RequestDirectMessageDto
-} from './message.dto'
+import { LoadMessageDto, MessageType, PushMessageDto, RequestDirectMessageDto } from './message.dto'
 
 type UpdateTupRequest = {
   teamUuid: string
@@ -65,15 +60,8 @@ export class MessageService {
       .leftJoinAndSelect('message.team', 'team')
       .leftJoinAndSelect('message.channel', 'channel')
       .leftJoinAndSelect('message.sender', 'users')
-      .leftJoinAndSelect(
-        'message.sender_team_user_profile',
-        'team_user_profile'
-      )
-      .leftJoinAndSelect(
-        'message.reactions',
-        'reactions',
-        'reactions.message = message.uuid'
-      )
+      .leftJoinAndSelect('message.sender_team_user_profile', 'team_user_profile')
+      .leftJoinAndSelect('message.reactions', 'reactions', 'reactions.message = message.uuid')
       .where('message.uuid = :uuid', { uuid })
       .getOne()
 
@@ -116,21 +104,14 @@ export class MessageService {
       .leftJoinAndSelect('direct_message.sender', 'sender')
       .leftJoinAndSelect('direct_message.receiver', 'receiver')
       .leftJoinAndSelect('direct_message.sender_team_user_profile', 'senderTup')
-      .leftJoinAndSelect(
-        'direct_message.receiver_team_user_profile',
-        'receiverTup'
-      )
+      .leftJoinAndSelect('direct_message.receiver_team_user_profile', 'receiverTup')
       .where('direct_message.uuid = :uuid', { uuid })
       .getOne()
 
     return directMessage
   }
 
-  async fetchDirectMessageLatest(
-    sender: string,
-    receiver: string,
-    teamUuid: string
-  ) {
+  async fetchDirectMessageLatest(sender: string, receiver: string, teamUuid: string) {
     return this.messageRepo
       .createQueryBuilder('dm')
       .leftJoinAndSelect('dm.team', 'team')
@@ -153,15 +134,8 @@ export class MessageService {
       .leftJoinAndSelect('message.team', 'team')
       .leftJoinAndSelect('message.channel', 'channel')
       .leftJoinAndSelect('message.sender', 'users')
-      .leftJoinAndSelect(
-        'message.sender_team_user_profile',
-        'team_user_profile'
-      )
-      .leftJoinAndSelect(
-        'message.reactions',
-        'reaction',
-        'reaction.message = message.uuid'
-      )
+      .leftJoinAndSelect('message.sender_team_user_profile', 'team_user_profile')
+      .leftJoinAndSelect('message.reactions', 'reaction', 'reaction.message = message.uuid')
       .orderBy('message.create_date', 'DESC')
       .where(`message.channel = '${channelUuid}'`)
       .limit(10)
@@ -174,10 +148,7 @@ export class MessageService {
       .leftJoinAndSelect('message.team', 'team')
       .leftJoinAndSelect('message.channel', 'channel')
       .leftJoinAndSelect('message.sender', 'users')
-      .leftJoinAndSelect(
-        'message.sender_team_user_profile',
-        'team_user_profile'
-      )
+      .leftJoinAndSelect('message.sender_team_user_profile', 'team_user_profile')
       .orderBy('message.create_date', 'DESC')
       .where('message.team = :teamUuid', {
         teamUuid: data.topMessage.team.uuid
@@ -185,12 +156,9 @@ export class MessageService {
       .andWhere('message.channel = :channelUuid', {
         channelUuid: data.topMessage.channel.uuid
       })
-      .andWhere(
-        'TIMESTAMP(message.create_date, "%T") < TIMESTAMP(:compareDate, "%T")',
-        {
-          compareDate: data.topMessage.create_date
-        }
-      )
+      .andWhere('TIMESTAMP(message.create_date, "%T") < TIMESTAMP(:compareDate, "%T")', {
+        compareDate: data.topMessage.create_date
+      })
       .andWhere('message.uuid != :messageUuid', {
         messageUuid: data.topMessage.uuid
       })
@@ -203,11 +171,7 @@ export class MessageService {
     await this.updateAllTupInDirectMessage(req)
   }
 
-  async updateAllTupInMessage({
-    teamUserProfileId,
-    teamUuid,
-    userUuid
-  }: UpdateTupRequest) {
+  async updateAllTupInMessage({ teamUserProfileId, teamUuid, userUuid }: UpdateTupRequest) {
     return this.messageRepo
       .createQueryBuilder()
       .update()
@@ -217,11 +181,7 @@ export class MessageService {
       .execute()
   }
 
-  async updateAllTupInDirectMessage({
-    teamUserProfileId,
-    teamUuid,
-    userUuid
-  }: UpdateTupRequest) {
+  async updateAllTupInDirectMessage({ teamUserProfileId, teamUuid, userUuid }: UpdateTupRequest) {
     await this.messageRepo
       .createQueryBuilder()
       .update()
@@ -272,10 +232,8 @@ export class MessageService {
       .leftJoinAndSelect('message.team', 'team')
       .leftJoinAndSelect('message.channel', 'channel')
       .leftJoinAndSelect('message.sender', 'users')
-      .leftJoinAndSelect(
-        'message.sender_team_user_profile',
-        'team_user_profile'
-      )
+      .leftJoinAndSelect('message.sender_team_user_profile', 'team_user_profile')
+      .leftJoinAndSelect('message.reactions', 'reactions', 'reactions.message = message.uuid')
       .where('message.uuid = :uuid', { uuid })
       .getOne()
   }

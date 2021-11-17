@@ -9,11 +9,7 @@ import { TeamModule } from 'src/team/team.module'
 
 @Global()
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([User, UserGrant]),
-    UtilModule,
-    forwardRef(() => TeamModule)
-  ],
+  imports: [TypeOrmModule.forFeature([User, UserGrant]), UtilModule, forwardRef(() => TeamModule)],
   providers: [UsersService],
   exports: [UsersService],
   controllers: [UsersController]

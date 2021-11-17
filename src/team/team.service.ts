@@ -78,9 +78,7 @@ export class TeamService {
     let encryptPw = null
 
     if (is_private && password) {
-      const salt = bcrypt.genSaltSync(
-        parseInt(this.configService.get('SE_SALT'))
-      )
+      const salt = bcrypt.genSaltSync(parseInt(this.configService.get('SE_SALT')))
       encryptPw = bcrypt.hashSync(password, salt)
     }
 
@@ -98,15 +96,8 @@ export class TeamService {
       password: encryptPw
     })
 
-    const uniqueChannel = await this.channelService.createUniqueChannel(
-      genTeamUuid,
-      userUuid
-    )
-    await this.channelService.createGrantChannel(
-      userUuid,
-      genTeamUuid,
-      uniqueChannel.uuid
-    )
+    const uniqueChannel = await this.channelService.createUniqueChannel(genTeamUuid, userUuid)
+    await this.channelService.createGrantChannel(userUuid, genTeamUuid, uniqueChannel.uuid)
 
     const insertedTeam = await this.teamRepository
       .createQueryBuilder('team')
@@ -202,10 +193,7 @@ export class TeamService {
     return this.teamRepository.find()
   }
 
-  async createTeamUserProfile(
-    profile: RequestTeamUserProfile,
-    userUuid: string
-  ) {
+  async createTeamUserProfile(profile: RequestTeamUserProfile, userUuid: string) {
     const user = await this.usersService.findByUuid(userUuid)
     const team = await this.getTeamByUuid(profile.team_uuid)
 
@@ -230,10 +218,7 @@ export class TeamService {
     return tup
   }
 
-  async updateTeamUserProfile(
-    profile: RequestTeamUserProfile,
-    userUuid: string
-  ) {
+  async updateTeamUserProfile(profile: RequestTeamUserProfile, userUuid: string) {
     const teamUserProfile = await this.teamUserProfileRepo.findOne({
       where: { user_uuid: userUuid, team_uuid: profile.team_uuid }
     })
@@ -277,10 +262,7 @@ export class TeamService {
   }
 
   async enterPrivateTeam(userUuid: string, teamUuid: string, password: string) {
-    const isCorretPw = await this.isCorrectPrivateTeamPassword(
-      teamUuid,
-      password
-    )
+    const isCorretPw = await this.isCorrectPrivateTeamPassword(teamUuid, password)
     await this.channelService.createGrantUniqueChannel(teamUuid, userUuid)
 
     if (isCorretPw) {
@@ -315,9 +297,7 @@ export class TeamService {
       return {
         ...user,
         team_profile:
-          teamUserProfiles.find(
-            (profile) => profile.user_uuid.uuid === user.uuid
-          ) || null
+          teamUserProfiles.find((profile) => profile.user_uuid.uuid === user.uuid) || null
       }
     })
 

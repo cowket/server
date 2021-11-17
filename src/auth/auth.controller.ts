@@ -29,10 +29,7 @@ export type SimpleUserInfo = {
 export class AuthController {
   private logger: Logger = new Logger('AuthController')
 
-  constructor(
-    private usersService: UsersService,
-    private authService: AuthService
-  ) {}
+  constructor(private usersService: UsersService, private authService: AuthService) {}
 
   // @UseGuards(AuthGuard('local'))
   @Post('login')
@@ -99,9 +96,7 @@ export class AuthController {
     if (!user) {
       const cryptPw = await this.usersService.cryptPassword(pw)
       const createdUser = await this.usersService.createUser(email, cryptPw)
-      await this.authService.updateUserRefreshToken(
-        createdUser.generatedMaps[0].uuid
-      )
+      await this.authService.updateUserRefreshToken(createdUser.generatedMaps[0].uuid)
       return res.status(HttpStatus.CREATED).json({
         success: true,
         user: {
@@ -123,11 +118,7 @@ export class AuthController {
     summary: '액세스 토큰 검증',
     description: '현재 사용하고 있는 액세스 토큰 검증'
   })
-  async verify(
-    @Req() req: Request,
-    @Res() res: Response,
-    @User() user: TokenUserInfo
-  ) {
+  async verify(@Req() req: Request, @Res() res: Response, @User() user: TokenUserInfo) {
     return res.status(HttpStatus.OK).json(user)
   }
 }

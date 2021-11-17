@@ -30,12 +30,7 @@ import {
 } from '@nestjs/swagger'
 import { Request, Response } from 'express'
 import { JwtGuard } from 'src/auth/jwt.guard'
-import {
-  EnterTeamData,
-  RequestTeamData,
-  Team,
-  UpdateTeamData
-} from 'src/entities/team'
+import { EnterTeamData, RequestTeamData, Team, UpdateTeamData } from 'src/entities/team'
 import {
   CombineUser,
   RequestTeamUserProfile,
@@ -87,10 +82,7 @@ export class TeamController {
       throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST)
 
     if (createTeam.is_private && !createTeam.password)
-      throw new HttpException(
-        '비공개 팀일시 비밀번호는 필수입니다.',
-        HttpStatus.BAD_REQUEST
-      )
+      throw new HttpException('비공개 팀일시 비밀번호는 필수입니다.', HttpStatus.BAD_REQUEST)
 
     const isExist = await this.teamService.isExistTeamName(createTeam.name)
     if (isExist) {
@@ -117,10 +109,7 @@ export class TeamController {
   @ApiBadRequestResponse({ type: HttpException })
   async searchTeam(@Param('keyword') keyword: string) {
     if (!keyword || keyword.length < 2)
-      throw new HttpException(
-        '검색 키워드가 없거나 2자 미만입니다.',
-        HttpStatus.BAD_REQUEST
-      )
+      throw new HttpException('검색 키워드가 없거나 2자 미만입니다.', HttpStatus.BAD_REQUEST)
 
     const searchResult = await this.teamService.searchTeamByKeyword(keyword)
 
@@ -163,17 +152,10 @@ export class TeamController {
     @Query('team_uuid') team_uuid: string
   ) {
     if (!user_uuid || !team_uuid)
-      throw new HttpException(
-        '유저 uuid 혹은 팀 uuid 누락',
-        HttpStatus.BAD_REQUEST
-      )
+      throw new HttpException('유저 uuid 혹은 팀 uuid 누락', HttpStatus.BAD_REQUEST)
 
-    const userProfile = await this.teamService.getTeamUserProfile(
-      user_uuid,
-      team_uuid
-    )
-    if (!userProfile)
-      throw new HttpException('존재하지 않는 유저', HttpStatus.BAD_REQUEST)
+    const userProfile = await this.teamService.getTeamUserProfile(user_uuid, team_uuid)
+    if (!userProfile) throw new HttpException('존재하지 않는 유저', HttpStatus.BAD_REQUEST)
     return userProfile
   }
 
@@ -191,10 +173,7 @@ export class TeamController {
     @Body() profile: RequestTeamUserProfile,
     @UserDecorator() user: TokenUserInfo
   ) {
-    const insertedProfile = await this.teamService.createTeamUserProfile(
-      profile,
-      user.uuid
-    )
+    const insertedProfile = await this.teamService.createTeamUserProfile(profile, user.uuid)
     return insertedProfile
   }
 
@@ -212,10 +191,7 @@ export class TeamController {
     @Body() profile: RequestTeamUserProfile,
     @UserDecorator() user: TokenUserInfo
   ) {
-    const updatedProfile = await this.teamService.updateTeamUserProfile(
-      profile,
-      user.uuid
-    )
+    const updatedProfile = await this.teamService.updateTeamUserProfile(profile, user.uuid)
 
     return updatedProfile
   }
@@ -238,10 +214,7 @@ export class TeamController {
 
     if (isPrivate) {
       if (!body.password)
-        throw new HttpException(
-          '비공개팀은 비밀번호가 필수입니다.',
-          HttpStatus.FORBIDDEN
-        )
+        throw new HttpException('비공개팀은 비밀번호가 필수입니다.', HttpStatus.FORBIDDEN)
       const correct = await this.teamService.enterPrivateTeam(
         user.uuid,
         body.team_uuid,
@@ -250,11 +223,7 @@ export class TeamController {
       if (correct) {
         // 유니크 채널 접근 권한 생성
         return true
-      } else
-        throw new HttpException(
-          '비밀번호가 틀렸습니다.',
-          HttpStatus.BAD_REQUEST
-        )
+      } else throw new HttpException('비밀번호가 틀렸습니다.', HttpStatus.BAD_REQUEST)
     } else {
       await this.teamService.enterPublicTeam(user.uuid, body.team_uuid)
       // 유니크 채널 접근 권한 생성
@@ -274,18 +243,14 @@ export class TeamController {
     @Res() res: Response,
     @UserDecorator() user: TokenUserInfo
   ) {
-    if (!uuid || !user)
-      throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST)
+    if (!uuid || !user) throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST)
 
     const isSuccess = await this.teamService.deleteTeam(uuid, user.uuid)
 
     if (isSuccess) {
       return res.status(HttpStatus.OK).send(true)
     } else {
-      throw new HttpException(
-        '팀이 존재하지 않거나 권한 없음',
-        HttpStatus.BAD_REQUEST
-      )
+      throw new HttpException('팀이 존재하지 않거나 권한 없음', HttpStatus.BAD_REQUEST)
     }
   }
 
@@ -323,14 +288,10 @@ export class TeamController {
       throw new HttpException('필수값 누락', HttpStatus.BAD_REQUEST)
     // 존재 여부
     const isExistTeam = (await this.teamService.getCountTeam(uuid)) > 0
-    if (!isExistTeam)
-      throw new HttpException('팀이 존재하지 않음', HttpStatus.BAD_REQUEST)
+    if (!isExistTeam) throw new HttpException('팀이 존재하지 않음', HttpStatus.BAD_REQUEST)
     const isOwner = await this.teamService.isOwnerOfTeam(user.uuid, uuid)
     if (!isOwner)
-      throw new HttpException(
-        '팀의 소유자만 정보를 변경할 수 있음',
-        HttpStatus.FORBIDDEN
-      )
+      throw new HttpException('팀의 소유자만 정보를 변경할 수 있음', HttpStatus.FORBIDDEN)
 
     const updatedTeam = await this.teamService.updateTeam(uuid, body)
 

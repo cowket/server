@@ -10,13 +10,7 @@ import {
   UsePipes,
   ValidationPipe
 } from '@nestjs/common'
-import {
-  ApiBearerAuth,
-  ApiOkResponse,
-  ApiOperation,
-  ApiQuery,
-  ApiTags
-} from '@nestjs/swagger'
+import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger'
 import { Request } from 'express'
 import { JwtGuard } from 'src/auth/jwt.guard'
 import { Message } from 'src/entities/message'
@@ -68,22 +62,12 @@ export class MessageController {
     type: [Message]
   })
   @UsePipes(new ValidationPipe())
-  async getDirectMessageLatest(
-    @Query() query: GetDirectMessageQuery,
-    @User() user: TokenUserInfo
-  ) {
+  async getDirectMessageLatest(@Query() query: GetDirectMessageQuery, @User() user: TokenUserInfo) {
     const { sender, receiver, team_uuid: teamUuid } = query
 
     if (user.uuid !== sender && user.uuid !== receiver)
-      throw new HttpException(
-        '조회하려는 유저의 정보가 일치하지 않습니다.',
-        HttpStatus.FORBIDDEN
-      )
+      throw new HttpException('조회하려는 유저의 정보가 일치하지 않습니다.', HttpStatus.FORBIDDEN)
 
-    return await this.messageService.fetchDirectMessageLatest(
-      sender,
-      receiver,
-      teamUuid
-    )
+    return await this.messageService.fetchDirectMessageLatest(sender, receiver, teamUuid)
   }
 }

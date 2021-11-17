@@ -27,14 +27,7 @@ export class UsersService {
   findOne(email: string): Promise<User | null> {
     return this.usersRepository.findOne({
       where: { email },
-      select: [
-        'avatar',
-        'create_date',
-        'email',
-        'password',
-        'update_date',
-        'uuid'
-      ]
+      select: ['avatar', 'create_date', 'email', 'password', 'update_date', 'uuid']
     })
   }
 
@@ -58,9 +51,7 @@ export class UsersService {
   }
 
   async cryptPassword(pw: string) {
-    const salt = await bcrypt.genSalt(
-      parseInt(this.configService.get('SE_SALT'))
-    )
+    const salt = await bcrypt.genSalt(parseInt(this.configService.get('SE_SALT')))
     const crypt = await bcrypt.hash(pw, salt)
     this.logger.log(crypt)
 
@@ -154,11 +145,12 @@ export class UsersService {
       .execute()
   }
 
-  async getUserUuidBySocketId(socketId: string) {
+  async getUserUuidBySocketId(socketId: string, all = false) {
     const user = await this.usersRepository.findOne({
       where: { socket_id: socketId }
     })
 
+    if (all) return user
     return user.uuid
   }
 

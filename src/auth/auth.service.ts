@@ -20,10 +20,7 @@ export class AuthService {
     private jwtService: JwtService
   ) {}
 
-  async validateUser(
-    email: string,
-    pw: string
-  ): Promise<TokenUserInfo | null | false> {
+  async validateUser(email: string, pw: string): Promise<TokenUserInfo | null | false> {
     try {
       const user = await this.usersService.findOne(email)
 
@@ -72,10 +69,7 @@ export class AuthService {
 
     this.logger.log(refreshToken)
 
-    return this.usersRepository.update(
-      { uuid },
-      { refresh_token: refreshToken }
-    )
+    return this.usersRepository.update({ uuid }, { refresh_token: refreshToken })
   }
 
   async getTokenUserInfoByUuid(uuid: string): Promise<TokenUserInfo> {

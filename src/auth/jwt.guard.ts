@@ -1,9 +1,4 @@
-import {
-  ExecutionContext,
-  Injectable,
-  Logger,
-  UnauthorizedException
-} from '@nestjs/common'
+import { ExecutionContext, Injectable, Logger, UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { AuthGuard } from '@nestjs/passport'
@@ -41,8 +36,7 @@ export class JwtGuard extends AuthGuard('jwt') {
       } else {
         const token = (authorization as string).split('Bearer ')[1]
         const { uuid } = this.jwtService.decode(token) as any
-        const { refresh_token: refreshToken } =
-          await this.usersService.getRefreshTokenByUuid(uuid)
+        const { refresh_token: refreshToken } = await this.usersService.getRefreshTokenByUuid(uuid)
         await this.jwtService.verifyAsync(refreshToken, {
           clockTimestamp: Math.floor(Date.now() / 1000),
           ignoreExpiration: false,

@@ -26,20 +26,22 @@ export class ReactService {
   }
 
   async createReaction(
-    message: Message,
+    message: Partial<Message>,
     reaction: string,
     user: User,
-    teamUserProfile: TeamUserProfile
+    teamUserProfile: TeamUserProfile | null
   ) {
     const savedReaction = await this.saveReactionItem(reaction)
 
-    return this.reactionRepo.insert({
+    await this.reactionRepo.insert({
       uuid: this.utilService.genUuid(),
       reaction_item: savedReaction,
-      message,
+      message: { uuid: message.uuid },
       user,
-      team_user_profile: teamUserProfile
+      team_user_profile: teamUserProfile || null
     })
+
+    return true
   }
 
   async saveReactionItem(reaction: string) {
@@ -58,13 +60,7 @@ export class ReactService {
     return this.reactionRepo.find({
       where: { message: { uuid } },
       relations: ['reaction_item', 'user', 'team_user_profile'],
-      select: [
-        'reaction_item',
-        'create_date',
-        'team_user_profile',
-        'user',
-        'uuid'
-      ]
+      select: ['reaction_item', 'create_date', 'team_user_profile', 'user', 'uuid']
     })
   }
 

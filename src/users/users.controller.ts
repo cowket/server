@@ -16,12 +16,7 @@ import {
   UsePipes,
   ValidationPipe
 } from '@nestjs/common'
-import {
-  ApiBearerAuth,
-  ApiOkResponse,
-  ApiOperation,
-  ApiTags
-} from '@nestjs/swagger'
+import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { Request, Response } from 'express'
 import { AuthService } from 'src/auth/auth.service'
 import { JwtGuard } from 'src/auth/jwt.guard'
@@ -89,10 +84,7 @@ export class UsersController {
     @Param('uuid') teamUuid: string,
     @Res() res: Response
   ) {
-    const grants = await this.usersService.findAccessibleChannels(
-      uuid,
-      teamUuid
-    )
+    const grants = await this.usersService.findAccessibleChannels(uuid, teamUuid)
 
     return res.status(200).json(grants)
   }
@@ -107,11 +99,9 @@ export class UsersController {
   @UsePipes(new ValidationPipe({ transform: true }))
   async updateUser(@Body() user: UpdateUser, @Res() res: Response) {
     const findUser = await this.usersService.findByUuid(user.uuid)
-    if (!findUser)
-      throw new HttpException('존재하지 않는 유저', HttpStatus.BAD_REQUEST)
+    if (!findUser) throw new HttpException('존재하지 않는 유저', HttpStatus.BAD_REQUEST)
     const result = await this.usersService.updateUser(user)
-    if (!result.affected)
-      throw new HttpException('SQL 에러', HttpStatus.INTERNAL_SERVER_ERROR)
+    if (!result.affected) throw new HttpException('SQL 에러', HttpStatus.INTERNAL_SERVER_ERROR)
     const updatedUser = await this.usersService.findByUuid(user.uuid)
     const token = await this.authService.genAccessToken({
       ...updatedUser

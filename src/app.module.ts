@@ -42,16 +42,7 @@ const isProd = process.env.NODE_ENV === 'production'
       password: process.env.DB_PW,
       database: process.env.DB_NAME,
       synchronize: false,
-      entities: [
-        User,
-        UserGrant,
-        Team,
-        Channel,
-        Message,
-        TeamUserProfile,
-        Reaction,
-        ReactionItem
-      ],
+      entities: [User, UserGrant, Team, Channel, Message, TeamUserProfile, Reaction, ReactionItem],
       dropSchema: false
     }),
     UsersModule,

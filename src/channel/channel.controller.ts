@@ -43,11 +43,7 @@ import { ChannelService } from './channel.service'
 import { UserGrant } from 'src/entities/user_grant'
 import { User } from 'src/users/users.decorator'
 import { TokenUserInfo } from 'src/types/user'
-import {
-  NotOwnerError,
-  NotPrivateChannelError,
-  UniqueChannelError
-} from 'src/error/error'
+import { NotOwnerError, NotPrivateChannelError, UniqueChannelError } from 'src/error/error'
 
 @ApiBearerAuth('access-token')
 @ApiTags('Channel Controller')
@@ -83,14 +79,8 @@ export class ChannelController {
       channelDto.name
     )
     if (isDuplicate)
-      throw new HttpException(
-        '중복된 채널 이름이 존재합니다.',
-        HttpStatus.BAD_REQUEST
-      )
-    const createdChannel = await this.channelService.createChannel(
-      userUuid,
-      channelDto
-    )
+      throw new HttpException('중복된 채널 이름이 존재합니다.', HttpStatus.BAD_REQUEST)
+    const createdChannel = await this.channelService.createChannel(userUuid, channelDto)
 
     return createdChannel
   }
@@ -108,18 +98,12 @@ export class ChannelController {
     @Body() channelDto: UpdateChannelDto,
     @User() user: TokenUserInfo
   ) {
-    const isOwner = await this.channelService.isChannelOwner(
-      user.uuid,
-      channelDto.channel_uuid
-    )
+    const isOwner = await this.channelService.isChannelOwner(user.uuid, channelDto.channel_uuid)
 
     if (isOwner === false)
       throw new HttpException('채널의 소유자가 아닙니다.', HttpStatus.FORBIDDEN)
     else if (isOwner === null)
-      throw new HttpException(
-        '채널이 존재하지 않습니다.',
-        HttpStatus.BAD_REQUEST
-      )
+      throw new HttpException('채널이 존재하지 않습니다.', HttpStatus.BAD_REQUEST)
 
     return await this.channelService.updateChannel(channelDto)
   }
@@ -137,33 +121,21 @@ export class ChannelController {
     @Body() channelDto: DeleteChannelDto,
     @User() user: TokenUserInfo
   ) {
-    const isOwner = await this.channelService.isChannelOwner(
-      user.uuid,
-      channelDto.channel_uuid
-    )
+    const isOwner = await this.channelService.isChannelOwner(user.uuid, channelDto.channel_uuid)
 
     if (isOwner === false)
       throw new HttpException('채널의 소유자가 아닙니다.', HttpStatus.FORBIDDEN)
     else if (isOwner === null)
-      throw new HttpException(
-        '채널이 존재하지 않습니다.',
-        HttpStatus.BAD_REQUEST
-      )
+      throw new HttpException('채널이 존재하지 않습니다.', HttpStatus.BAD_REQUEST)
     try {
       const removed = await this.channelService.deleteChannel(channelDto)
 
       return !!removed
     } catch (error) {
       if (error instanceof UniqueChannelError) {
-        throw new HttpException(
-          '기본 채널은 삭제할 수 없습니다.',
-          HttpStatus.BAD_REQUEST
-        )
+        throw new HttpException('기본 채널은 삭제할 수 없습니다.', HttpStatus.BAD_REQUEST)
       }
-      throw new HttpException(
-        '삭제에 실패했습니다.',
-        HttpStatus.INTERNAL_SERVER_ERROR
-      )
+      throw new HttpException('삭제에 실패했습니다.', HttpStatus.INTERNAL_SERVER_ERROR)
     }
   }
 
@@ -181,8 +153,7 @@ export class ChannelController {
   ) {
     const grantCheck = await this.channelService.grantCheck(user.uuid, uuid)
 
-    if (!grantCheck)
-      throw new HttpException('팀에 가입되지 않은 유저', HttpStatus.FORBIDDEN)
+    if (!grantCheck) throw new HttpException('팀에 가입되지 않은 유저', HttpStatus.FORBIDDEN)
 
     return await this.channelService.grantAllChannel(user.uuid, uuid)
   }
@@ -207,10 +178,7 @@ export class ChannelController {
   })
   @ApiOkResponse({ type: Boolean })
   @UsePipes(new ValidationPipe())
-  async enterPublicChannelCtrl(
-    @Body() dto: EnterPublicChannelDto,
-    @User() user: TokenUserInfo
-  ) {
+  async enterPublicChannelCtrl(@Body() dto: EnterPublicChannelDto, @User() user: TokenUserInfo) {
     const result = await this.channelService.enterPublicChannel(
       user,
       dto.team_uuid,
@@ -230,8 +198,7 @@ export class ChannelController {
   @Post('invite')
   @ApiOperation({
     summary: '비공개 채널 참여자 추가',
-    description:
-      '비공개 채널에 참여자를 추가합니다. 채널의 소유자만 참여자를 추가할 수 있습니다.'
+    description: '비공개 채널에 참여자를 추가합니다. 채널의 소유자만 참여자를 추가할 수 있습니다.'
   })
   @ApiOkResponse({ type: Boolean })
   @UsePipes(new ValidationPipe())
@@ -249,15 +216,9 @@ export class ChannelController {
       return isSuccess
     } catch (error) {
       if (error instanceof NotOwnerError) {
-        throw new HttpException(
-          '채널의 소유자만 참여시킬 수 있습니다.',
-          HttpStatus.FORBIDDEN
-        )
+        throw new HttpException('채널의 소유자만 참여시킬 수 있습니다.', HttpStatus.FORBIDDEN)
       } else if (error instanceof NotPrivateChannelError) {
-        throw new HttpException(
-          '비공개 채널이 아닙니다.',
-          HttpStatus.BAD_REQUEST
-        )
+        throw new HttpException('비공개 채널이 아닙니다.', HttpStatus.BAD_REQUEST)
       }
     }
   }
@@ -272,26 +233,14 @@ export class ChannelController {
     type: [EntityUser]
   })
   @UsePipes(new ValidationPipe({ transform: true }))
-  async getInvitableUsersCtrl(
-    @Query() query: InvitableUserQuery,
-    @User() user: TokenUserInfo
-  ) {
+  async getInvitableUsersCtrl(@Query() query: InvitableUserQuery, @User() user: TokenUserInfo) {
     const { channel_uuid, team_uuid } = query
-    const isOwner = await this.channelService.isChannelOwner(
-      user.uuid,
-      channel_uuid
-    )
+    const isOwner = await this.channelService.isChannelOwner(user.uuid, channel_uuid)
 
     if (!isOwner)
-      throw new HttpException(
-        '채널의 소유자만 조회할 수 있습니다.',
-        HttpStatus.FORBIDDEN
-      )
+      throw new HttpException('채널의 소유자만 조회할 수 있습니다.', HttpStatus.FORBIDDEN)
 
-    return await this.channelService.getInvitableUserList(
-      channel_uuid,
-      team_uuid
-    )
+    return await this.channelService.getInvitableUserList(channel_uuid, team_uuid)
   }
 
   // @Get('search')

@@ -1,18 +1,9 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import {
-  Channel,
-  CreateChannelDto,
-  UpdateChannelDto,
-  DeleteChannelDto
-} from 'src/entities/channel'
+import { Channel, CreateChannelDto, UpdateChannelDto, DeleteChannelDto } from 'src/entities/channel'
 import { TeamUserProfile } from 'src/entities/team_user_profile'
 import { UserGrant } from 'src/entities/user_grant'
-import {
-  NotOwnerError,
-  NotPrivateChannelError,
-  UniqueChannelError
-} from 'src/error/error'
+import { NotOwnerError, NotPrivateChannelError, UniqueChannelError } from 'src/error/error'
 import { TeamService } from 'src/team/team.service'
 import { UtilService } from 'src/util/util.service'
 import { Repository } from 'typeorm'
@@ -138,16 +129,8 @@ export class ChannelService {
     return channel
   }
 
-  async createGrantChannel(
-    userUuid: string,
-    teamUuid: string,
-    channelUuid: string
-  ) {
-    const tup = await this.teamService.getTeamUserProfile(
-      userUuid,
-      teamUuid,
-      true
-    )
+  async createGrantChannel(userUuid: string, teamUuid: string, channelUuid: string) {
+    const tup = await this.teamService.getTeamUserProfile(userUuid, teamUuid, true)
 
     this.messageService.pushMessage(
       {
@@ -302,20 +285,11 @@ export class ChannelService {
     return members
   }
 
-  async invitePrivateChannel(
-    userUuids: string[],
-    channelUuid: string,
-    teamUuid: string
-  ) {
-    const teamUserProfiles = await this.teamService.getAllTeamUserProfile(
-      userUuids,
-      teamUuid
-    )
+  async invitePrivateChannel(userUuids: string[], channelUuid: string, teamUuid: string) {
+    const teamUserProfiles = await this.teamService.getAllTeamUserProfile(userUuids, teamUuid)
 
     const insertArr = userUuids.map((userUuid) => {
-      const tup = teamUserProfiles.find(
-        (t) => (t.user_uuid as unknown) === userUuid
-      )
+      const tup = teamUserProfiles.find((t) => (t.user_uuid as unknown) === userUuid)
 
       const obj = {
         userUuid,
@@ -372,11 +346,7 @@ export class ChannelService {
       .execute()
   }
 
-  async isDuplicateGrantChannel(
-    userUuid: string,
-    teamUuid: string,
-    channelUuid: string
-  ) {
+  async isDuplicateGrantChannel(userUuid: string, teamUuid: string, channelUuid: string) {
     const [, count] = await this.userGrantRepo.findAndCount({
       where: {
         channel_uuid: channelUuid,
@@ -388,16 +358,8 @@ export class ChannelService {
     return count > 0
   }
 
-  async enterPublicChannel(
-    user: TokenUserInfo,
-    teamUuid: string,
-    channelUuid: string
-  ) {
-    const isDuplicate = await this.isDuplicateGrantChannel(
-      user.uuid,
-      teamUuid,
-      channelUuid
-    )
+  async enterPublicChannel(user: TokenUserInfo, teamUuid: string, channelUuid: string) {
+    const isDuplicate = await this.isDuplicateGrantChannel(user.uuid, teamUuid, channelUuid)
 
     if (isDuplicate) {
       return null
