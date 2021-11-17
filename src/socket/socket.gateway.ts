@@ -16,6 +16,8 @@ import {
   SocketPushMessageDto
 } from 'src/message/message.dto'
 import { MessageService } from 'src/message/message.service'
+import { CreateReactionDto } from 'src/react/react.dto'
+import { ReactService } from 'src/react/react.service'
 import { UsersService } from 'src/users/users.service'
 import { WsExceptionFilter } from './socket.filter'
 import { SocketService } from './socket.service'
@@ -43,7 +45,8 @@ export class SocketGateway
   constructor(
     private messageService: MessageService,
     private socketService: SocketService,
-    private userService: UsersService
+    private userService: UsersService,
+    private reactService: ReactService
   ) {}
 
   afterInit(server: Server) {
@@ -146,4 +149,11 @@ export class SocketGateway
         message_uuid: data.message_uuid
       })
   }
+
+  @SubscribeMessage(getSocketEvent('REACTION_MESSAGE'))
+  @UsePipes(new ValidationPipe())
+  async handleReaction(
+    @MessageBody() data: CreateReactionDto,
+    @ConnectedSocket() client: Socket
+  ) {}
 }
