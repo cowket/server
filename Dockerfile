@@ -5,6 +5,7 @@ WORKDIR /app
 COPY package.json .
 COPY ./dist/main.js .
 
+RUN npm ci
 RUN npm i -g pm2
 
 EXPOSE 4000
