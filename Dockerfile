@@ -4,7 +4,7 @@ WORKDIR /app
 COPY package*.json ./
 
 RUN npm i -g npm@7.22.0
-RUN npm i
+RUN npm ci
 RUN npm i -g pm2
 
 COPY . .
