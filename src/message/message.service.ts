@@ -62,6 +62,9 @@ export class MessageService {
       .leftJoinAndSelect('message.sender', 'users')
       .leftJoinAndSelect('message.sender_team_user_profile', 'team_user_profile')
       .leftJoinAndSelect('message.reactions', 'reactions', 'reactions.message = message.uuid')
+      .leftJoinAndSelect('reactions.reaction_item', 'reaction_item')
+      .leftJoinAndSelect('reactions.user', 'reaction_user')
+      .leftJoinAndSelect('reactions.team_user_profile', 'reaction_user_profile')
       .where('message.uuid = :uuid', { uuid })
       .getOne()
 
@@ -105,6 +108,14 @@ export class MessageService {
       .leftJoinAndSelect('direct_message.receiver', 'receiver')
       .leftJoinAndSelect('direct_message.sender_team_user_profile', 'senderTup')
       .leftJoinAndSelect('direct_message.receiver_team_user_profile', 'receiverTup')
+      .leftJoinAndSelect(
+        'direct_message.reactions',
+        'reactions',
+        'reactions.direct_message = direct_message.uuid'
+      )
+      .leftJoinAndSelect('reactions.reaction_item', 'reaction_item')
+      .leftJoinAndSelect('reactions.user', 'reaction_user')
+      .leftJoinAndSelect('reactions.team_user_profile', 'reaction_user_profile')
       .where('direct_message.uuid = :uuid', { uuid })
       .getOne()
 
@@ -119,6 +130,10 @@ export class MessageService {
       .leftJoinAndSelect('dm.receiver', 'receiver')
       .leftJoinAndSelect('dm.sender_team_user_profile', 'senderTup')
       .leftJoinAndSelect('dm.receiver_team_user_profile', 'receiverTup')
+      .leftJoinAndSelect('dm.reactions', 'reactions', 'reactions.dm = dm.uuid')
+      .leftJoinAndSelect('reactions.reaction_item', 'reaction_item')
+      .leftJoinAndSelect('reactions.user', 'reaction_user')
+      .leftJoinAndSelect('reactions.team_user_profile', 'reaction_user_profile')
       .orderBy('dm.create_date', 'DESC')
       .where('team.uuid = :teamUuid', { teamUuid })
       .andWhere(':sender IN (sender, receiver)', { sender })
@@ -135,7 +150,10 @@ export class MessageService {
       .leftJoinAndSelect('message.channel', 'channel')
       .leftJoinAndSelect('message.sender', 'users')
       .leftJoinAndSelect('message.sender_team_user_profile', 'team_user_profile')
-      .leftJoinAndSelect('message.reactions', 'reaction', 'reaction.message = message.uuid')
+      .leftJoinAndSelect('message.reactions', 'reactions', 'reactions.message = message.uuid')
+      .leftJoinAndSelect('reactions.reaction_item', 'reaction_item')
+      .leftJoinAndSelect('reactions.user', 'reaction_user')
+      .leftJoinAndSelect('reactions.team_user_profile', 'reaction_user_profile')
       .orderBy('message.create_date', 'DESC')
       .where(`message.channel = '${channelUuid}'`)
       .limit(10)
@@ -149,6 +167,10 @@ export class MessageService {
       .leftJoinAndSelect('message.channel', 'channel')
       .leftJoinAndSelect('message.sender', 'users')
       .leftJoinAndSelect('message.sender_team_user_profile', 'team_user_profile')
+      .leftJoinAndSelect('message.reactions', 'reactions', 'reactions.message = message.uuid')
+      .leftJoinAndSelect('reactions.reaction_item', 'reaction_item')
+      .leftJoinAndSelect('reactions.user', 'reaction_user')
+      .leftJoinAndSelect('reactions.team_user_profile', 'reaction_user_profile')
       .orderBy('message.create_date', 'DESC')
       .where('message.team = :teamUuid', {
         teamUuid: data.topMessage.team.uuid
@@ -234,6 +256,9 @@ export class MessageService {
       .leftJoinAndSelect('message.sender', 'users')
       .leftJoinAndSelect('message.sender_team_user_profile', 'team_user_profile')
       .leftJoinAndSelect('message.reactions', 'reactions', 'reactions.message = message.uuid')
+      .leftJoinAndSelect('reactions.reaction_item', 'reaction_item')
+      .leftJoinAndSelect('reactions.user', 'reaction_user')
+      .leftJoinAndSelect('reactions.team_user_profile', 'reaction_user_profile')
       .where('message.uuid = :uuid', { uuid })
       .getOne()
   }

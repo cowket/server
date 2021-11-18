@@ -145,12 +145,11 @@ export class UsersService {
       .execute()
   }
 
-  async getUserUuidBySocketId(socketId: string, all = false) {
+  async getUserUuidBySocketId(socketId: string) {
     const user = await this.usersRepository.findOne({
       where: { socket_id: socketId }
     })
 
-    if (all) return user
     return user.uuid
   }
 

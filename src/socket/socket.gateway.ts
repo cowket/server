@@ -11,7 +11,6 @@ import {
 } from '@nestjs/websockets'
 import { Server, Socket } from 'socket.io'
 import { TeamUserProfile } from 'src/entities/team_user_profile'
-import { User } from 'src/entities/user'
 import {
   LoadMessageDto,
   RequestDirectMessageDto,
@@ -139,13 +138,13 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
   @UsePipes(new ValidationPipe())
   async handleReaction(@MessageBody() data: CreateReactionDto, @ConnectedSocket() client: Socket) {
     try {
-      const user = (await this.userService.getUserUuidBySocketId(client.id, true)) as User
+      const user = await this.userService.getUserUuidBySocketId(client.id)
       const tup = (await this.teamService.getTeamUserProfile(
-        user.uuid,
+        user,
         data.team_uuid,
         true
       )) as TeamUserProfile | null
-      await this.reactService.createReaction({ uuid: data.message_uuid }, data.reaction, user, tup)
+      await this.reactService.createReaction(data.message_uuid, data.reaction, user, tup)
       const message = await this.messageService.getMessageByUuid(data.message_uuid)
       return this.server
         .to(data.channel_uuid)

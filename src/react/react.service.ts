@@ -1,10 +1,8 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Message } from 'src/entities/message'
 import { Reaction } from 'src/entities/reaction'
 import { ReactionItem } from 'src/entities/reaction_item'
 import { TeamUserProfile } from 'src/entities/team_user_profile'
-import { User } from 'src/entities/user'
 import { UtilService } from 'src/util/util.service'
 import { Repository } from 'typeorm'
 
@@ -26,18 +24,29 @@ export class ReactService {
   }
 
   async createReaction(
-    message: Partial<Message>,
+    messageUuid: string,
     reaction: string,
-    user: User,
+    userUuid: string,
     teamUserProfile: TeamUserProfile | null
   ) {
     const savedReaction = await this.saveReactionItem(reaction)
 
+    // 리액션이 이미 있으면 삭제
+    const exist = await this.reactionRepo.findOne({
+      where: { message: { uuid: messageUuid }, user: { uuid: userUuid } }
+    })
+
+    if (exist) {
+      await this.reactionRepo.delete({ uuid: exist.uuid })
+
+      return true
+    }
+
     await this.reactionRepo.insert({
       uuid: this.utilService.genUuid(),
       reaction_item: savedReaction,
-      message: { uuid: message.uuid },
-      user,
+      message: { uuid: messageUuid },
+      user: { uuid: userUuid },
       team_user_profile: teamUserProfile || null
     })
 
