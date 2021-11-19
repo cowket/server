@@ -14,7 +14,8 @@ import { TeamUserProfile } from 'src/entities/team_user_profile'
 import {
   LoadMessageDto,
   RequestDirectMessageDto,
-  SocketPushMessageDto
+  SocketPushMessageDto,
+  UpdateMessageDto
 } from 'src/message/message.dto'
 import { MessageService } from 'src/message/message.service'
 import { CreateReactionDto } from 'src/react/react.dto'
@@ -149,6 +150,18 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
       return this.server
         .to(data.channel_uuid)
         .emit(getSocketEvent('UPDATED_REACTION_MESSAGE'), message)
+    } catch (error) {
+      client.emit('errorPacket', error)
+    }
+  }
+
+  @SubscribeMessage(getSocketEvent('UPDATE_MESSAGE'))
+  @UsePipes(new ValidationPipe())
+  async handleUpdateMessage(
+    @MessageBody() data: UpdateMessageDto,
+    @ConnectedSocket() client: Socket
+  ) {
+    try {
     } catch (error) {
       client.emit('errorPacket', error)
     }

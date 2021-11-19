@@ -78,3 +78,11 @@ export class DeleteMessageDto {
   @IsString()
   channel_uuid: string
 }
+
+export class UpdateMessageDto {
+  @IsString()
+  message_uuid: string
+
+  @IsString()
+  content: string
+}

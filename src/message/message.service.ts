@@ -6,7 +6,13 @@ import { TeamUserProfile } from 'src/entities/team_user_profile'
 import { ReactService } from 'src/react/react.service'
 import { UtilService } from 'src/util/util.service'
 import { Repository } from 'typeorm'
-import { LoadMessageDto, MessageType, PushMessageDto, RequestDirectMessageDto } from './message.dto'
+import {
+  LoadMessageDto,
+  MessageType,
+  PushMessageDto,
+  RequestDirectMessageDto,
+  UpdateMessageDto
+} from './message.dto'
 
 type UpdateTupRequest = {
   teamUuid: string
@@ -278,5 +284,9 @@ export class MessageService {
       where: { sender: { uuid: userUuid }, uuid: messageUuid }
     })
     return !!message
+  }
+
+  async updateMessage(dto: UpdateMessageDto) {
+    return this.messageRepo.save({ uuid: dto.message_uuid, content: dto.content })
   }
 }
