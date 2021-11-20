@@ -11,7 +11,6 @@ import { FileModule } from './file/file.module'
 import { JwtModule } from '@nestjs/jwt'
 import { ChannelModule } from './channel/channel.module'
 import { GrantModule } from './grant/grant.module'
-import { TaskService } from './task/task.service'
 import { ScheduleModule } from '@nestjs/schedule'
 
 // entities
@@ -71,7 +70,7 @@ const isProd = process.env.NODE_ENV === 'production'
     ScheduleModule.forRoot(),
     ReactModule
   ],
-  providers: [JwtModule, TaskService],
+  providers: [JwtModule],
   exports: [JwtModule]
 })
 export class AppModule {}
