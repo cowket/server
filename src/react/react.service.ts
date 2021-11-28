@@ -37,7 +37,12 @@ export class ReactService {
     })
 
     if (exist) {
-      await this.reactionRepo.delete({ uuid: exist.uuid })
+      await this.reactionRepo.delete({
+        uuid: exist.uuid,
+        reaction_item: { content: reaction },
+        message: { uuid: messageUuid },
+        user: { uuid: userUuid }
+      })
 
       return true
     }
