@@ -33,16 +33,15 @@ export class ReactService {
 
     // 리액션이 이미 있으면 삭제
     const exist = await this.reactionRepo.findOne({
-      where: { message: { uuid: messageUuid }, user: { uuid: userUuid } }
+      where: {
+        message: { uuid: messageUuid },
+        user: { uuid: userUuid },
+        reaction_item: { content: reaction }
+      }
     })
 
     if (exist) {
-      await this.reactionRepo.delete({
-        uuid: exist.uuid,
-        reaction_item: { content: reaction },
-        message: { uuid: messageUuid },
-        user: { uuid: userUuid }
-      })
+      await this.reactionRepo.delete({ uuid: exist.uuid })
 
       return true
     }
