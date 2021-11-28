@@ -151,6 +151,7 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
         .to(data.channel_uuid)
         .emit(getSocketEvent('UPDATED_REACTION_MESSAGE'), message)
     } catch (error) {
+      console.log(error)
       client.emit('errorPacket', error)
     }
   }
