@@ -33,6 +33,7 @@ export class ReactService {
 
     // 리액션이 이미 있으면 삭제
     const exist = await this.reactionRepo.findOne({
+      relations: ['reaction_item', 'message', 'users'],
       where: {
         message: { uuid: messageUuid },
         user: { uuid: userUuid },
