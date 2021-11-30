@@ -23,6 +23,7 @@ import { TeamUserProfile } from './entities/team_user_profile'
 import { Reaction } from './entities/reaction'
 import { ReactionItem } from './entities/reaction_item'
 import { ReactModule } from './react/react.module'
+import { AlertModule } from './alert/alert.module'
 
 const isProd = process.env.NODE_ENV === 'production'
 
@@ -68,7 +69,8 @@ const isProd = process.env.NODE_ENV === 'production'
     ChannelModule,
     GrantModule,
     ScheduleModule.forRoot(),
-    ReactModule
+    ReactModule,
+    AlertModule
   ],
   providers: [JwtModule],
   exports: [JwtModule]
