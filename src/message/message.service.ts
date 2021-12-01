@@ -117,7 +117,7 @@ export class MessageService {
       .leftJoinAndSelect(
         'direct_message.reactions',
         'reactions',
-        'reactions.direct_message = direct_message.uuid'
+        'reactions.message = direct_message.uuid'
       )
       .leftJoinAndSelect('reactions.reaction_item', 'reaction_item')
       .leftJoinAndSelect('reactions.user', 'reaction_user')

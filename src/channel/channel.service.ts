@@ -221,6 +221,7 @@ export class ChannelService {
     const team = await this.teamService.getTeamByUuid(teamUuid)
 
     return this.channelRepo.findOne({
+      relations: ['team'],
       where: { team, unique: true }
     })
   }

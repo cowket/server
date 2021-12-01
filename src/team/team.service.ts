@@ -57,11 +57,15 @@ export class TeamService {
   }
 
   async getTeamByUuid(uuid: string): Promise<Team> {
-    return this.teamRepository
-      .createQueryBuilder('team')
-      .leftJoinAndSelect('team.owner', 'users')
-      .where('team.uuid = :uuid', { uuid })
-      .getOne()
+    // return this.teamRepository
+    //   .createQueryBuilder('team')
+    //   .leftJoinAndSelect('team.owner', 'users')
+    //   .where('team.uuid = :uuid', { uuid })
+    //   .getOne()
+    return this.teamRepository.findOne({
+      relations: ['user'],
+      where: { uuid }
+    })
   }
 
   async getAllTeamsByUser(uuid: string): Promise<Team[]> {
