@@ -146,8 +146,6 @@ export class ChannelService {
     const team = await this.teamService.getTeamByUuid(teamUuid)
     const user = await this.userService.findByUuid(userUuid)
 
-    console.log(user)
-
     return this.userGrantRepo.insert({
       channel_uuid: channel,
       team_uuid: team,

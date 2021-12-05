@@ -63,7 +63,7 @@ export class TeamService {
     //   .where('team.uuid = :uuid', { uuid })
     //   .getOne()
     return this.teamRepository.findOne({
-      relations: ['user'],
+      relations: ['owner'],
       where: { uuid }
     })
   }
