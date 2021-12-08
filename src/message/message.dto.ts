@@ -34,16 +34,21 @@ export class GetMessageQuery {
   @Min(10)
   @Max(100)
   count = 10
-}
-
-export class GetDirectMessageQuery {
-  @IsString()
-  sender: string
 
   @IsString()
-  receiver: string
+  @IsOptional()
+  message_type: 'message' | 'direct_message' = 'message'
 
   @IsString()
+  @IsOptional()
+  sender_uuid: string
+
+  @IsString()
+  @IsOptional()
+  receiver_uuid: string
+
+  @IsString()
+  @IsOptional()
   team_uuid: string
 }
 

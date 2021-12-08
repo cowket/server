@@ -7,6 +7,7 @@ import { ReactService } from 'src/react/react.service'
 import { UtilService } from 'src/util/util.service'
 import { Repository } from 'typeorm'
 import {
+  GetMessageQuery,
   LoadMessageDto,
   MessageType,
   PushMessageDto,
@@ -128,41 +129,35 @@ export class MessageService {
     return directMessage
   }
 
-  async fetchDirectMessageLatest(sender: string, receiver: string, teamUuid: string) {
-    return this.messageRepo
-      .createQueryBuilder('dm')
-      .leftJoinAndSelect('dm.team', 'team')
-      .leftJoinAndSelect('dm.sender', 'sender')
-      .leftJoinAndSelect('dm.receiver', 'receiver')
-      .leftJoinAndSelect('dm.sender_team_user_profile', 'senderTup')
-      .leftJoinAndSelect('dm.receiver_team_user_profile', 'receiverTup')
-      .leftJoinAndSelect('dm.reactions', 'reactions', 'reactions.dm = dm.uuid')
-      .leftJoinAndSelect('reactions.reaction_item', 'reaction_item')
-      .leftJoinAndSelect('reactions.user', 'reaction_user')
-      .leftJoinAndSelect('reactions.team_user_profile', 'reaction_user_profile')
-      .orderBy('dm.create_date', 'DESC')
-      .where('team.uuid = :teamUuid', { teamUuid })
-      .andWhere(':sender IN (sender, receiver)', { sender })
-      .andWhere(':receiver IN (sender, receiver)', { receiver })
-      .limit(10)
-      .printSql()
-      .getMany()
-  }
-
-  async fetchMessageLatest(channelUuid: string, count: number) {
+  async fetchMessageLatest(messageQuery: GetMessageQuery) {
     return this.messageRepo
       .createQueryBuilder('message')
       .leftJoinAndSelect('message.team', 'team')
       .leftJoinAndSelect('message.channel', 'channel')
-      .leftJoinAndSelect('message.sender', 'users')
-      .leftJoinAndSelect('message.sender_team_user_profile', 'team_user_profile')
+      .leftJoinAndSelect('message.sender', 'sender')
+      .leftJoinAndSelect('message.sender_team_user_profile', 'sender_team_user_profile')
       .leftJoinAndSelect('message.reactions', 'reactions', 'reactions.message = message.uuid')
+      .leftJoinAndSelect('message.receiver', 'receiver')
+      .leftJoinAndSelect('message.receiver_team_user_profile', 'receiver_team_user_profile')
       .leftJoinAndSelect('reactions.reaction_item', 'reaction_item')
       .leftJoinAndSelect('reactions.user', 'reaction_user')
       .leftJoinAndSelect('reactions.team_user_profile', 'reaction_user_profile')
       .orderBy('message.create_date', 'DESC')
-      .where(`message.channel = '${channelUuid}'`)
-      .limit(count)
+      .where(
+        messageQuery.message_type === 'message'
+          ? `channel.uuid = '${messageQuery.channel_uuid}'`
+          : `team.uuid = '${messageQuery.team_uuid}'`
+      )
+      .andWhere(
+        messageQuery.message_type === 'message'
+          ? `message.receiver IS NULL`
+          : `message.receiver IS NOT NULL AND receiver.uuid = :receiver AND sender.uuid = :sender`,
+        {
+          receiver: messageQuery.receiver_uuid,
+          sender: messageQuery.sender_uuid
+        }
+      )
+      .limit(messageQuery.count)
       .getMany()
   }
 
