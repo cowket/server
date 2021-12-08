@@ -37,6 +37,7 @@
     "@nestjs/typeorm": "^8.0.2",
     "@nestjs/websockets": "^8.0.6",
     "bcryptjs": "^2.4.3",
+    "class-transformer": "^0.4.0",
     "class-validator": "^0.13.1",
     "jdenticon": "^3.1.1",
     "mysql2": "^2.3.0",

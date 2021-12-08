@@ -5,13 +5,11 @@ import {
   HttpStatus,
   Param,
   Query,
-  Req,
   UseGuards,
   UsePipes,
   ValidationPipe
 } from '@nestjs/common'
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger'
-import { Request } from 'express'
 import { JwtGuard } from 'src/auth/jwt.guard'
 import { Message } from 'src/entities/message'
 import { TokenUserInfo } from 'src/types/user'
@@ -28,9 +26,9 @@ export class MessageController {
 
   @Get()
   @ApiOperation({
-    summary: '채널의 최근 메세지 10개를 조회',
+    summary: '채널의 최근 메세지 조회',
     description:
-      '채널의 최근 메세지를 10개 조회합니다. 채널 입장시 해당 API를 사용해서 메세지를 조회하면 됩니다.'
+      '채널의 최근 메세지를 조회합니다. 채널 입장시 해당 API를 사용해서 메세지를 조회하면 됩니다.'
   })
   @ApiOkResponse({
     type: [Message]
@@ -39,10 +37,15 @@ export class MessageController {
     name: 'channel_uuid',
     required: false
   })
-  @UsePipes(new ValidationPipe())
-  async getMessageLatest(@Req() req: Request, @Query() query: GetMessageQuery) {
-    const { channel_uuid: channelUuid } = query
-    return await this.messageService.fetchMessageLatest(channelUuid)
+  @ApiQuery({
+    name: 'count',
+    required: false,
+    description: '가져올 메세지 갯수를 지정합니다. 기본 값은 10입니다.'
+  })
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async getMessageLatest(@Query() query: GetMessageQuery) {
+    const { channel_uuid: channelUuid, count } = query
+    return await this.messageService.fetchMessageLatest(channelUuid, count)
   }
 
   @Get(':uuid')

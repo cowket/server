@@ -149,7 +149,7 @@ export class MessageService {
       .getMany()
   }
 
-  async fetchMessageLatest(channelUuid: string) {
+  async fetchMessageLatest(channelUuid: string, count: number) {
     return this.messageRepo
       .createQueryBuilder('message')
       .leftJoinAndSelect('message.team', 'team')
@@ -162,7 +162,7 @@ export class MessageService {
       .leftJoinAndSelect('reactions.team_user_profile', 'reaction_user_profile')
       .orderBy('message.create_date', 'DESC')
       .where(`message.channel = '${channelUuid}'`)
-      .limit(10)
+      .limit(count)
       .getMany()
   }
 

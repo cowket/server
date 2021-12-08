@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsObject, IsString, Length } from 'class-validator'
+import { IsNumber, IsObject, IsOptional, IsString, Length, Max, Min } from 'class-validator'
 import { Message } from 'src/entities/message'
+import { Type } from 'class-transformer'
 
 export class RequestDirectMessageDto {
   @ApiProperty({ description: '메세지 내용 (HTML)' })
@@ -26,6 +27,13 @@ export type MessageType = 'user' | 'system'
 export class GetMessageQuery {
   @IsString()
   channel_uuid: string
+
+  @IsNumber()
+  @IsOptional()
+  @Type(() => Number)
+  @Min(10)
+  @Max(100)
+  count = 10
 }
 
 export class GetDirectMessageQuery {
