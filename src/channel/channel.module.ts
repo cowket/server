@@ -7,14 +7,14 @@ import { ChannelController } from './channel.controller'
 import { ChannelService } from './channel.service'
 import { TeamModule } from 'src/team/team.module'
 import { MessageModule } from 'src/message/message.module'
-import { UsersModule } from 'src/users/users.module'
+import { UserModule } from 'src/user/user.module'
 
 @Module({
   imports: [
     UtilModule,
     TypeOrmModule.forFeature([UserGrant, Channel]),
     forwardRef(() => TeamModule),
-    forwardRef(() => UsersModule),
+    forwardRef(() => UserModule),
     MessageModule
   ],
   controllers: [ChannelController],

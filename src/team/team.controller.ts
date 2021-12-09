@@ -38,10 +38,10 @@ import {
 } from 'src/entities/team_user_profile'
 import { User } from 'src/entities/user'
 import { TokenUserInfo } from 'src/types/user'
-import { UsersService } from 'src/users/users.service'
+import { UserService } from 'src/user/user.service'
 import { UtilService } from 'src/util/util.service'
 import { TeamService } from './team.service'
-import { User as UserDecorator } from 'src/users/users.decorator'
+import { User as UserDecorator } from 'src/user/user.decorator'
 
 @ApiBearerAuth('access-token')
 @ApiTags('Team Controller')
@@ -50,8 +50,8 @@ export class TeamController {
   constructor(
     private teamService: TeamService,
     private utilService: UtilService,
-    @Inject(forwardRef(() => UsersService))
-    private userService: UsersService
+    @Inject(forwardRef(() => UserService))
+    private userService: UserService
   ) {}
 
   @UseGuards(JwtGuard)

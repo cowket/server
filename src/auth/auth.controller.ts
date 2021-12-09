@@ -13,8 +13,8 @@ import {
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { Request, Response } from 'express'
 import { TokenUserInfo } from 'src/types/user'
-import { User } from 'src/users/users.decorator'
-import { UsersService } from 'src/users/users.service'
+import { User } from 'src/user/user.decorator'
+import { UserService } from 'src/user/user.service'
 import { AuthService } from './auth.service'
 import { JwtGuard } from './jwt.guard'
 
@@ -29,7 +29,7 @@ export type SimpleUserInfo = {
 export class AuthController {
   private logger: Logger = new Logger('AuthController')
 
-  constructor(private usersService: UsersService, private authService: AuthService) {}
+  constructor(private userService: UserService, private authService: AuthService) {}
 
   // @UseGuards(AuthGuard('local'))
   @Post('login')
@@ -81,21 +81,21 @@ export class AuthController {
       })
     }
 
-    if (!this.usersService.validateEmail(email)) {
+    if (!this.userService.validateEmail(email)) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         message: 'Unsupported email format'
       })
-    } else if (!this.usersService.validatePw(pw)) {
+    } else if (!this.userService.validatePw(pw)) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         message: 'Unsupported password format'
       })
     }
 
-    const user = await this.usersService.findOne(email)
+    const user = await this.userService.findOne(email)
 
     if (!user) {
-      const cryptPw = await this.usersService.cryptPassword(pw)
-      const createdUser = await this.usersService.createUser(email, cryptPw)
+      const cryptPw = await this.userService.cryptPassword(pw)
+      const createdUser = await this.userService.createUser(email, cryptPw)
       await this.authService.updateUserRefreshToken(createdUser.generatedMaps[0].uuid)
       return res.status(HttpStatus.CREATED).json({
         success: true,

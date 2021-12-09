@@ -8,7 +8,7 @@ import { User } from 'src/entities/user'
 import { UserGrant } from 'src/entities/user_grant'
 import { GrantModule } from 'src/grant/grant.module'
 import { MessageModule } from 'src/message/message.module'
-import { UsersModule } from 'src/users/users.module'
+import { UserModule } from 'src/user/user.module'
 import { UtilModule } from 'src/util/util.module'
 import { TeamController } from './team.controller'
 import { TeamService } from './team.service'
@@ -17,7 +17,7 @@ import { TeamService } from './team.service'
   imports: [
     TypeOrmModule.forFeature([Team, TeamUserProfile, UserGrant, User]),
     UtilModule,
-    forwardRef(() => UsersModule),
+    forwardRef(() => UserModule),
     ConfigModule,
     forwardRef(() => ChannelModule),
     MessageModule,

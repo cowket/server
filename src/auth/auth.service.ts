@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { User } from 'src/entities/user'
-import { UsersService } from 'src/users/users.service'
+import { UserService } from 'src/user/user.service'
 import * as bcrypt from 'bcryptjs'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
@@ -16,13 +16,13 @@ export class AuthService {
     private configService: ConfigService,
     @InjectRepository(User)
     private usersRepository: Repository<User>,
-    private usersService: UsersService,
+    private userService: UserService,
     private jwtService: JwtService
   ) {}
 
   async validateUser(email: string, pw: string): Promise<TokenUserInfo | null | false> {
     try {
-      const user = await this.usersService.findOne(email)
+      const user = await this.userService.findOne(email)
 
       if (!user) return null
 

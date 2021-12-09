@@ -41,7 +41,7 @@ import {
 import { User as EntityUser } from 'src/entities/user'
 import { ChannelService } from './channel.service'
 import { UserGrant } from 'src/entities/user_grant'
-import { User } from 'src/users/users.decorator'
+import { User } from 'src/user/user.decorator'
 import { TokenUserInfo } from 'src/types/user'
 import { NotOwnerError, NotPrivateChannelError, UniqueChannelError } from 'src/error/error'
 

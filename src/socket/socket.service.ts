@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { WebSocketServer } from '@nestjs/websockets'
 import { Server } from 'socket.io'
-import { UsersService } from 'src/users/users.service'
+import { UserService } from 'src/user/user.service'
 
 @Injectable()
 export class SocketService {
@@ -9,7 +9,7 @@ export class SocketService {
   private logger = new Logger(SocketService.name)
   private _server: Server
 
-  constructor(private userService: UsersService) {}
+  constructor(private userService: UserService) {}
 
   setSocketServer(_server: Server) {
     this._server = _server

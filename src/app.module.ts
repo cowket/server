@@ -4,7 +4,7 @@ import { Global, Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { AuthModule } from './auth/auth.module'
-import { UsersModule } from './users/users.module'
+import { UserModule } from './user/user.module'
 import { SocketModule } from './socket/socket.module'
 import { TeamModule } from './team/team.module'
 import { FileModule } from './file/file.module'
@@ -45,7 +45,7 @@ const isProd = process.env.NODE_ENV === 'production'
       entities: [User, UserGrant, Team, Channel, Message, TeamUserProfile, Reaction, ReactionItem],
       dropSchema: false
     }),
-    UsersModule,
+    UserModule,
     TeamModule,
     AuthModule,
     SocketModule,

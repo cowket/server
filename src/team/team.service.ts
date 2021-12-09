@@ -7,7 +7,7 @@ import {
   TeamUserProfile
 } from 'src/entities/team_user_profile'
 import { UserGrant } from 'src/entities/user_grant'
-import { UsersService } from 'src/users/users.service'
+import { UserService } from 'src/user/user.service'
 import { UtilService } from 'src/util/util.service'
 import { In, Repository } from 'typeorm'
 import * as bcrypt from 'bcryptjs'
@@ -25,7 +25,7 @@ export class TeamService {
     private teamUserProfileRepo: Repository<TeamUserProfile>,
     @InjectRepository(UserGrant)
     private userGrantRepo: Repository<UserGrant>,
-    private usersService: UsersService,
+    private userService: UserService,
     private utilService: UtilService,
     private configService: ConfigService,
     @InjectRepository(User)
@@ -88,7 +88,7 @@ export class TeamService {
 
     const genTeamUuid = this.utilService.genUuid()
 
-    const user = await this.usersService.findByUuid(userUuid)
+    const user = await this.userService.findByUuid(userUuid)
     await this.teamRepository.insert({
       create_date: new Date(),
       update_date: new Date(),
@@ -176,7 +176,7 @@ export class TeamService {
   }
 
   async getTeamUserProfile(uuid: string, teamUuid: string, nullable = false) {
-    const userBaseProfile = await this.usersService.findByUuid(uuid)
+    const userBaseProfile = await this.userService.findByUuid(uuid)
     if (!userBaseProfile) return null
     const isExist = await this.getIsExistTeamUserProfile(uuid, teamUuid)
     if (nullable) return isExist || null
@@ -198,7 +198,7 @@ export class TeamService {
   }
 
   async createTeamUserProfile(profile: RequestTeamUserProfile, userUuid: string) {
-    const user = await this.usersService.findByUuid(userUuid)
+    const user = await this.userService.findByUuid(userUuid)
     const team = await this.getTeamByUuid(profile.team_uuid)
 
     if (profile.avatar) {
@@ -251,7 +251,7 @@ export class TeamService {
 
   async enterPublicTeam(userUuid: string, teamUuid: string) {
     const team = await this.getTeamByUuid(teamUuid)
-    const user = await this.usersService.findByUuid(userUuid)
+    const user = await this.userService.findByUuid(userUuid)
     const tup = await this.getTeamUserProfile(userUuid, teamUuid, true)
 
     await this.channelService.createGrantUniqueChannel(teamUuid, userUuid)

@@ -9,7 +9,7 @@ import { UtilService } from 'src/util/util.service'
 import { Repository } from 'typeorm'
 import { MessageService } from 'src/message/message.service'
 import { TokenUserInfo } from 'src/types/user'
-import { UsersService } from 'src/users/users.service'
+import { UserService } from 'src/user/user.service'
 
 @Injectable()
 export class ChannelService {
@@ -18,7 +18,7 @@ export class ChannelService {
     @InjectRepository(UserGrant) private userGrantRepo: Repository<UserGrant>,
     private utilService: UtilService,
     private messageService: MessageService,
-    @Inject(forwardRef(() => UsersService)) private userService: UsersService,
+    @Inject(forwardRef(() => UserService)) private userService: UserService,
     @Inject(forwardRef(() => TeamService)) private teamService: TeamService
   ) {}
 

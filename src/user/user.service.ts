@@ -8,7 +8,7 @@ import { UtilService } from 'src/util/util.service'
 import { UserGrant } from 'src/entities/user_grant'
 
 @Injectable()
-export class UsersService {
+export class UserService {
   private logger = new Logger()
 
   constructor(
@@ -53,7 +53,6 @@ export class UsersService {
   async cryptPassword(pw: string) {
     const salt = await bcrypt.genSalt(parseInt(this.configService.get('SE_SALT')))
     const crypt = await bcrypt.hash(pw, salt)
-    this.logger.log(crypt)
 
     return crypt
   }
@@ -86,8 +85,7 @@ export class UsersService {
       .createQueryBuilder('users')
       .update()
       .set({
-        avatar: avatarPath + updateUserData.avatar || null,
-        update_date: new Date()
+        avatar: avatarPath + updateUserData.avatar || null
       })
       .where({ uuid: updateUserData.uuid })
       .execute()
@@ -103,16 +101,14 @@ export class UsersService {
   async setTeamGrant(userUuid: string, teamUuid: string) {
     return this.usersGrantRepository.insert({
       user_uuid: { uuid: userUuid },
-      team_uuid: { uuid: teamUuid },
-      create_date: new Date()
+      team_uuid: { uuid: teamUuid }
     })
   }
 
   async setChannelGrant(userUuid: string, channelUuid: string) {
     return this.usersGrantRepository.insert({
       user_uuid: { uuid: userUuid },
-      channel_uuid: { uuid: channelUuid },
-      create_date: new Date()
+      channel_uuid: { uuid: channelUuid }
     })
   }
 

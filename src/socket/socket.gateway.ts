@@ -21,7 +21,7 @@ import { MessageService } from 'src/message/message.service'
 import { CreateReactionDto } from 'src/react/react.dto'
 import { ReactService } from 'src/react/react.service'
 import { TeamService } from 'src/team/team.service'
-import { UsersService } from 'src/users/users.service'
+import { UserService } from 'src/user/user.service'
 import { WsExceptionFilter } from './socket.filter'
 import { SocketService } from './socket.service'
 import { getSocketEvent } from './socket.type'
@@ -46,7 +46,7 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
   constructor(
     private messageService: MessageService,
     private socketService: SocketService,
-    private userService: UsersService,
+    private userService: UserService,
     private reactService: ReactService,
     private teamService: TeamService
   ) {}
