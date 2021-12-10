@@ -15,31 +15,31 @@ export class UserService {
     @InjectRepository(UserGrant)
     private usersGrantRepository: Repository<UserGrant>,
     @InjectRepository(User)
-    private usersRepository: Repository<User>,
+    private userRepository: Repository<User>,
     private utilService: UtilService,
     private configService: ConfigService
   ) {}
 
   findAll(): Promise<User[]> {
-    return this.usersRepository.find()
+    return this.userRepository.find()
   }
 
   findOne(email: string): Promise<User | null> {
-    return this.usersRepository.findOne({
+    return this.userRepository.findOne({
       where: { email },
       select: ['avatar', 'create_date', 'email', 'password', 'update_date', 'uuid']
     })
   }
 
   findByUuid(uuid: string): Promise<User | null> {
-    return this.usersRepository.findOne({ where: { uuid } })
+    return this.userRepository.findOne({ where: { uuid } })
   }
 
-  createUser(email: string, pw: string) {
+  async createUser(email: string, pw: string) {
     const uuid = this.utilService.genUuid()
     const identicon = this.utilService.genAvatar(uuid)
 
-    return this.usersRepository.insert({
+    await this.userRepository.insert({
       email,
       password: pw,
       create_date: new Date(),
@@ -48,6 +48,8 @@ export class UserService {
       uuid,
       avatar: identicon
     })
+
+    return this.findByUuid(uuid)
   }
 
   async cryptPassword(pw: string) {
@@ -81,7 +83,7 @@ export class UserService {
         ? 'http://localhost:4000/uploads/'
         : this.configService.get('HOST_URL') + '/uploads/'
 
-    return this.usersRepository
+    return this.userRepository
       .createQueryBuilder('users')
       .update()
       .set({
@@ -92,7 +94,7 @@ export class UserService {
   }
 
   async getRefreshTokenByUuid(uuid: string) {
-    return this.usersRepository.findOne({
+    return this.userRepository.findOne({
       where: { uuid },
       select: ['refresh_token']
     })
@@ -124,7 +126,7 @@ export class UserService {
   }
 
   async setSocketId(socketId: string, userUuid: string) {
-    return this.usersRepository
+    return this.userRepository
       .createQueryBuilder('user')
       .update()
       .set({ socket_id: socketId })
@@ -133,7 +135,7 @@ export class UserService {
   }
 
   async removeSocketId(socketId: string) {
-    return this.usersRepository
+    return this.userRepository
       .createQueryBuilder('user')
       .update()
       .set({ socket_id: null })
@@ -142,7 +144,7 @@ export class UserService {
   }
 
   async getUserUuidBySocketId(socketId: string) {
-    const user = await this.usersRepository.findOne({
+    const user = await this.userRepository.findOne({
       where: { socket_id: socketId }
     })
 
@@ -150,7 +152,7 @@ export class UserService {
   }
 
   async getSocketIdByUserUuid(userUuid: string) {
-    const user = await this.usersRepository.findOne({
+    const user = await this.userRepository.findOne({
       where: { uuid: userUuid },
       select: ['socket_id']
     })

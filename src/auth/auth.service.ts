@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { User } from 'src/entities/user'
@@ -6,12 +6,10 @@ import { UserService } from 'src/user/user.service'
 import * as bcrypt from 'bcryptjs'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
-import { TokenUserInfo } from 'src/types/user'
+import { DecodeTokenUser, TokenUserInfo } from 'src/types/user'
 
 @Injectable()
 export class AuthService {
-  private logger: Logger = new Logger('AuthService')
-
   constructor(
     private configService: ConfigService,
     @InjectRepository(User)
@@ -37,6 +35,26 @@ export class AuthService {
         : false
     } catch (error) {
       return null
+    }
+  }
+
+  async validateUserByPayload(payload: DecodeTokenUser, token: string) {
+    try {
+      const user = (await this.jwtService.verifyAsync(token, {
+        secret: this.configService.get('TO_SIGN')
+      })) as DecodeTokenUser
+      return user
+    } catch (error) {
+      try {
+        const { refresh_token } = await this.userService.getRefreshTokenByUuid(payload.uuid)
+        const verifyUser = await this.jwtService.verifyAsync(refresh_token, {
+          secret: this.configService.get('TO_SIGN')
+        })
+        await this.updateUserRefreshToken(payload.uuid)
+        return verifyUser
+      } catch (errorWithExpiredRefreshToken) {
+        return false
+      }
     }
   }
 
@@ -66,8 +84,6 @@ export class AuthService {
       expiresIn: '7d',
       secret: this.configService.get('TO_SIGN')
     })
-
-    this.logger.log(refreshToken)
 
     return this.usersRepository.update({ uuid }, { refresh_token: refreshToken })
   }

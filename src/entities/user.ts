@@ -52,3 +52,13 @@ export class User {
   @Column({ select: false, default: null })
   socket_id: string
 }
+
+export class SimpleUserInfo {
+  @ApiProperty({ description: '이메일' })
+  @IsString()
+  email: string
+
+  @ApiProperty({ description: '비밀번호' })
+  @IsString()
+  pw: string
+}
