@@ -12,6 +12,11 @@ import {
 } from 'typeorm'
 import { User } from './user'
 
+export class ExitTeamDto {
+  @IsString()
+  team_uuid: string
+}
+
 export class EnterTeamData {
   @ApiProperty({ description: '팀 유니크 아이디' })
   @IsString()

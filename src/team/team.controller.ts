@@ -29,7 +29,13 @@ import {
   ApiTags
 } from '@nestjs/swagger'
 import { JwtGuard } from 'src/auth/jwt.guard'
-import { EnterTeamData, RequestTeamData, Team, UpdateTeamData } from 'src/entities/team'
+import {
+  EnterTeamData,
+  ExitTeamDto,
+  RequestTeamData,
+  Team,
+  UpdateTeamData
+} from 'src/entities/team'
 import {
   CombineUser,
   RequestTeamUserProfile,
@@ -40,6 +46,7 @@ import { TokenUserInfo } from 'src/types/user'
 import { UserService } from 'src/user/user.service'
 import { TeamService } from './team.service'
 import { User as UserDecorator } from 'src/user/user.decorator'
+import { GrantService } from 'src/grant/grant.service'
 
 @ApiBearerAuth('access-token')
 @ApiTags('Team Controller')
@@ -49,7 +56,8 @@ export class TeamController {
   constructor(
     private teamService: TeamService,
     @Inject(forwardRef(() => UserService))
-    private userService: UserService
+    private userService: UserService,
+    private grantService: GrantService
   ) {}
 
   @Get()
@@ -114,9 +122,9 @@ export class TeamController {
   })
   @ApiOkResponse({ type: [CombineUser] })
   async getAllUserGrantInTeam(@Param('uuid') uuid: string) {
-    const uuids = await this.teamService.getGrantsUserInTeam(uuid)
-    const users = await this.teamService.getAllUserProfile(uuid, uuids)
-    return users
+    // const uuids = await this.teamService.getGrantsUserInTeam(uuid)
+    // const users = await this.teamService.getAllUserProfile(uuid, uuids)
+    return this.grantService.getGrantUserInTeam(uuid)
   }
 
   @Get('profile')
@@ -252,4 +260,13 @@ export class TeamController {
 
     return this.teamService.updateTeam(uuid, body)
   }
+
+  @Post('exit')
+  @ApiOperation({
+    summary: '팀 탈퇴',
+    description: '팀을 탈퇴한다.'
+  })
+  @ApiOkResponse({ type: Boolean })
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async exitTeamCtrl(@Body() exitTeamDto: ExitTeamDto, @UserDecorator() user: TokenUserInfo) {}
 }

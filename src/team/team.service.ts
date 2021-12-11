@@ -6,7 +6,6 @@ import {
   RequestTeamUserProfile,
   TeamUserProfile
 } from 'src/entities/team_user_profile'
-import { UserGrant } from 'src/entities/user_grant'
 import { UserService } from 'src/user/user.service'
 import { UtilService } from 'src/util/util.service'
 import { In, Repository } from 'typeorm'
@@ -23,8 +22,6 @@ export class TeamService {
     @InjectRepository(Team) private teamRepository: Repository<Team>,
     @InjectRepository(TeamUserProfile)
     private teamUserProfileRepo: Repository<TeamUserProfile>,
-    @InjectRepository(UserGrant)
-    private userGrantRepo: Repository<UserGrant>,
     private userService: UserService,
     private utilService: UtilService,
     private configService: ConfigService,
@@ -44,12 +41,7 @@ export class TeamService {
 
     if (team) {
       await this.teamRepository.delete({ uuid: teamUuid })
-      await this.userGrantRepo
-        .createQueryBuilder('user_grant')
-        .leftJoin('user_grant.team_uuid', 'team')
-        .where('team_uuid = :teamUuid', { teamUuid })
-        .delete()
-        .execute()
+      await this.grantService.removeGrantAllUserInTeam(team.uuid)
       return true
     } else {
       return false
@@ -178,14 +170,9 @@ export class TeamService {
     return isExist || userBaseProfile
   }
 
-  async getGrantsUserInTeam(teamUuid: string) {
-    const grantUserUuids = await this.userGrantRepo
-      .createQueryBuilder('grant')
-      .where('grant.team_uuid = :teamUuid', { teamUuid })
-      .getMany()
-
-    // @ts-expect-error User[] -> string[]
-    return grantUserUuids.map((user) => user.user_uuid) as string[]
+  async getTeamUserProfileSimple(uuid: string, teamUuid: string): Promise<TeamUserProfile | null> {
+    const teamUserProfile = await this.getIsExistTeamUserProfile(uuid, teamUuid)
+    return teamUserProfile || null
   }
 
   async getAllTeam() {
@@ -247,17 +234,8 @@ export class TeamService {
   async enterPublicTeam(userUuid: string, teamUuid: string) {
     const team = await this.getTeamByUuid(teamUuid)
     const user = await this.userService.findByUuid(userUuid)
-    const tup = await this.getTeamUserProfile(userUuid, teamUuid, true)
-
     await this.channelService.createGrantUniqueChannel(teamUuid, userUuid)
-
-    return this.userGrantRepo.insert({
-      channel_uuid: null,
-      create_date: new Date(),
-      team_uuid: team,
-      user_uuid: user,
-      team_user_profile: tup ? ((tup as TeamUserProfile).id as unknown) : null
-    })
+    return this.grantService.createGrantTeam(user.uuid, team.uuid)
   }
 
   async enterPrivateTeam(userUuid: string, teamUuid: string, password: string) {

@@ -1,7 +1,8 @@
-import { Controller, Get, Logger, Query, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common'
+import { Controller, Get, Query, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common'
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger'
 import { JwtGuard } from 'src/auth/jwt.guard'
 import { UserGrant } from 'src/entities/user_grant'
+import { RequiredValuePipe } from 'src/pipes/required.pipe'
 import { GrantService } from './grant.service'
 
 @ApiBearerAuth('access-token')
@@ -9,8 +10,6 @@ import { GrantService } from './grant.service'
 @Controller('grant')
 @UseGuards(JwtGuard)
 export class GrantController {
-  private readonly logger = new Logger(GrantController.name)
-
   constructor(private grantService: GrantService) {}
 
   @Get('channel')
@@ -21,7 +20,7 @@ export class GrantController {
     description: '접근 가능한 채널 리스트를 조회합니다.'
   })
   @ApiOkResponse({ type: [UserGrant] })
-  async getAllGrantChannelCtrl(@Query('team_uuid') team_uuid: string) {
-    return await this.grantService.getGrantChannel(team_uuid)
+  async getAllGrantChannelCtrl(@Query('team_uuid', new RequiredValuePipe()) team_uuid: string) {
+    return this.grantService.getGrantChannel(team_uuid)
   }
 }
