@@ -9,3 +9,24 @@ services:
       NODE_ENV: production
     volumes:
       - /usr/src/app/uploads:/app/dist/public
+    networks:
+      - backend
+  db:
+    image: mariadb:10.3
+    restart: always
+    container_name: cowket-db
+    ports:
+      - "3307:3306"
+    environment:
+      - TZ=Asia/Seoul
+    env_file:
+      - .env.production
+    volumes:
+      - /usr/local/conf.d:/etc/mysql/conf.d
+      - /usr/local/data:/var/lib/mysql
+      - /usr/local/initdb.d:/docker-entrypoint-initdb.d
+    networks:
+      - backend
+
+networks:
+  backend:
