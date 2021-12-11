@@ -77,8 +77,6 @@ export class TeamService {
 
     const user = await this.userService.findByUuid(userUuid)
     await this.teamRepository.insert({
-      create_date: new Date(),
-      update_date: new Date(),
       name,
       owner: user,
       uuid: genTeamUuid,

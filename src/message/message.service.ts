@@ -55,8 +55,6 @@ export class MessageService {
       sender: { uuid: dto.sender_uuid },
       content: dto.content,
       uuid,
-      create_date: new Date(),
-      update_date: new Date(),
       is_updated: false,
       sender_team_user_profile: tup,
       type: type || 'user'
@@ -98,8 +96,6 @@ export class MessageService {
 
     await this.messageRepo.insert({
       uuid,
-      create_date: new Date(),
-      update_date: new Date(),
       sender: { uuid: dto.sender_uuid },
       receiver: { uuid: dto.receiver_uuid },
       content: dto.content,

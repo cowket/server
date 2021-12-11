@@ -42,8 +42,6 @@ export class UserService {
     await this.userRepository.insert({
       email,
       password: pw,
-      create_date: new Date(),
-      update_date: new Date(),
       refresh_token: null,
       uuid,
       avatar: identicon

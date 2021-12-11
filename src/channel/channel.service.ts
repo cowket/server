@@ -118,8 +118,6 @@ export class ChannelService {
       team,
       description: channelDto.description || null,
       owner,
-      create_date: new Date(),
-      update_date: new Date(),
       is_private: channelDto.is_private || false
     })
 
@@ -150,7 +148,6 @@ export class ChannelService {
       channel_uuid: channel,
       team_uuid: team,
       user_uuid: user,
-      create_date: new Date(),
       team_user_profile: tup ? ((tup as TeamUserProfile).id as unknown) : null
     })
   }
@@ -159,8 +156,7 @@ export class ChannelService {
     await this.channelRepo.save({
       uuid: channelDto.channel_uuid,
       name: channelDto.name,
-      description: channelDto.description || null,
-      update_date: new Date()
+      description: channelDto.description || null
     })
 
     return this.getChannelByUuid(channelDto.channel_uuid)
@@ -199,7 +195,6 @@ export class ChannelService {
 
     return this.channelRepo.save({
       uuid: this.utilService.genUuid(),
-      create_date: new Date(),
       description: '기본 채널',
       is_private: false,
       name: 'General',
@@ -333,7 +328,6 @@ export class ChannelService {
         insertArr.map((user) => {
           return {
             channel_uuid: channel,
-            create_date: new Date(),
             team_uuid: team,
             user_uuid: {
               uuid: user.userUuid
@@ -393,7 +387,6 @@ export class ChannelService {
         channel_uuid: {
           uuid: channelUuid
         },
-        create_date: new Date(),
         team_user_profile: tup ? { id: tup.id } : null,
         team_uuid: { uuid: teamUuid },
         user_uuid: { uuid: user.uuid }
