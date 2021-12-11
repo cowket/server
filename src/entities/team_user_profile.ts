@@ -61,7 +61,7 @@ export class TeamUserProfile {
   position: string
 
   @ApiProperty({ description: '아바타 URL' })
-  @Column('varchar', { length: 1000, nullable: true })
+  @Column('varchar', { nullable: true })
   avatar: string
 
   @ApiProperty({ description: '연락처' })

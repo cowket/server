@@ -13,10 +13,10 @@ export class Alert {
   read: boolean
 
   @ManyToOne(() => User)
-  @JoinColumn({ referencedColumnName: 'uuid' })
+  @JoinColumn({ referencedColumnName: 'uuid', name: 'receive_user' })
   receive_user: User
 
   @ManyToOne(() => User)
-  @JoinColumn({ referencedColumnName: 'uuid' })
+  @JoinColumn({ referencedColumnName: 'uuid', name: 'send_user' })
   send_user: User
 }

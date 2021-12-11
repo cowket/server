@@ -30,14 +30,14 @@ export class User {
   @Column('varchar', { length: 100 })
   email: string
 
-  @Column('varchar', { length: 200, select: false })
+  @Column('varchar', { select: false })
   password: string
 
-  @Column({ select: false, nullable: true, length: 1000 })
+  @Column({ select: false, nullable: true })
   refresh_token: string
 
   @ApiProperty({ description: '아바타 URL' })
-  @Column('varchar', { length: 500, default: null })
+  @Column('varchar', { default: null })
   avatar: string
 
   @ApiProperty({ description: '유저 생성일' })

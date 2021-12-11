@@ -145,7 +145,7 @@ export class Channel {
 
   @ApiProperty({ description: '채널 설명' })
   @Index({ fulltext: true })
-  @Column('varchar', { length: 500, nullable: true })
+  @Column('varchar', { nullable: true })
   description: string
 
   @ApiProperty({

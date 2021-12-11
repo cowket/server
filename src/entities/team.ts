@@ -66,11 +66,11 @@ export class Team {
   owner: User
 
   @Index({ fulltext: true })
-  @Column('varchar', { length: 200 })
+  @Column('varchar')
   @ApiProperty({ description: '팀 이름' })
   name: string
 
-  @Column('varchar', { length: 500, default: null })
+  @Column('varchar', { default: null })
   @ApiProperty({ description: '팀 아바타 URL' })
   avatar: string
 
@@ -87,11 +87,11 @@ export class Team {
   is_private: boolean
 
   @Index({ fulltext: true })
-  @Column('varchar', { length: 500, nullable: true, default: null })
+  @Column('varchar', { nullable: true, default: null })
   @ApiProperty({ description: '팀 설명' })
   description: string
 
-  @Column('varchar', { length: 500, nullable: true, select: false })
+  @Column('varchar', { nullable: true, select: false })
   @ApiProperty({ description: '비공개팀일시 팀 비밀번호' })
   password: string
 }
