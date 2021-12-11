@@ -37,7 +37,7 @@ export class ChannelService {
   }
 
   async grantCheck(userUuid: string, teamUuid: string) {
-    const grant = await this.userGrantRepo.findOneOrFail({
+    const grant = await this.userGrantRepo.findOne({
       where: { user_uuid: userUuid, team_uuid: teamUuid }
     })
     return !!grant
