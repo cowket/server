@@ -12,7 +12,7 @@ services:
     networks:
       - backend
   db:
-    image: mariadb:10.3
+    image: 459below/mariadb-armv7
     restart: always
     container_name: cowket-db
     ports:
