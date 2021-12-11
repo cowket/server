@@ -14,5 +14,5 @@
 
 ## TODO
 
-- 2021-11-27 서버 이전 Envrionment variables 변경 필요
 - Alert module implementation
+- 모듈 독립적으로 구성 - 여러 레포지터리에 의존성을 갖지 않도록 > 한 모듈 당 하나의 레포지터리 가지도록
