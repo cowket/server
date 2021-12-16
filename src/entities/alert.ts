@@ -1,6 +1,8 @@
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm'
 import { User } from './user'
 
+export type AlertType = 'reaction' | 'message' | 'mention'
+
 @Entity({ name: 'alert' })
 export class Alert {
   @PrimaryColumn('varchar')
@@ -19,4 +21,7 @@ export class Alert {
   @ManyToOne(() => User)
   @JoinColumn({ referencedColumnName: 'uuid', name: 'send_user' })
   send_user: User
+
+  @Column('varchar', { nullable: false, length: 50 })
+  alert_type: AlertType
 }

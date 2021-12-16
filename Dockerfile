@@ -3,14 +3,16 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm i -g npm@7.22.0
-RUN npm ci
-RUN npm i -g pm2
+# RUN npm i -g npm@7.22.0
+# RUN npm ci
+# RUN npm i -g pm2
+RUN yarn
+RUN yarn global add pm2
 
 COPY . .
 
 # Test, Build
-RUN npm run build
+RUN yarn build
 
 EXPOSE 4000
 EXPOSE 4001
