@@ -21,4 +21,7 @@ export class AlertService {
   async getAlertBySender(uuid: string) {
     return this.alertRepo.find({ where: { send_user: { uuid } } })
   }
+
+  // 채널의 모든 유저에게 alert을 생성한다.
+  // async createAlertInChannel(channelUuid: string, senderUuid: string) {}
 }

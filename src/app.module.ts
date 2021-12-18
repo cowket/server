@@ -24,6 +24,7 @@ import { Reaction } from './entities/reaction'
 import { ReactionItem } from './entities/reaction_item'
 import { ReactModule } from './react/react.module'
 import { AlertModule } from './alert/alert.module'
+import { Alert } from './entities/alert'
 
 const isProd = process.env.NODE_ENV === 'production'
 
@@ -42,7 +43,17 @@ const isProd = process.env.NODE_ENV === 'production'
       password: process.env.DB_PW,
       database: process.env.DB_NAME,
       synchronize: false,
-      entities: [User, UserGrant, Team, Channel, Message, TeamUserProfile, Reaction, ReactionItem],
+      entities: [
+        User,
+        UserGrant,
+        Team,
+        Channel,
+        Message,
+        TeamUserProfile,
+        Reaction,
+        ReactionItem,
+        Alert
+      ],
       dropSchema: false
     }),
     UserModule,

@@ -395,4 +395,9 @@ export class ChannelService {
 
     return true
   }
+
+  // 채널에 참여중인 멤버를 모두 반환한다.
+  // async getChannelMembers(channelUuid: string) {
+  //   return this.userGrantRepo.createQueryBuilder('ug').leftJoinAndSelect('ug.user_uuid', 'users')
+  // }
 }
