@@ -32,9 +32,9 @@ export class GrantService {
 
   async createGrantTeam(userUuid: string, teamUuid: string) {
     return this.userGrantRepo.save({
-      channel_uuid: null,
-      team_uuid: { uuid: teamUuid },
-      user_uuid: { uuid: userUuid }
+      channel: null,
+      team: { uuid: teamUuid },
+      user: { uuid: userUuid }
     })
   }
 

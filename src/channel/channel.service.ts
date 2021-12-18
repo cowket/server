@@ -145,9 +145,9 @@ export class ChannelService {
     const user = await this.userService.findByUuid(userUuid)
 
     return this.userGrantRepo.insert({
-      channel_uuid: channel,
-      team_uuid: team,
-      user_uuid: user,
+      channel,
+      team: team,
+      user: user,
       team_user_profile: tup ? ((tup as TeamUserProfile).id as unknown) : null
     })
   }
@@ -283,7 +283,7 @@ export class ChannelService {
     const teamUserProfiles = await this.teamService.getAllTeamUserProfile(userUuids, teamUuid)
 
     const insertArr = userUuids.map((userUuid) => {
-      const tup = teamUserProfiles.find((t) => (t.user_uuid as unknown) === userUuid)
+      const tup = teamUserProfiles.find((t) => (t.user as unknown) === userUuid)
 
       const obj = {
         userUuid,
@@ -384,12 +384,12 @@ export class ChannelService {
       .createQueryBuilder('ug')
       .insert()
       .values({
-        channel_uuid: {
+        channel: {
           uuid: channelUuid
         },
         team_user_profile: tup ? { id: tup.id } : null,
-        team_uuid: { uuid: teamUuid },
-        user_uuid: { uuid: user.uuid }
+        team: { uuid: teamUuid },
+        user: { uuid: user.uuid }
       })
       .execute()
 

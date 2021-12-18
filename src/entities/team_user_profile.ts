@@ -45,12 +45,12 @@ export class TeamUserProfile {
   id: number
 
   @ManyToOne(() => User)
-  @JoinColumn({ name: 'user_uuid', referencedColumnName: 'uuid' })
-  user_uuid: User
+  @JoinColumn({ name: 'user', referencedColumnName: 'uuid' })
+  user: User
 
   @ManyToOne(() => Team)
-  @JoinColumn({ name: 'team_uuid', referencedColumnName: 'uuid' })
-  team_uuid: Team
+  @JoinColumn({ name: 'team', referencedColumnName: 'uuid' })
+  team: Team
 
   @ApiProperty({ description: '표시될 이름' })
   @Column('varchar', { length: 50, nullable: true })

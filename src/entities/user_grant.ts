@@ -20,21 +20,21 @@ export class UserGrant {
 
   @ApiProperty({ description: '유저 정보' })
   @ManyToOne(() => User)
-  @JoinColumn({ referencedColumnName: 'uuid', name: 'user_uuid' })
+  @JoinColumn({ referencedColumnName: 'uuid', name: 'user' })
   @Column('varchar', { nullable: false })
-  user_uuid: User
+  user: User
 
   @ApiProperty({ description: '팀 정보' })
   @ManyToOne(() => Team)
-  @JoinColumn({ referencedColumnName: 'uuid', name: 'team_uuid' })
+  @JoinColumn({ referencedColumnName: 'uuid', name: 'team' })
   @Column('varchar', { nullable: false })
-  team_uuid: Team
+  team: Team
 
   @ApiProperty({ description: '채널 정보' })
   @ManyToOne(() => Channel)
-  @JoinColumn({ referencedColumnName: 'uuid', name: 'channel_uuid' })
+  @JoinColumn({ referencedColumnName: 'uuid', name: 'channel' })
   @Column('varchar', { nullable: true })
-  channel_uuid: Channel
+  channel: Channel
 
   @ApiProperty({ description: '생성일' })
   @CreateDateColumn({ nullable: false })

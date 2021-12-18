@@ -271,8 +271,7 @@ export class TeamService {
     const combineUser: CombineUser[] = allUsers.map((user) => {
       return {
         ...user,
-        team_profile:
-          teamUserProfiles.find((profile) => profile.user_uuid.uuid === user.uuid) || null
+        team_profile: teamUserProfiles.find((profile) => profile.user.uuid === user.uuid) || null
       }
     })
 

@@ -24,17 +24,17 @@ export class Message {
 
   @ApiProperty({ description: '팀 정보' })
   @ManyToOne(() => Team)
-  @JoinColumn({ name: 'team_uuid', referencedColumnName: 'uuid' })
+  @JoinColumn({ name: 'team', referencedColumnName: 'uuid' })
   team: Team
 
   @ApiProperty({ description: '채널 정보' })
   @ManyToOne(() => Channel, { nullable: true })
-  @JoinColumn({ name: 'channel_uuid', referencedColumnName: 'uuid' })
+  @JoinColumn({ name: 'channel', referencedColumnName: 'uuid' })
   channel: Channel
 
   @ApiProperty({ description: '메세지 보낸 유저 정보' })
   @ManyToOne(() => User, { nullable: true })
-  @JoinColumn({ name: 'sender_uuid', referencedColumnName: 'uuid' })
+  @JoinColumn({ name: 'sender', referencedColumnName: 'uuid' })
   sender: User
 
   @ApiProperty({ description: '팀 유저 프로필', nullable: true })
@@ -44,7 +44,7 @@ export class Message {
 
   @ApiProperty({ description: '다이렉트 메세지일 경우 받는 유저' })
   @ManyToOne(() => User, { nullable: true })
-  @JoinColumn({ name: 'receiver_uuid', referencedColumnName: 'uuid' })
+  @JoinColumn({ name: 'receiver', referencedColumnName: 'uuid' })
   receiver?: User
 
   @ApiProperty({ description: '팀 유저 프로필 (받는 유저)', nullable: true })

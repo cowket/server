@@ -100,15 +100,15 @@ export class UserService {
 
   async setTeamGrant(userUuid: string, teamUuid: string) {
     return this.usersGrantRepository.insert({
-      user_uuid: { uuid: userUuid },
-      team_uuid: { uuid: teamUuid }
+      user: { uuid: userUuid },
+      team: { uuid: teamUuid }
     })
   }
 
   async setChannelGrant(userUuid: string, channelUuid: string) {
     return this.usersGrantRepository.insert({
-      user_uuid: { uuid: userUuid },
-      channel_uuid: { uuid: channelUuid }
+      user: { uuid: userUuid },
+      channel: { uuid: channelUuid }
     })
   }
 
