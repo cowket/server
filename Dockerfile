@@ -1,7 +1,8 @@
 FROM node:14-alpine
 WORKDIR /app
 
-COPY package*.json ./
+COPY package.json ./
+COPY yarn.lock ./
 
 # RUN npm i -g npm@7.22.0
 # RUN npm ci
