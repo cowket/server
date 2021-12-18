@@ -25,20 +25,20 @@ export class ChannelService {
   async grantAllChannel(userUuid: string, teamUuid: string) {
     return this.userGrantRepo
       .createQueryBuilder('user_grant')
-      .leftJoinAndSelect('user_grant.user_uuid', 'users')
-      .leftJoinAndSelect('user_grant.team_uuid', 'team')
-      .leftJoinAndSelect('user_grant.channel_uuid', 'channel')
+      .leftJoinAndSelect('user_grant.user', 'users')
+      .leftJoinAndSelect('user_grant.team', 'team')
+      .leftJoinAndSelect('user_grant.channel', 'channel')
       .innerJoinAndSelect('channel.owner', 'users_grant.user_uuid.uuid')
       .innerJoinAndSelect('team.owner', 'user_grant.user_uuid.uuid')
-      .where('user_grant.user_uuid = :userUuid', { userUuid })
-      .andWhere('user_grant.team_uuid = :teamUuid', { teamUuid })
-      .andWhere('user_grant.channel_uuid IS NOT NULL')
+      .where('user_grant.user = :userUuid', { userUuid })
+      .andWhere('user_grant.team = :teamUuid', { teamUuid })
+      .andWhere('user_grant.channel IS NOT NULL')
       .getMany()
   }
 
   async grantCheck(userUuid: string, teamUuid: string) {
     const grant = await this.userGrantRepo.findOne({
-      where: { user_uuid: userUuid, team_uuid: teamUuid }
+      where: { user: { uuid: userUuid }, team: { uuid: teamUuid } }
     })
     return !!grant
   }
@@ -66,7 +66,7 @@ export class ChannelService {
   async isDuplicatedName(teamUuid: string, check: string) {
     const duplicated = await this.channelRepo
       .createQueryBuilder('channel')
-      .where('team_uuid = :teamUuid', { teamUuid })
+      .where('team = :teamUuid', { teamUuid })
       .andWhere('name = :name', { name: check })
       .getCount()
 
@@ -85,9 +85,9 @@ export class ChannelService {
   async getChannelByUuidDetail(uuid: string) {
     const members = await this.userGrantRepo
       .createQueryBuilder('user_grant')
-      .leftJoinAndSelect('user_grant.user_uuid', 'users')
+      .leftJoinAndSelect('user_grant.user', 'users')
       .leftJoinAndSelect('user_grant.team_user_profile', 'tup')
-      .where('user_grant.channel_uuid = :uuid', { uuid })
+      .where('user_grant.channel = :uuid', { uuid })
       .getMany()
     const channel = await this.getChannelByUuid(uuid)
 
@@ -255,19 +255,19 @@ export class ChannelService {
     const members = await this.userGrantRepo
       .createQueryBuilder('u')
       .leftJoinAndSelect('u.team_user_profile', 'tup')
-      .leftJoinAndSelect('u.user_uuid', 'user')
-      .leftJoin('u.team_uuid', 'team')
-      .where('u.team_uuid = :teamUuid', { teamUuid })
-      .andWhere('u.channel_uuid IS NULL')
+      .leftJoinAndSelect('u.user', 'user')
+      .leftJoin('u.team', 'team')
+      .where('u.team = :teamUuid', { teamUuid })
+      .andWhere('u.channel IS NULL')
       .getMany()
 
     const enteredMembers = await this.userGrantRepo
       .createQueryBuilder('u')
       .leftJoinAndSelect('u.team_user_profile', 'tup')
-      .leftJoinAndSelect('u.user_uuid', 'user')
-      .leftJoin('u.team_uuid', 'team')
-      .leftJoin('u.channel_uuid', 'channel')
-      .where('u.team_uuid = :teamUuid', { teamUuid })
+      .leftJoinAndSelect('u.user', 'user')
+      .leftJoin('u.team', 'team')
+      .leftJoin('u.channel', 'channel')
+      .where('u.team = :teamUuid', { teamUuid })
       .andWhere('channel.uuid = :channelUuid', { channelUuid })
       .getMany()
 
@@ -394,6 +394,12 @@ export class ChannelService {
       .execute()
 
     return true
+  }
+
+  async hardDelete(teamUuid: string) {
+    return this.channelRepo.delete({
+      team: { uuid: teamUuid }
+    })
   }
 
   // 채널에 참여중인 멤버를 모두 반환한다.

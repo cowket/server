@@ -43,8 +43,8 @@ export class MessageService {
 
     const tupCheck = await this.tupRepo
       .createQueryBuilder('tup')
-      .where('tup.user_uuid = :userUuid', { userUuid: dto.sender_uuid })
-      .andWhere('tup.team_uuid = :teamUuid', { teamUuid: dto.team_uuid })
+      .where('tup.user = :userUuid', { userUuid: dto.sender_uuid })
+      .andWhere('tup.team = :teamUuid', { teamUuid: dto.team_uuid })
       .getOne()
 
     const tup: TeamUserProfile | null = tupCheck || null
@@ -81,14 +81,14 @@ export class MessageService {
 
     const senderTupCheck = await this.tupRepo
       .createQueryBuilder('tup')
-      .where('tup.user_uuid = :userUuid', { userUuid: dto.sender_uuid })
-      .andWhere('tup.team_uuid = :teamUuid', { teamUuid: dto.team_uuid })
+      .where('tup.user = :userUuid', { userUuid: dto.sender_uuid })
+      .andWhere('tup.team = :teamUuid', { teamUuid: dto.team_uuid })
       .getOne()
 
     const receiverTupCheck = await this.tupRepo
       .createQueryBuilder('tup')
-      .where('tup.user_uuid = :userUuid', { userUuid: dto.receiver_uuid })
-      .andWhere('tup.team_uuid = :teamUuid', { teamUuid: dto.team_uuid })
+      .where('tup.user = :userUuid', { userUuid: dto.receiver_uuid })
+      .andWhere('tup.team = :teamUuid', { teamUuid: dto.team_uuid })
       .getOne()
 
     const senderTup = senderTupCheck || null
@@ -195,8 +195,8 @@ export class MessageService {
       .createQueryBuilder()
       .update()
       .set({ sender_team_user_profile: { id: teamUserProfileId } })
-      .where('message.team_uuid = :teamUuid', { teamUuid })
-      .andWhere('message.sender_uuid = :userUuid', { userUuid })
+      .where('message.team = :teamUuid', { teamUuid })
+      .andWhere('message.sender = :userUuid', { userUuid })
       .execute()
   }
 
@@ -279,5 +279,9 @@ export class MessageService {
 
   async updateMessage(dto: UpdateMessageDto) {
     return this.messageRepo.save({ uuid: dto.message_uuid, content: dto.content })
+  }
+
+  async hardDelete(teamUuid: string) {
+    return this.messageRepo.delete({ team: { uuid: teamUuid } })
   }
 }

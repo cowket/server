@@ -13,8 +13,8 @@ export class GrantService {
   async getGrantChannel(teamUuid: string) {
     return this.userGrantRepo
       .createQueryBuilder()
-      .leftJoinAndSelect('user_grant.channel_uuid', 'channel')
-      .leftJoinAndSelect('user_grant.team_uuid', 'team')
+      .leftJoinAndSelect('user_grant.channel', 'channel')
+      .leftJoinAndSelect('user_grant.team', 'team')
       .leftJoinAndSelect('user_grant.team_user_profile', 'tup')
       .where('user_grant.team.uuid = :teamUuid', { teamUuid })
       .getMany()
@@ -23,10 +23,10 @@ export class GrantService {
   async getGrantUserInTeam(teamUuid: string) {
     return this.userGrantRepo
       .createQueryBuilder('grant')
-      .leftJoinAndSelect('grant.user_uuid', 'user')
+      .leftJoinAndSelect('grant.user', 'user')
       .leftJoinAndSelect('grant.team_user_profile', 'tup')
-      .where('grant.team_uuid = :teamUuid', { teamUuid })
-      .andWhere('grant.channel_uuid IS NULL')
+      .where('grant.team = :teamUuid', { teamUuid })
+      .andWhere('grant.channel IS NULL')
       .getMany()
   }
 
@@ -47,8 +47,8 @@ export class GrantService {
           id: tupId
         }
       })
-      .where('user_grant.user_uuid = :userUuid', { userUuid })
-      .andWhere('user_grant.team_uuid = :teamUuid', { teamUuid })
+      .where('user_grant.user = :userUuid', { userUuid })
+      .andWhere('user_grant.team = :teamUuid', { teamUuid })
       .execute()
   }
 
@@ -57,8 +57,8 @@ export class GrantService {
     return this.userGrantRepo
       .createQueryBuilder('grant')
       .delete()
-      .where('grant.user_uuid = :userUuid', { userUuid })
-      .andWhere('grant.team_uuid = :teamUuid', { teamUuid })
+      .where('grant.user = :userUuid', { userUuid })
+      .andWhere('grant.team = :teamUuid', { teamUuid })
       .execute()
   }
 
@@ -66,8 +66,9 @@ export class GrantService {
   async removeGrantAllUserInTeam(teamUuid: string) {
     return this.userGrantRepo
       .createQueryBuilder('grant')
+      .leftJoin('grant.team', 'team')
       .delete()
-      .where('grant.team_uuid = :teamUuid', { teamUuid })
+      .where('team.uuid = :teamUuid', { teamUuid })
       .execute()
   }
 
@@ -76,9 +77,9 @@ export class GrantService {
     return this.userGrantRepo
       .createQueryBuilder('grant')
       .delete()
-      .where('grant.user_uuid = :userUuid', { userUuid })
-      .andWhere('grant.team_uuid = :teamUuid', { teamUuid })
-      .andWhere('grant.channel_uuid IS NOT NULL AND grant.channel_uuid = :channelUuid', {
+      .where('grant.user = :userUuid', { userUuid })
+      .andWhere('grant.team = :teamUuid', { teamUuid })
+      .andWhere('grant.channel IS NOT NULL AND grant.channel = :channelUuid', {
         channelUuid
       })
       .execute()
@@ -89,8 +90,8 @@ export class GrantService {
     return this.userGrantRepo
       .createQueryBuilder('grant')
       .delete()
-      .where('grant.team_uuid = :teamUuid', { teamUuid })
-      .andWhere('grant.channel_uuid IS NOT NULL AND grant.channel_uuid = :channelUuid', {
+      .where('grant.team = :teamUuid', { teamUuid })
+      .andWhere('grant.channel IS NOT NULL AND grant.channel = :channelUuid', {
         channelUuid
       })
       .execute()

@@ -214,7 +214,7 @@ export class TeamController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '팀 삭제' })
   @ApiOkResponse({ type: Boolean })
-  @ApiQuery({ name: 'uuid', required: true })
+  @ApiParam({ name: 'uuid', required: true })
   @UsePipes(new ValidationPipe({ transform: true }))
   async deleteTeam(@Param('uuid') uuid: string, @UserDecorator() user: TokenUserInfo) {
     const isSuccess = await this.teamService.deleteTeam(uuid, user.uuid)

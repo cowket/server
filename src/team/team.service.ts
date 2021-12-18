@@ -36,10 +36,13 @@ export class TeamService {
   async deleteTeam(teamUuid: string, userUuid: string) {
     const team = await this.teamRepository
       .createQueryBuilder('team')
-      .where({ owner: { uuid: userUuid }, uuid: teamUuid })
+      .leftJoin('team.owner', 'owner')
+      .where('owner.uuid = :userUuid AND team.uuid = :teamUuid', { userUuid, teamUuid })
       .getOne()
 
     if (team) {
+      await this.messageService.hardDelete(teamUuid)
+      await this.channelService.hardDelete(team.uuid)
       await this.teamRepository.delete({ uuid: teamUuid })
       await this.grantService.removeGrantAllUserInTeam(team.uuid)
       return true
@@ -153,8 +156,8 @@ export class TeamService {
   async getIsExistTeamUserProfile(uuid: string, teamUuid: string) {
     const profileCount = await this.teamUserProfileRepo
       .createQueryBuilder('team_user_profile')
-      .where(`team_user_profile.user_uuid = '${uuid}'`)
-      .andWhere(`team_user_profile.team_uuid = '${teamUuid}'`)
+      .where(`team_user_profile.user = '${uuid}'`)
+      .andWhere(`team_user_profile.team = '${teamUuid}'`)
       .getOne()
 
     return profileCount || false
@@ -264,8 +267,8 @@ export class TeamService {
 
     const teamUserProfiles = await this.teamUserProfileRepo
       .createQueryBuilder('team_user_profile')
-      .leftJoinAndSelect('team_user_profile.user_uuid', 'user')
-      .where('team_uuid = :teamUuid', { teamUuid })
+      .leftJoinAndSelect('team_user_profile.user', 'user')
+      .where('team = :teamUuid', { teamUuid })
       .getMany()
 
     const combineUser: CombineUser[] = allUsers.map((user) => {
@@ -281,8 +284,8 @@ export class TeamService {
   async getAllTeamUserProfile(userUuids: string[], teamUuid: string) {
     return this.teamUserProfileRepo
       .createQueryBuilder('tup')
-      .where('tup.team_uuid = :teamUuid', { teamUuid })
-      .andWhere('tup.user_uuid IN (:userUuids)', { userUuids })
+      .where('tup.team = :teamUuid', { teamUuid })
+      .andWhere('tup.user IN (:userUuids)', { userUuids })
       .getMany()
   }
 }

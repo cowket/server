@@ -68,10 +68,10 @@ export class UserService {
   async findAccessibleTeams(uuid: string) {
     return this.usersGrantRepository
       .createQueryBuilder('user_grant')
-      .leftJoinAndSelect('user_grant.team_uuid', 'team')
-      .leftJoinAndSelect('user_grant.user_uuid', 'users')
-      .leftJoinAndSelect('team.owner', 'user_grant.user_uuid')
-      .where({ user_uuid: uuid, channel_uuid: null })
+      .leftJoinAndSelect('user_grant.team', 'team')
+      .leftJoinAndSelect('user_grant.user', 'users')
+      .leftJoinAndSelect('team.owner', 'user_grant.user')
+      .where('user_grant.user = :uuid AND user_grant.channel IS NULL', { uuid })
       .getMany()
   }
 
@@ -115,9 +115,9 @@ export class UserService {
   async findAccessibleChannels(userUuid: string, teamUuid: string) {
     return this.usersGrantRepository
       .createQueryBuilder('userGrant')
-      .leftJoinAndSelect('userGrant.team_uuid', 'team')
-      .leftJoinAndSelect('userGrant.channel_uuid', 'channel')
-      .where('user_uuid = :userUuid', { userUuid })
+      .leftJoinAndSelect('userGrant.team', 'team')
+      .leftJoinAndSelect('userGrant.channel', 'channel')
+      .where('userGrant.user = :userUuid', { userUuid })
       .andWhere('team.uuid = :teamUuid', { teamUuid })
       .andWhere(' channel.uuid IS NOT NULL')
       .getMany()
