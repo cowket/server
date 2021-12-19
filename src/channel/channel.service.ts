@@ -146,8 +146,8 @@ export class ChannelService {
 
     return this.userGrantRepo.insert({
       channel,
-      team: team,
-      user: user,
+      team,
+      user,
       team_user_profile: tup ? ((tup as TeamUserProfile).id as unknown) : null
     })
   }
@@ -267,7 +267,7 @@ export class ChannelService {
       .leftJoinAndSelect('u.user', 'user')
       .leftJoin('u.team', 'team')
       .leftJoin('u.channel', 'channel')
-      .where('u.team = :teamUuid', { teamUuid })
+      .where('team.uuid = :teamUuid', { teamUuid })
       .andWhere('channel.uuid = :channelUuid', { channelUuid })
       .getMany()
 
@@ -343,8 +343,8 @@ export class ChannelService {
     const [, count] = await this.userGrantRepo.findAndCount({
       where: {
         channel_uuid: channelUuid,
-        user_uuid: userUuid,
-        team_uuid: teamUuid
+        user: { uuid: userUuid },
+        team: { uuid: teamUuid }
       }
     })
 

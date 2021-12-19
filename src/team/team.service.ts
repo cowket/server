@@ -193,8 +193,8 @@ export class TeamService {
 
     const tup = await this.teamUserProfileRepo.save({
       ...profile,
-      user_uuid: user,
-      team_uuid: team
+      user,
+      team
     })
 
     await this.messageService.updateAllTup({
@@ -210,7 +210,7 @@ export class TeamService {
 
   async updateTeamUserProfile(profile: RequestTeamUserProfile, userUuid: string) {
     const teamUserProfile = await this.teamUserProfileRepo.findOne({
-      where: { user_uuid: userUuid, team_uuid: profile.team_uuid }
+      where: { user: userUuid, team: profile.team_uuid }
     })
 
     if (profile.avatar) {
