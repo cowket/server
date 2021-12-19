@@ -66,7 +66,7 @@ export class ChannelService {
   async isDuplicatedName(teamUuid: string, check: string) {
     const duplicated = await this.channelRepo
       .createQueryBuilder('channel')
-      .where('team = :teamUuid', { teamUuid })
+      .where('channel.team = :teamUuid', { teamUuid })
       .andWhere('name = :name', { name: check })
       .getCount()
 
