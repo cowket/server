@@ -6,7 +6,8 @@ services:
       - 4000:4000
       - 4001:4001
     environment:
-      NODE_ENV: production
+      - NODE_ENV=production
+      - TZ=Asia/Seoul
     volumes:
       - /usr/src/app/uploads:/app/dist/public
     networks:
