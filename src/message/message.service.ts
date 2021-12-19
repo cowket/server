@@ -195,7 +195,7 @@ export class MessageService {
 
   async updateAllTupInMessage({ teamUserProfileId, teamUuid, userUuid }: UpdateTupRequest) {
     return this.messageRepo
-      .createQueryBuilder()
+      .createQueryBuilder('message')
       .update()
       .set({ sender_team_user_profile: { id: teamUserProfileId } })
       .where('message.team = :teamUuid', { teamUuid })
@@ -205,19 +205,19 @@ export class MessageService {
 
   async updateAllTupInDirectMessage({ teamUserProfileId, teamUuid, userUuid }: UpdateTupRequest) {
     await this.messageRepo
-      .createQueryBuilder()
+      .createQueryBuilder('message')
       .update()
       .set({ sender_team_user_profile: { id: teamUserProfileId } })
-      .where('direct_message.team = :teamUuid', { teamUuid })
-      .andWhere('direct_message.message.sender = :userUuid', { userUuid })
+      .where('message.team = :teamUuid', { teamUuid })
+      .andWhere('message.sender = :userUuid', { userUuid })
       .execute()
 
     return this.messageRepo
-      .createQueryBuilder()
+      .createQueryBuilder('message')
       .update()
       .set({ receiver_team_user_profile: { id: teamUserProfileId } })
-      .where('direct_message.team = :teamUuid', { teamUuid })
-      .andWhere('direct_message.receiver = :userUuid', { userUuid })
+      .where('message.team = :teamUuid', { teamUuid })
+      .andWhere('message.receiver = :userUuid', { userUuid })
       .execute()
   }
 
