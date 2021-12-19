@@ -79,13 +79,16 @@ export class TeamService {
     const genTeamUuid = this.utilService.genUuid()
 
     const user = await this.userService.findByUuid(userUuid)
+    const identicon = this.utilService.genAvatar(genTeamUuid)
+
     await this.teamRepository.insert({
       name,
       owner: user,
       uuid: genTeamUuid,
       is_private,
       description,
-      password: encryptPw
+      password: encryptPw,
+      avatar: identicon
     })
 
     const uniqueChannel = await this.channelService.createUniqueChannel(genTeamUuid, userUuid)
