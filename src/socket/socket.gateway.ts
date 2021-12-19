@@ -100,8 +100,12 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
   @SubscribeMessage(getSocketEvent('LOAD_MESSAGE'))
   @UsePipes(new ValidationPipe())
   async loadMessageLatest(@MessageBody() data: LoadMessageDto, @ConnectedSocket() client: Socket) {
-    const messages = await this.messageService.fetchMessageFromLatest(data)
-    client.emit(getSocketEvent('LOADED_SCROLL_MESSAGE'), messages)
+    try {
+      const messages = await this.messageService.fetchMessageFromLatest(data)
+      client.emit(getSocketEvent('LOADED_SCROLL_MESSAGE'), messages)
+    } catch (error) {
+      this.logger.log(error)
+    }
   }
 
   @SubscribeMessage(getSocketEvent('JOIN_ROOM'))

@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
+import * as dayjs from 'dayjs'
 import { Message } from 'src/entities/message'
 import { Reaction } from 'src/entities/reaction'
 import { TeamUserProfile } from 'src/entities/team_user_profile'
@@ -158,6 +159,8 @@ export class MessageService {
   }
 
   async fetchMessageFromLatest(data: LoadMessageDto) {
+    const compareDate = dayjs(data.topMessage.create_date).format('YYYY-MM-DD HH:mm:ss')
+
     return this.messageRepo
       .createQueryBuilder('message')
       .leftJoinAndSelect('message.team', 'team')
@@ -176,7 +179,7 @@ export class MessageService {
         channelUuid: data.topMessage.channel.uuid
       })
       .andWhere('TIMESTAMP(message.create_date, "%T") < TIMESTAMP(:compareDate, "%T")', {
-        compareDate: data.topMessage.create_date
+        compareDate
       })
       .andWhere('message.uuid != :messageUuid', {
         messageUuid: data.topMessage.uuid
