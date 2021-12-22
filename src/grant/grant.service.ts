@@ -96,4 +96,15 @@ export class GrantService {
       })
       .execute()
   }
+
+  // 채널에 접근 권한 가진 유저
+  async getGrantInChannel(channelUuid: string) {
+    return this.userGrantRepo
+      .createQueryBuilder('grant')
+      .leftJoin('grant.channel', 'channel')
+      .leftJoinAndSelect('grant.user', 'user')
+      .leftJoinAndSelect('grant.team_user_profile', 'team_user_profile')
+      .where('channel.uuid = :channelUuid', { channelUuid })
+      .getMany()
+  }
 }

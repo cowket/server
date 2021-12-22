@@ -18,7 +18,9 @@ enum SocketEvent {
   UPDATED_MESSAGE = 'updatedMessage',
   UPDATED_DIRECT_MESSAGE = 'updatedDirectMessage',
   REACTION_MESSAGE = 'reactionMessage',
-  UPDATED_REACTION_MESSAGE = 'updatedReactionMessage'
+  UPDATED_REACTION_MESSAGE = 'updatedReactionMessage',
+  GET_CHANNEL_MEMBERS = 'getChannelMembers',
+  SEND_CHANNEL_MEMBERS = 'sendChannelMemebrs'
 }
 
 type TSocketEvent =
@@ -42,6 +44,8 @@ type TSocketEvent =
   | 'UPDATED_DIRECT_MESSAGE'
   | 'REACTION_MESSAGE'
   | 'UPDATED_REACTION_MESSAGE'
+  | 'GET_CHANNEL_MEMBERS'
+  | 'SEND_CHANNEL_MEMBERS'
 
 export function getSocketEvent(eventName: TSocketEvent) {
   return SocketEvent[eventName]

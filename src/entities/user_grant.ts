@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
+import { IsString } from 'class-validator'
 import {
   Column,
   CreateDateColumn,
@@ -11,6 +12,11 @@ import { Channel } from './channel'
 import { Team } from './team'
 import { TeamUserProfile } from './team_user_profile'
 import { User } from './user'
+
+export class GetChannelMembersDto {
+  @IsString()
+  channel_uuid: string
+}
 
 @Entity({ name: 'user_grant' })
 export class UserGrant {

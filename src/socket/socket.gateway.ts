@@ -11,6 +11,8 @@ import {
 } from '@nestjs/websockets'
 import { Server, Socket } from 'socket.io'
 import { TeamUserProfile } from 'src/entities/team_user_profile'
+import { GetChannelMembersDto } from 'src/entities/user_grant'
+import { GrantService } from 'src/grant/grant.service'
 import {
   LoadMessageDto,
   RequestDirectMessageDto,
@@ -48,7 +50,8 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
     private socketService: SocketService,
     private userService: UserService,
     private reactService: ReactService,
-    private teamService: TeamService
+    private teamService: TeamService,
+    private grantService: GrantService
   ) {}
 
   afterInit(server: Server) {
@@ -169,6 +172,22 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
     try {
     } catch (error) {
       client.emit('errorPacket', error)
+    }
+  }
+
+  // 채널에 있는 모든 멤버 반환
+  @SubscribeMessage(getSocketEvent('GET_CHANNEL_MEMBERS'))
+  @UsePipes(new ValidationPipe())
+  async handleGetChannelMembers(
+    @MessageBody() { channel_uuid }: GetChannelMembersDto,
+    @ConnectedSocket() client: Socket
+  ) {
+    try {
+      const grants = await this.grantService.getGrantInChannel(channel_uuid)
+      client.emit(getSocketEvent('SEND_CHANNEL_MEMBERS'), grants)
+    } catch (error) {
+      client.emit('errorPacket', error)
+      this.logger.log(error)
     }
   }
 }
