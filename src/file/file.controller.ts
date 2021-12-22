@@ -21,6 +21,7 @@ import {
 import { Response } from 'express'
 import { JwtGuard } from 'src/auth/jwt.guard'
 import { multerOption } from 'src/options/multer'
+import { UtilService } from 'src/util/util.service'
 import { FileService } from './file.service'
 
 class FileRequest {
@@ -32,7 +33,7 @@ class FileRequest {
 @ApiTags('File Controller')
 @Controller('file')
 export class FileController {
-  constructor(private fileService: FileService) {}
+  constructor(private fileService: FileService, private utilService: UtilService) {}
 
   @UseGuards(JwtGuard)
   @Post('upload')
@@ -52,7 +53,7 @@ export class FileController {
     if (!this.fileService.validateExtImage(file.mimetype, file.originalname))
       throw new HttpException('이미지 확장자만 가능', HttpStatus.BAD_REQUEST)
     return res.status(HttpStatus.OK).send({
-      uploads: file.filename
+      uploads: this.utilService.getUploadHttpPath(true) + file.filename
     })
   }
 }
