@@ -25,7 +25,8 @@ services:
     volumes:
       - /usr/local/conf.d:/etc/mysql/conf.d
       - /usr/local/data:/var/lib/mysql
-      - /usr/local/initdb.d:/docker-entrypoint-initdb.d
+      - /usr/src/app/init.sql:/docker-entrypoint-initdb.d/init.sql
+      # - /usr/local/initdb.d:/docker-entrypoint-initdb.d
     networks:
       - backend
 
