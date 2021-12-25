@@ -25,6 +25,8 @@ import { ReactionItem } from './entities/reaction_item'
 import { ReactModule } from './react/react.module'
 import { AlertModule } from './alert/alert.module'
 import { Alert } from './entities/alert'
+import { AnonymousUser } from './entities/anonymous_user'
+import { AnonymousWorkspace } from './entities/anonymous_workspace'
 
 const isProd = process.env.NODE_ENV === 'production'
 
@@ -52,7 +54,9 @@ const isProd = process.env.NODE_ENV === 'production'
         TeamUserProfile,
         Reaction,
         ReactionItem,
-        Alert
+        Alert,
+        AnonymousUser,
+        AnonymousWorkspace
       ],
       dropSchema: false
     }),

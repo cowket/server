@@ -10,6 +10,8 @@ import {
   PrimaryColumn,
   UpdateDateColumn
 } from 'typeorm'
+import { AnonymousUser } from './anonymous_user'
+import { AnonymousWorkspace } from './anonymous_workspace'
 import { Channel } from './channel'
 import { Reaction } from './reaction'
 import { Team } from './team'
@@ -23,7 +25,7 @@ export class Message {
   uuid: string
 
   @ApiProperty({ description: '팀 정보' })
-  @ManyToOne(() => Team)
+  @ManyToOne(() => Team, { nullable: true })
   @JoinColumn({ name: 'team', referencedColumnName: 'uuid' })
   team: Team
 
@@ -71,7 +73,7 @@ export class Message {
   @Column('longtext', { nullable: false })
   content: string
 
-  @ApiProperty({ description: '메세지 타입 "user | system"', default: 'user' })
+  @ApiProperty({ description: '메세지 타입 "user | system | anonymous"', default: 'user' })
   @Column('varchar', { nullable: true, default: 'user' })
   type: MessageType
 
@@ -81,4 +83,12 @@ export class Message {
   })
   @JoinColumn({ name: 'reactions' })
   reactions: Reaction[]
+
+  @ManyToOne(() => AnonymousWorkspace, { nullable: true, eager: false })
+  @JoinColumn({ name: 'anonymous_workspace', referencedColumnName: 'uuid' })
+  anonymous_workspace?: AnonymousWorkspace
+
+  @ManyToOne(() => AnonymousUser, { nullable: true, eager: false })
+  @JoinColumn({ name: 'anonymous_user', referencedColumnName: 'uuid' })
+  anonymous_user?: AnonymousUser
 }

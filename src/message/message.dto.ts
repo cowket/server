@@ -22,7 +22,7 @@ export class RequestDirectMessageDto {
 }
 
 export type SystemMessageType = 'enter' | 'public' | 'enter:private'
-export type MessageType = 'user' | 'system'
+export type MessageType = 'user' | 'system' | 'anonymous'
 
 export class GetMessageQuery {
   @IsString()
