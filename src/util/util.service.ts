@@ -46,4 +46,8 @@ export class UtilService {
       throw new Error(error)
     }
   }
+
+  isIncludeMention(message: string) {
+    return /(<\/?mention([^>]+)*>)/gim.test(message)
+  }
 }
