@@ -15,4 +15,7 @@ export class AnonymousWorkspace {
 
   @Column('varchar', { name: 'shortly_id', primary: true, nullable: false, length: 50 })
   shortly_id: string
+
+  @Column('varchar', { name: 'workspace_name' })
+  workspace_name: string
 }
