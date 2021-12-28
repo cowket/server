@@ -27,6 +27,7 @@ import { AlertModule } from './alert/alert.module'
 import { Alert } from './entities/alert'
 import { AnonymousUser } from './entities/anonymous_user'
 import { AnonymousWorkspace } from './entities/anonymous_workspace'
+import { AnonymousModule } from './anonymous/anonymous.module'
 
 const isProd = process.env.NODE_ENV === 'production'
 
@@ -85,7 +86,8 @@ const isProd = process.env.NODE_ENV === 'production'
     GrantModule,
     ScheduleModule.forRoot(),
     ReactModule,
-    AlertModule
+    AlertModule,
+    AnonymousModule
   ],
   providers: [JwtModule],
   exports: [JwtModule]
