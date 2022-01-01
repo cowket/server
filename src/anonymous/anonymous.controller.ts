@@ -27,14 +27,14 @@ export class AnonymousController {
   // 단일 워크스페이스 조회
   @Get('workspace/:uuid')
   @UsePipes(new ValidationPipe({ transform: true }))
-  getSingleWorkspaceCtrl(@Param('uuid') _uuid: string) {
-    return ''
+  getSingleWorkspaceCtrl(@Param('uuid') uuid: string) {
+    return this.anonService.getWorkspace(uuid)
   }
 
   // 단일 워크스페이스 삭제
   @Delete('workspace/:uuid')
   @UsePipes(new ValidationPipe({ transform: true }))
-  deleteSingleWorkspaceCtrl(@Param('uuid') _uuid: string) {
-    return ''
+  deleteSingleWorkspaceCtrl(@Param('uuid') uuid: string) {
+    return this.anonService.deleteWorkspace(uuid)
   }
 }

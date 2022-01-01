@@ -22,6 +22,11 @@ export class AnonymousService {
     return this.workspaceRepo.findOne({ where: { uuid } })
   }
 
+  // 워크스페이스를 삭제한다.
+  deleteWorkspace(uuid: string) {
+    return this.workspaceRepo.delete({ uuid })
+  }
+
   // 워크스페이스를 생성한다.
   async createWorkspace(_createWorkSpaceDto: CreateWorkspaceDto) {
     const uuid = this.utilService.genUuid()
