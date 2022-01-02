@@ -26,6 +26,7 @@ export type MessageType = 'user' | 'system' | 'anonymous'
 
 export class GetMessageQuery {
   @IsString()
+  @IsOptional()
   channel_uuid: string
 
   @IsNumber()

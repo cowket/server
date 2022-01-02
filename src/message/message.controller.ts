@@ -14,7 +14,7 @@ import { Message } from 'src/entities/message'
 import { GetMessageQuery } from './message.dto'
 import { MessageService } from './message.service'
 
-// @UseGuards(JwtGuard)
+@UseGuards(JwtGuard)
 @ApiBearerAuth('access-token')
 @ApiTags('Message Controller')
 @Controller('message')
