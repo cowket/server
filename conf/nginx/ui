@@ -1,0 +1,27 @@
+server {
+      listen 443 ssl;
+      server_name cowket.malrang.dev;
+      root /var/nginx/cowket;
+      gzip on;
+      gzip_types text/css application/javascript application/json image/svg+xml;
+      gzip_comp_level 9;
+      etag on;
+
+      access_log /var/log/nginx/cowket.malrang.dev/access.log;
+      error_log /var/log/nginx/cowket.malrang.dev/error.log;
+
+      ssl_certificate /etc/letsencrypt/live/malrang.dev/fullchain.pem;
+      ssl_certificate_key /etc/letsencrypt/live/malrang.dev/privkey.pem;
+
+      location / {
+            try_files $uri $uri/ /index.html;
+      }
+
+      location /static/ {
+            add_header Cache-Control max-age=31536000;
+      }
+
+      location /index.html {
+            add_header Cache-Control no-cache;
+      }
+}
