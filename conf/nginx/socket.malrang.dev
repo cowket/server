@@ -2,8 +2,8 @@ server {
         listen 443 ssl;
         server_name socket.malrang.dev;
 
-        ssl_certificate /etc/letsencrypt/malrang.dev/fullchain.pem;
-        ssl_certificate_key /etc/letsencrypt/malrang.dev/privkey.pem;
+        ssl_certificate /etc/letsencrypt/live/malrang.dev/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/malrang.dev/privkey.pem;
 
         location / {
                 proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
