@@ -1,3 +1,4 @@
+ALTER DATABASE cowket DEFAULT CHARACTER SET = utf8;
 ALTER TABLE cowket.alert_event AUTO_INCREMENT=1;
 INSERT INTO cowket.alert_event (name)
 SELECT 'message' FROM DUAL
