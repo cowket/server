@@ -221,33 +221,6 @@ export class MessageService {
       .execute()
   }
 
-  async removeUnstableMessages() {
-    return this.messageRepo
-      .createQueryBuilder('m')
-      .leftJoin('m.channel', 'channel')
-      .leftJoin('m.sender', 'sender')
-      .leftJoin('m.team', 'team')
-      .delete()
-      .where('team.uuid IS NULL')
-      .andWhere('channel.uuid IS NULL')
-      .andWhere('sender.uuid IS NULL')
-      .andWhere('type = "user"')
-      .execute()
-  }
-
-  async removeUnstableDirectMessages() {
-    return this.messageRepo
-      .createQueryBuilder('dm')
-      .leftJoin('dm.sender', 'sender')
-      .leftJoin('dm.receiver', 'receiver')
-      .leftJoin('dm.team', 'team')
-      .delete()
-      .where('sender.uuid IS NULL')
-      .andWhere('receiver.uuid IS NULL')
-      .andWhere('team.uuid IS NULL')
-      .execute()
-  }
-
   async getMessageByUuid(uuid: string) {
     return this.messageRepo
       .createQueryBuilder('message')
