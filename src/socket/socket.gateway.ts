@@ -170,6 +170,8 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
     @ConnectedSocket() client: Socket
   ) {
     try {
+      const updatedMessage = await this.messageService.updateMessage(data)
+      client.emit(getSocketEvent('UPDATED_MESSAGE'), updatedMessage)
     } catch (error) {
       client.emit('errorPacket', error)
     }
